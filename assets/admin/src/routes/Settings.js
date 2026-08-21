@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import { api } from '../api/client';
+import PaymentMethodFields from '../components/PaymentMethodFields';
 
 function Field( { label, hint, children } ) {
 	return (
@@ -110,13 +111,6 @@ export default function Settings() {
 
 	const set = ( key, value ) => setSettings( { ...settings, [ key ]: value } );
 
-	const toggleMethod = ( id ) => {
-		const methods = settings.payment_methods.includes( id )
-			? settings.payment_methods.filter( ( m ) => m !== id )
-			: [ ...settings.payment_methods, id ];
-		set( 'payment_methods', methods );
-	};
-
 	const save = () => {
 		setError( '' );
 		api.put( '/settings', settings )
@@ -159,58 +153,7 @@ export default function Settings() {
 
 			<div className="ybs-card">
 				<h3>{ __( 'Payment Methods', 'yacht-booking-system' ) }</h3>
-
-				<label style={ { display: 'block', marginBottom: 10 } }>
-					<input type="checkbox" checked={ settings.payment_methods.includes( 'offline' ) } onChange={ () => toggleMethod( 'offline' ) } />{ ' ' }
-					{ __( 'Offline / Manual Payment', 'yacht-booking-system' ) }
-				</label>
-
-				<label style={ { display: 'block', marginBottom: 10 } }>
-					<input type="checkbox" checked={ settings.payment_methods.includes( 'paypal' ) } onChange={ () => toggleMethod( 'paypal' ) } />{ ' ' }
-					{ __( 'PayPal', 'yacht-booking-system' ) }
-				</label>
-				{ settings.payment_methods.includes( 'paypal' ) && (
-					<div className="ybs-field-row" style={ { marginLeft: 24 } }>
-						<Field label={ __( 'PayPal Email', 'yacht-booking-system' ) }>
-							<input type="text" value={ settings.paypal_email } onChange={ ( e ) => set( 'paypal_email', e.target.value ) } />
-						</Field>
-						<Field label={ __( 'Mode', 'yacht-booking-system' ) }>
-							<select value={ settings.paypal_mode } onChange={ ( e ) => set( 'paypal_mode', e.target.value ) }>
-								<option value="sandbox">{ __( 'Sandbox', 'yacht-booking-system' ) }</option>
-								<option value="live">{ __( 'Live', 'yacht-booking-system' ) }</option>
-							</select>
-						</Field>
-					</div>
-				) }
-
-				<label style={ { display: 'block', margin: '10px 0' } }>
-					<input type="checkbox" checked={ settings.payment_methods.includes( 'stripe' ) } onChange={ () => toggleMethod( 'stripe' ) } />{ ' ' }
-					{ __( 'Stripe', 'yacht-booking-system' ) }
-				</label>
-				{ settings.payment_methods.includes( 'stripe' ) && (
-					<div className="ybs-field-row" style={ { marginLeft: 24 } }>
-						<Field label={ __( 'Publishable Key', 'yacht-booking-system' ) }>
-							<input type="text" value={ settings.stripe_publishable_key } onChange={ ( e ) => set( 'stripe_publishable_key', e.target.value ) } />
-						</Field>
-						<Field label={ __( 'Secret Key', 'yacht-booking-system' ) } hint={ settings.stripe_secret_key_set ? __( 'A key is already saved. Leave blank to keep it.', 'yacht-booking-system' ) : '' }>
-							<input type="password" value={ settings.stripe_secret_key || '' } onChange={ ( e ) => set( 'stripe_secret_key', e.target.value ) } />
-						</Field>
-						<Field label={ __( 'Webhook Secret', 'yacht-booking-system' ) } hint={ settings.stripe_webhook_secret_set ? __( 'A secret is already saved. Leave blank to keep it.', 'yacht-booking-system' ) : '' }>
-							<input type="password" value={ settings.stripe_webhook_secret || '' } onChange={ ( e ) => set( 'stripe_webhook_secret', e.target.value ) } />
-						</Field>
-					</div>
-				) }
-
-				<label style={ { display: 'block', margin: '10px 0' } }>
-					<input type="checkbox" checked={ !! settings.woocommerce_enabled } onChange={ () => set( 'woocommerce_enabled', ! settings.woocommerce_enabled ) } />{ ' ' }
-					{ __( 'WooCommerce Checkout (requires WooCommerce active)', 'yacht-booking-system' ) }
-				</label>
-
-				<Field label={ __( 'Default Payment Method', 'yacht-booking-system' ) }>
-					<select value={ settings.default_payment_method } onChange={ ( e ) => set( 'default_payment_method', e.target.value ) }>
-						{ settings.payment_methods.map( ( m ) => <option key={ m } value={ m }>{ m }</option> ) }
-					</select>
-				</Field>
+				<PaymentMethodFields settings={ settings } onSettingsChange={ setSettings } />
 			</div>
 
 			<PricingRules />

@@ -35,4 +35,8 @@ abstract class Controller {
 	public static function can_manage_settings() {
 		return self::require_capability( 'settings' );
 	}
+
+	public static function can_manage_payments() {
+		return self::require_capability( 'payments' );
+	}
 }

@@ -253,6 +253,7 @@ class YachtsController extends Controller {
 				'post_title'   => sanitize_text_field( $data['title'] ?? __( 'Untitled Yacht', 'yacht-booking-system' ) ),
 				'post_content' => wp_kses_post( $data['description'] ?? '' ),
 				'post_status'  => sanitize_key( $data['status'] ?? 'draft' ),
+				'post_name'    => ! empty( $data['slug'] ) ? sanitize_title( $data['slug'] ) : '',
 			),
 			true
 		);
@@ -288,6 +289,10 @@ class YachtsController extends Controller {
 
 		if ( isset( $data['status'] ) ) {
 			$update['post_status'] = sanitize_key( $data['status'] );
+		}
+
+		if ( ! empty( $data['slug'] ) ) {
+			$update['post_name'] = sanitize_title( $data['slug'] );
 		}
 
 		if ( count( $update ) > 1 ) {
@@ -401,6 +406,8 @@ class YachtsController extends Controller {
 			),
 			'from_price' => self::from_price( $post->ID ),
 			'status'     => $post->post_status,
+			'slug'       => $post->post_name,
+			'permalink'  => get_permalink( $post ),
 		);
 	}
 

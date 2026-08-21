@@ -11,6 +11,8 @@ import FaqEditor from '../components/FaqEditor';
 import MediaPicker from '../components/MediaPicker';
 import GalleryPicker from '../components/GalleryPicker';
 import TagSelect from '../components/TagSelect';
+import PublishBox from '../components/PublishBox';
+import PaymentSettingsCard from '../components/PaymentSettingsCard';
 
 const STEPS = [
 	{ key: 'basic', label: __( 'Basic Info', 'yacht-booking-system' ) },
@@ -50,6 +52,8 @@ const DEFAULT_FORM = {
 	min_duration: '',
 	max_duration: '',
 	off_days: [],
+	slug: '',
+	permalink: '',
 	daily_start_time: '08:00',
 	daily_end_time: '20:00',
 	halfday_start_time: '08:00',
@@ -187,9 +191,6 @@ export default function YachtWizard( { yachtId } ) {
 				<div>
 					<h2>{ yachtId ? __( 'Edit Yacht', 'yacht-booking-system' ) : __( 'Add New Yacht', 'yacht-booking-system' ) }</h2>
 				</div>
-				<button className="ybs-btn" onClick={ () => save( 'draft' ) } disabled={ saving }>
-					{ __( 'Save Draft', 'yacht-booking-system' ) }
-				</button>
 			</div>
 
 			<nav className="ybs-wizard-steps" aria-label={ __( 'Yacht setup steps', 'yacht-booking-system' ) }>
@@ -207,18 +208,33 @@ export default function YachtWizard( { yachtId } ) {
 				) ) }
 			</nav>
 
-			{ 1 === step && (
-				<StepBasicInfo
-					form={ form }
-					set={ set }
-					taxonomies={ taxonomies }
-					setTaxonomies={ setTaxonomies }
-					errors={ errors }
-				/>
-			) }
-			{ 2 === step && <StepSpecs form={ form } set={ set } /> }
-			{ 3 === step && <StepPricing form={ form } set={ set } /> }
-			{ 4 === step && <StepReview form={ form } /> }
+			<div className="ybs-wizard-grid">
+				<div className="ybs-wizard-grid__main">
+					{ 1 === step && <StepBasicInfo form={ form } set={ set } errors={ errors } /> }
+					{ 2 === step && <StepSpecs form={ form } set={ set } /> }
+					{ 3 === step && <StepPricing form={ form } set={ set } /> }
+					{ 4 === step && <StepReview form={ form } /> }
+				</div>
+
+				<aside className="ybs-wizard-sidebar">
+					<PublishBox
+						status={ form.status }
+						slug={ form.slug }
+						title={ form.title }
+						permalink={ form.permalink }
+						saving={ saving }
+						onSlugChange={ ( value ) => set( 'slug', value ) }
+						onSaveDraft={ () => save( 'draft' ) }
+						onPublish={ () => save( 'publish' ) }
+					/>
+
+					<PaymentSettingsCard />
+
+					{ 1 === step && (
+						<Step1Sidebar form={ form } set={ set } taxonomies={ taxonomies } setTaxonomies={ setTaxonomies } />
+					) }
+				</aside>
+			</div>
 
 			<footer className="ybs-wizard-footer">
 				<button className="ybs-btn" onClick={ () => setStep( ( s ) => Math.max( 1, s - 1 ) ) } disabled={ 1 === step }>
@@ -234,16 +250,12 @@ export default function YachtWizard( { yachtId } ) {
 					) }
 				</span>
 
-				{ step < STEPS.length && (
+				{ step < STEPS.length ? (
 					<button className="ybs-btn is-primary" onClick={ goNext }>
 						{ __( 'Next →', 'yacht-booking-system' ) }
 					</button>
-				) }
-
-				{ STEPS.length === step && (
-					<button className="ybs-btn is-primary" onClick={ () => save( 'publish' ) } disabled={ saving }>
-						{ saving ? __( 'Publishing…', 'yacht-booking-system' ) : __( 'Publish', 'yacht-booking-system' ) }
-					</button>
+				) : (
+					<span />
 				) }
 			</footer>
 		</div>
@@ -254,101 +266,104 @@ function apiFetchTerms( taxonomy ) {
 	return apiFetch( { path: `/wp/v2/${ taxonomy }?per_page=100` } ).catch( () => [] );
 }
 
-function StepBasicInfo( { form, set, taxonomies, setTaxonomies, errors } ) {
+function StepBasicInfo( { form, set, errors } ) {
 	return (
-		<div className="ybs-wizard-grid">
-			<div className="ybs-wizard-grid__main">
-				<Card
-					title={ __( 'Basic Information', 'yacht-booking-system' ) }
-					subtitle={ __( 'The name and story guests see first.', 'yacht-booking-system' ) }
-				>
-					<Field label={ __( 'Yacht Name', 'yacht-booking-system' ) } error={ errors.title }>
-						<input type="text" value={ form.title } onChange={ ( e ) => set( 'title', e.target.value ) } />
+		<>
+			<Card
+				title={ __( 'Basic Information', 'yacht-booking-system' ) }
+				subtitle={ __( 'The name and story guests see first.', 'yacht-booking-system' ) }
+			>
+				<Field label={ __( 'Yacht Name', 'yacht-booking-system' ) } error={ errors.title }>
+					<input type="text" value={ form.title } onChange={ ( e ) => set( 'title', e.target.value ) } />
+				</Field>
+
+				<Field label={ __( 'Description', 'yacht-booking-system' ) }>
+					<ClassicEditor
+						id="ybs_yacht_description"
+						value={ form.description }
+						onChange={ ( html ) => set( 'description', html ) }
+					/>
+				</Field>
+
+				<div className="ybs-field-row">
+					<Field label={ __( 'Build Year', 'yacht-booking-system' ) }>
+						<input type="number" value={ form.build_year } onChange={ ( e ) => set( 'build_year', e.target.value ) } />
 					</Field>
-
-					<Field label={ __( 'Description', 'yacht-booking-system' ) }>
-						<ClassicEditor
-							id="ybs_yacht_description"
-							value={ form.description }
-							onChange={ ( html ) => set( 'description', html ) }
-						/>
+					<Field label={ __( 'Marina / Pier Name', 'yacht-booking-system' ) }>
+						<input type="text" value={ form.location_name } onChange={ ( e ) => set( 'location_name', e.target.value ) } />
 					</Field>
+				</div>
+			</Card>
 
-					<div className="ybs-field-row">
-						<Field label={ __( 'Build Year', 'yacht-booking-system' ) }>
-							<input type="number" value={ form.build_year } onChange={ ( e ) => set( 'build_year', e.target.value ) } />
-						</Field>
-						<Field label={ __( 'Marina / Pier Name', 'yacht-booking-system' ) }>
-							<input type="text" value={ form.location_name } onChange={ ( e ) => set( 'location_name', e.target.value ) } />
-						</Field>
-					</div>
-				</Card>
+			<Card
+				title={ __( 'Departure Point', 'yacht-booking-system' ) }
+				subtitle={ __( 'Search for the marina or pier, or drop the pin manually.', 'yacht-booking-system' ) }
+			>
+				<MapPicker
+					lat={ form.location_lat }
+					lng={ form.location_lng }
+					onChange={ ( lat, lng, label ) => {
+						set( 'location_lat', lat );
+						set( 'location_lng', lng );
 
-				<Card
-					title={ __( 'Departure Point', 'yacht-booking-system' ) }
-					subtitle={ __( 'Search for the marina or pier, or drop the pin manually.', 'yacht-booking-system' ) }
-				>
-					<MapPicker
-						lat={ form.location_lat }
-						lng={ form.location_lng }
-						onChange={ ( lat, lng, label ) => {
-							set( 'location_lat', lat );
-							set( 'location_lng', lng );
+						if ( label ) {
+							set( 'location_name', label );
+						}
+					} }
+				/>
+			</Card>
 
-							if ( label ) {
-								set( 'location_name', label );
-							}
-						} }
-					/>
-				</Card>
+			<Card
+				title={ __( 'Frequently Asked Questions', 'yacht-booking-system' ) }
+				subtitle={ __( 'Shown on the yacht listing page.', 'yacht-booking-system' ) }
+			>
+				<FaqEditor items={ form.faq } onChange={ ( items ) => set( 'faq', items ) } />
+			</Card>
+		</>
+	);
+}
 
-				<Card
-					title={ __( 'Frequently Asked Questions', 'yacht-booking-system' ) }
-					subtitle={ __( 'Shown on the yacht listing page.', 'yacht-booking-system' ) }
-				>
-					<FaqEditor items={ form.faq } onChange={ ( items ) => set( 'faq', items ) } />
-				</Card>
-			</div>
+/** Media/taxonomy cards only make sense while editing Basic Info - shown in the sidebar only on step 1. */
+function Step1Sidebar( { form, set, taxonomies, setTaxonomies } ) {
+	return (
+		<>
+			<Card title={ __( 'Featured Image', 'yacht-booking-system' ) }>
+				<MediaPicker
+					id={ form.featured_media }
+					url={ form.thumbnail }
+					onChange={ ( id, url ) => {
+						set( 'featured_media', id );
+						set( 'thumbnail', url );
+					} }
+				/>
+			</Card>
 
-			<aside className="ybs-wizard-sidebar">
-				<Card title={ __( 'Featured Image', 'yacht-booking-system' ) }>
-					<MediaPicker
-						id={ form.featured_media }
-						url={ form.thumbnail }
-						onChange={ ( id, url ) => {
-							set( 'featured_media', id );
-							set( 'thumbnail', url );
-						} }
-					/>
-				</Card>
+			<Card title={ __( 'Gallery', 'yacht-booking-system' ) } subtitle={ __( 'Shown on the yacht listing page.', 'yacht-booking-system' ) }>
+				<GalleryPicker items={ form.gallery } onChange={ ( items ) => set( 'gallery', items ) } />
+			</Card>
 
-				<Card title={ __( 'Gallery', 'yacht-booking-system' ) } subtitle={ __( 'Shown on the yacht listing page.', 'yacht-booking-system' ) }>
-					<GalleryPicker items={ form.gallery } onChange={ ( items ) => set( 'gallery', items ) } />
-				</Card>
+			<Card title={ __( 'Yacht Class', 'yacht-booking-system' ) }>
+				<TagSelect
+					label={ __( 'Class', 'yacht-booking-system' ) }
+					taxonomy="yacht_class"
+					terms={ taxonomies.classes }
+					selected={ form.yacht_class }
+					onChange={ ( ids ) => set( 'yacht_class', ids ) }
+					onTermsChange={ ( classes ) => setTaxonomies( ( prev ) => ( { ...prev, classes } ) ) }
+				/>
+			</Card>
 
-				<Card title={ __( 'Yacht Class', 'yacht-booking-system' ) }>
-					<TagSelect
-						label={ __( 'Class', 'yacht-booking-system' ) }
-						taxonomy="yacht_class"
-						terms={ taxonomies.classes }
-						selected={ form.yacht_class }
-						onChange={ ( ids ) => set( 'yacht_class', ids ) }
-						onTermsChange={ ( classes ) => setTaxonomies( ( prev ) => ( { ...prev, classes } ) ) }
-					/>
-				</Card>
-
-				<Card title={ __( 'Occasion Tags', 'yacht-booking-system' ) }>
-					<TagSelect
-						label={ __( 'Occasion', 'yacht-booking-system' ) }
-						taxonomy="yacht_occasion"
-						terms={ taxonomies.occasions }
-						selected={ form.yacht_occasion }
-						onChange={ ( ids ) => set( 'yacht_occasion', ids ) }
-						onTermsChange={ ( occasions ) => setTaxonomies( ( prev ) => ( { ...prev, occasions } ) ) }
-					/>
-				</Card>
-			</aside>
-		</div>
+			<Card title={ __( 'Occasion Tags', 'yacht-booking-system' ) }>
+				<TagSelect
+					label={ __( 'Occasion', 'yacht-booking-system' ) }
+					taxonomy="yacht_occasion"
+					terms={ taxonomies.occasions }
+					selected={ form.yacht_occasion }
+					onChange={ ( ids ) => set( 'yacht_occasion', ids ) }
+					onTermsChange={ ( occasions ) => setTaxonomies( ( prev ) => ( { ...prev, occasions } ) ) }
+				/>
+			</Card>
+		</>
 	);
 }
 
