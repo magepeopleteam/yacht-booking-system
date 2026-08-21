@@ -1,0 +1,1095 @@
+/*
+ * Visual system ported from the sibling "easy-shuttle" plugin's admin shell
+ * (admin/assets/css/mpsb-admin-shell.css): dark rail + sticky topbar, the
+ * same color tokens, the same off-canvas mobile behaviour - rebuilt here as
+ * React-rendered markup instead of PHP-printed chrome, since this plugin's
+ * admin is a single-page React app rather than many server-rendered screens.
+ */
+
+body.ybs-shell {
+	--ybs-wpbar: 32px;
+	--ybs-rail: 236px;
+	--ybs-topbar: 56px;
+	--ybs-primary: #f97316;
+	--ybs-primary-dark: #ea580c;
+	--ybs-primary-soft: #fff4ec;
+	--ybs-ink: #1e293b;
+	--ybs-ink-soft: #64748b;
+	--ybs-ink-faded: #94a3b8;
+	--ybs-border: #e2e8f0;
+	--ybs-bg: #f8fafc;
+	--ybs-surface: #fff;
+	--ybs-rail-bg: #181c2b;
+	--ybs-rail-ink: #9aa3b8;
+	--ybs-radius: 8px;
+	--ybs-radius-pill: 16px;
+	--ybs-danger: #dc2626;
+	--ybs-success: #16a34a;
+	--ybs-warning: #d97706;
+}
+
+body.ybs-shell #adminmenumain,
+body.ybs-shell #adminmenuback,
+body.ybs-shell #adminmenuwrap,
+body.ybs-shell #wpfooter,
+body.ybs-shell #screen-meta,
+body.ybs-shell #screen-meta-links,
+body.ybs-shell .notice,
+body.ybs-shell #wpbody-content > h1 {
+	display: none !important;
+}
+
+body.ybs-shell #wpwrap {
+	background: var( --ybs-bg );
+}
+
+body.ybs-shell #wpcontent {
+	margin-left: var( --ybs-rail );
+	padding-left: 0;
+}
+
+body.ybs-shell #wpbody-content {
+	box-sizing: border-box;
+	padding: 0;
+}
+
+body.ybs-shell #wpbody-content > .wrap {
+	margin: 0;
+}
+
+.ybs-shell,
+.ybs-shell *,
+.ybs-shell *::before,
+.ybs-shell *::after {
+	box-sizing: border-box;
+}
+
+.ybs-shell {
+	font-size: 13.5px;
+	line-height: 1.5;
+	color: var( --ybs-ink );
+	-webkit-font-smoothing: antialiased;
+}
+
+.ybs-shell-rail {
+	position: fixed;
+	top: var( --ybs-wpbar );
+	left: 0;
+	bottom: 0;
+	z-index: 9990;
+	width: var( --ybs-rail );
+	display: flex;
+	flex-direction: column;
+	background: var( --ybs-rail-bg );
+	color: var( --ybs-rail-ink );
+}
+
+.ybs-shell-rail__top {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 18px 18px 14px;
+}
+
+.ybs-shell-rail__mark {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 30px;
+	width: 30px;
+	height: 30px;
+	border-radius: 8px;
+	background: var( --ybs-primary );
+	color: #fff;
+}
+
+.ybs-shell-rail__brand-text {
+	font-size: 15px;
+	font-weight: 600;
+	color: #fff;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.ybs-shell-rail__menu {
+	flex: 1;
+	margin: 6px 0 0;
+	padding: 0 10px;
+	list-style: none;
+	overflow-y: auto;
+}
+
+.ybs-shell-rail__menu > li {
+	margin: 0 0 2px;
+}
+
+.ybs-shell-rail__menu > li > a {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 9px 10px;
+	border-radius: var( --ybs-radius );
+	color: var( --ybs-rail-ink );
+	font-size: 13.5px;
+	font-weight: 500;
+	text-decoration: none;
+	transition: background .15s ease, color .15s ease;
+}
+
+.ybs-shell-rail__menu > li > a:hover {
+	background: rgba( 255, 255, 255, .06 );
+	color: #fff;
+}
+
+.ybs-shell-rail__menu > li > a .dashicons {
+	flex: 0 0 17px;
+	font-size: 17px;
+	width: 17px;
+	height: 17px;
+	opacity: .85;
+}
+
+.ybs-shell-rail__menu > li.is-active > a {
+	background: var( --ybs-primary );
+	color: #fff;
+}
+
+.ybs-shell-rail__menu > li.is-active > a .dashicons {
+	opacity: 1;
+}
+
+.ybs-shell-rail__back {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	margin: 10px 10px 16px;
+	padding: 11px 14px;
+	border: 1px solid rgba( 249, 115, 22, .45 );
+	border-radius: var( --ybs-radius );
+	background: rgba( 249, 115, 22, .14 );
+	color: #fff;
+	font-size: 12.5px;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.ybs-shell-rail__back:hover {
+	background: var( --ybs-primary );
+	color: #fff;
+}
+
+.ybs-shell-main {
+	margin-left: 0;
+}
+
+.ybs-shell-topbar {
+	position: sticky;
+	top: var( --ybs-wpbar );
+	z-index: 9980;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: var( --ybs-topbar );
+	padding: 9px 24px;
+	background: var( --ybs-surface );
+	border-bottom: 1px solid var( --ybs-border );
+}
+
+.ybs-shell__brand-mini {
+	color: var( --ybs-ink-soft );
+	font-size: 12.5px;
+	font-weight: 600;
+	letter-spacing: .02em;
+	text-transform: uppercase;
+}
+
+.ybs-shell__burger {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: var( --ybs-ink-soft );
+	cursor: pointer;
+}
+
+.ybs-shell__content {
+	padding: 24px;
+	width: 100%;
+}
+
+.ybs-shell-scrim {
+	position: fixed;
+	inset: var( --ybs-wpbar ) 0 0 0;
+	z-index: 9985;
+	background: rgba( 15, 23, 42, .45 );
+}
+
+.ybs-shell-scrim[hidden] {
+	display: none;
+}
+
+@media screen and ( max-width: 960px ) {
+	body.ybs-shell #wpcontent {
+		margin-left: 0;
+	}
+
+	.ybs-shell-rail {
+		transform: translateX( -100% );
+		transition: transform .2s ease;
+	}
+
+	.ybs-shell-rail.is-open {
+		transform: none;
+		box-shadow: 0 18px 50px rgba( 15, 23, 42, .35 );
+	}
+
+	.ybs-shell__burger {
+		display: inline-flex;
+	}
+}
+
+/* --------------------------------------------------------- Page structure */
+
+.ybs-page-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 20px;
+}
+
+.ybs-page-header h2 {
+	margin: 0;
+	font-size: 22px;
+	font-weight: 600;
+	color: var( --ybs-ink );
+}
+
+.ybs-page-header p {
+	margin: 4px 0 0;
+	color: var( --ybs-ink-soft );
+	font-size: 13px;
+}
+
+/* -------------------------------------------------------------- Buttons */
+
+.ybs-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 16px;
+	border: 1px solid var( --ybs-border );
+	border-radius: var( --ybs-radius-pill );
+	background: #fff;
+	color: var( --ybs-ink );
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	text-decoration: none;
+	line-height: 1.4;
+}
+
+.ybs-btn:hover {
+	background: var( --ybs-bg );
+}
+
+.ybs-btn.is-primary {
+	background: var( --ybs-primary );
+	border-color: var( --ybs-primary );
+	color: #fff;
+}
+
+.ybs-btn.is-primary:hover {
+	background: var( --ybs-primary-dark );
+}
+
+.ybs-btn.is-danger {
+	color: var( --ybs-danger );
+	border-color: rgba( 220, 38, 38, .3 );
+}
+
+.ybs-btn:disabled {
+	opacity: .55;
+	cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------- Cards */
+
+.ybs-card {
+	background: var( --ybs-surface );
+	border: 1px solid var( --ybs-border );
+	border-radius: 12px;
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+.ybs-stat-grid {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 200px, 1fr ) );
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+.ybs-stat-card {
+	background: var( --ybs-surface );
+	border: 1px solid var( --ybs-border );
+	border-radius: 12px;
+	padding: 18px 20px;
+}
+
+.ybs-stat-card__label {
+	color: var( --ybs-ink-soft );
+	font-size: 12.5px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .03em;
+}
+
+.ybs-stat-card__value {
+	margin-top: 8px;
+	font-size: 28px;
+	font-weight: 700;
+	color: var( --ybs-ink );
+}
+
+/* --------------------------------------------------------------- Tables */
+
+.ybs-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: var( --ybs-surface );
+	border: 1px solid var( --ybs-border );
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+.ybs-table th,
+.ybs-table td {
+	padding: 12px 16px;
+	text-align: left;
+	border-bottom: 1px solid var( --ybs-border );
+	font-size: 13px;
+}
+
+.ybs-table th {
+	background: var( --ybs-bg );
+	color: var( --ybs-ink-soft );
+	font-weight: 600;
+	text-transform: uppercase;
+	font-size: 11px;
+	letter-spacing: .04em;
+}
+
+.ybs-table tr:last-child td {
+	border-bottom: 0;
+}
+
+.ybs-table tbody tr:hover {
+	background: var( --ybs-bg );
+}
+
+/* ---------------------------------------------------------------- Badges */
+
+.ybs-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 10px;
+	border-radius: 20px;
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .03em;
+	background: var( --ybs-bg );
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-badge.status-pending { background: #fef3c7; color: #92400e; }
+.ybs-badge.status-confirmed { background: #dbeafe; color: #1e40af; }
+.ybs-badge.status-paid { background: #dcfce7; color: #166534; }
+.ybs-badge.status-completed { background: #e0e7ff; color: #3730a3; }
+.ybs-badge.status-cancelled { background: #fee2e2; color: #991b1b; }
+.ybs-badge.status-no_show { background: #f3e8ff; color: #6b21a8; }
+
+/* ----------------------------------------------------------------- Forms */
+
+.ybs-field {
+	margin-bottom: 16px;
+}
+
+.ybs-field label {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var( --ybs-ink );
+}
+
+.ybs-field input[type="text"],
+.ybs-field input[type="number"],
+.ybs-field input[type="email"],
+.ybs-field input[type="date"],
+.ybs-field input[type="time"],
+.ybs-field input[type="datetime-local"],
+.ybs-field select,
+.ybs-field textarea {
+	width: 100%;
+	padding: 9px 12px;
+	border: 1px solid var( --ybs-border );
+	border-radius: var( --ybs-radius );
+	font-size: 13px;
+	background: #fff;
+}
+
+.ybs-field input:focus,
+.ybs-field select:focus,
+.ybs-field textarea:focus {
+	outline: none;
+	border-color: var( --ybs-primary );
+	box-shadow: 0 0 0 3px rgba( 249, 115, 22, .16 );
+}
+
+.ybs-field-row {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 200px, 1fr ) );
+	gap: 16px;
+}
+
+.ybs-hint {
+	margin-top: 4px;
+	font-size: 12px;
+	color: var( --ybs-ink-faded );
+}
+
+.ybs-notice {
+	padding: 12px 16px;
+	border-radius: var( --ybs-radius );
+	margin-bottom: 16px;
+	font-size: 13px;
+}
+
+.ybs-notice.is-error { background: #fee2e2; color: #991b1b; }
+.ybs-notice.is-success { background: #dcfce7; color: #166534; }
+.ybs-notice.is-info { background: var( --ybs-primary-soft ); color: var( --ybs-primary-dark ); }
+
+/* --------------------------------------------------------------- Wizard */
+
+/*
+ * Ported from the sibling "mage-eventpress" plugin's event-edit wizard
+ * (admin/MPWEM_Event_Edit_Page.php + assets/admin/mpwem_event_edit.css):
+ * a horizontal numbered-circle stepper with connecting lines, card sections
+ * in a two-column grid, and a fixed bottom footer with Back/Next either
+ * side of a "Step X of Y" progress label - same shape, our orange accent.
+ */
+
+.ybs-wizard {
+	padding-bottom: 84px; /* room for the fixed footer */
+}
+
+.ybs-wizard-steps {
+	display: flex;
+	justify-content: center;
+	gap: 0;
+	margin: 0 0 28px;
+	padding: 4px 0 20px;
+}
+
+.ybs-wizard-steps__step {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	flex: 1;
+	max-width: 220px;
+	position: relative;
+	font-size: 13px;
+	font-weight: 600;
+	color: var( --ybs-ink-faded );
+	background: none;
+	border: 0;
+	cursor: default;
+}
+
+.ybs-wizard-steps__step::before {
+	content: attr( data-step );
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	background: var( --ybs-border );
+	color: var( --ybs-ink-soft );
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.ybs-wizard-steps__step:not(:last-child)::after {
+	content: '';
+	position: absolute;
+	top: 17px;
+	left: calc( 50% + 30px );
+	right: calc( -50% + 30px );
+	height: 2px;
+	background: var( --ybs-border );
+	z-index: 0;
+}
+
+.ybs-wizard-steps__step.is-active,
+.ybs-wizard-steps__step.is-done {
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-wizard-steps__step.is-active::before,
+.ybs-wizard-steps__step.is-done::before {
+	background: var( --ybs-primary );
+	color: #fff;
+}
+
+.ybs-wizard-steps__step.is-done:not(:last-child)::after {
+	background: var( --ybs-primary );
+}
+
+@media screen and ( max-width: 767px ) {
+	.ybs-wizard-steps {
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.ybs-wizard-steps__step {
+		flex-direction: row;
+		max-width: none;
+		width: 100%;
+		padding: 8px 12px;
+		background: var( --ybs-bg );
+		border: 1px solid var( --ybs-border );
+		border-radius: 10px;
+	}
+
+	.ybs-wizard-steps__step::after {
+		display: none;
+	}
+}
+
+/* Card sections, matching the head-strip/body split used throughout the wizard. */
+
+.ybs-wcard {
+	background: var( --ybs-surface );
+	border: 1px solid var( --ybs-border );
+	border-radius: 12px;
+	box-shadow: 0 4px 6px -1px rgba( 0, 0, 0, .1 ), 0 2px 4px -1px rgba( 0, 0, 0, .06 );
+	margin-bottom: 20px;
+	/*
+	 * No `overflow: hidden` here - it used to clip the TagSelect/MapPicker
+	 * dropdowns that pop out below the card. The rounded top corners are
+	 * handled on the head strip itself instead (below).
+	 */
+}
+
+.ybs-wcard__head {
+	padding: 16px 18px;
+	background: var( --ybs-primary-soft );
+	border-bottom: 1px solid var( --ybs-border );
+	border-radius: 12px 12px 0 0;
+}
+
+.ybs-wcard__head h3 {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 700;
+	color: var( --ybs-ink );
+}
+
+.ybs-wcard__head p {
+	margin: 4px 0 0;
+	font-size: 12.5px;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-wcard__body {
+	padding: 18px;
+}
+
+/* Main content + sidebar, same breakpoints as the eventpress wizard grid. */
+
+.ybs-wizard-grid {
+	display: grid;
+	grid-template-columns: minmax( 0, 1fr );
+	gap: 20px;
+	align-items: start;
+}
+
+@media screen and ( min-width: 960px ) {
+	.ybs-wizard-grid {
+		grid-template-columns: minmax( 0, 1fr ) 320px;
+	}
+}
+
+@media screen and ( min-width: 1200px ) {
+	.ybs-wizard-grid {
+		grid-template-columns: minmax( 0, 1fr ) 380px;
+	}
+}
+
+.ybs-wizard-sidebar > .ybs-wcard:last-child {
+	margin-bottom: 0;
+}
+
+/* Fixed footer: Back — "Step X of Y" — Next/Publish, always reachable. */
+
+.ybs-wizard-footer {
+	position: fixed;
+	left: var( --ybs-rail );
+	right: 0;
+	bottom: 0;
+	z-index: 9970;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 14px 24px;
+	background: var( --ybs-surface );
+	border-top: 1px solid var( --ybs-border );
+	box-shadow: 0 -2px 10px rgba( 0, 0, 0, .05 );
+}
+
+.ybs-wizard-footer__progress {
+	font-size: 13px;
+	font-weight: 600;
+	color: var( --ybs-ink-faded );
+}
+
+@media screen and ( max-width: 960px ) {
+	.ybs-wizard-footer {
+		left: 0;
+	}
+}
+
+/* Inline field validation - a red highlight, not a blocking alert. */
+
+.ybs-field.has-error input,
+.ybs-field.has-error select,
+.ybs-field.has-error textarea {
+	border-color: var( --ybs-danger );
+	background: #fef2f2;
+	box-shadow: 0 0 0 3px rgba( 220, 38, 38, .12 );
+}
+
+.ybs-field__error {
+	margin-top: 4px;
+	font-size: 12px;
+	color: var( --ybs-danger );
+	font-weight: 600;
+}
+
+/* Toasts - brief, corner-anchored, auto-dismissing save feedback. */
+
+.ybs-toasts {
+	position: fixed;
+	right: 24px;
+	bottom: 24px;
+	z-index: 100000;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.ybs-toast {
+	min-width: 240px;
+	max-width: 360px;
+	padding: 12px 16px;
+	border-radius: 10px;
+	background: var( --ybs-ink );
+	color: #fff;
+	font-size: 13px;
+	font-weight: 500;
+	box-shadow: 0 10px 25px rgba( 0, 0, 0, .2 );
+}
+
+.ybs-toast.is-success { background: #166534; }
+.ybs-toast.is-error { background: var( --ybs-danger ); }
+
+.ybs-repeatable-row {
+	display: flex;
+	gap: 10px;
+	align-items: flex-start;
+	margin-bottom: 10px;
+}
+
+.ybs-repeatable-row > * {
+	flex: 1;
+}
+
+.ybs-empty-state {
+	text-align: center;
+	padding: 48px 24px;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-loading {
+	padding: 24px;
+	color: var( --ybs-ink-soft );
+	text-align: center;
+}
+
+/* ----------------------------------------------------------- Media pickers */
+
+.ybs-media-picker__preview,
+.ybs-media-picker__empty {
+	width: 100%;
+	aspect-ratio: 16 / 10;
+	border-radius: var( --ybs-radius );
+	overflow: hidden;
+	margin-bottom: 10px;
+	background: var( --ybs-bg );
+	border: 1px solid var( --ybs-border );
+}
+
+.ybs-media-picker__preview img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.ybs-media-picker__empty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var( --ybs-ink-faded );
+}
+
+.ybs-media-picker__empty .dashicons {
+	font-size: 36px;
+	width: 36px;
+	height: 36px;
+}
+
+.ybs-media-picker__actions {
+	display: flex;
+	gap: 8px;
+}
+
+.ybs-gallery-picker__grid {
+	display: grid;
+	grid-template-columns: repeat( 3, 1fr );
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.ybs-gallery-picker__item {
+	position: relative;
+	aspect-ratio: 1;
+	border-radius: 8px;
+	overflow: hidden;
+	border: 1px solid var( --ybs-border );
+}
+
+.ybs-gallery-picker__item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.ybs-gallery-picker__item button {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: rgba( 15, 23, 42, .65 );
+	color: #fff;
+	cursor: pointer;
+}
+
+.ybs-gallery-picker__item button .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+/* -------------------------------------------------------------- Map search */
+
+.ybs-map-search {
+	position: relative;
+	margin-bottom: 8px;
+}
+
+.ybs-map-search input {
+	width: 100%;
+	padding: 9px 36px 9px 12px;
+	border: 1px solid var( --ybs-border );
+	border-radius: var( --ybs-radius );
+	font-size: 13px;
+}
+
+.ybs-map-search input:focus {
+	outline: none;
+	border-color: var( --ybs-primary );
+	box-shadow: 0 0 0 3px rgba( 249, 115, 22, .16 );
+}
+
+.ybs-map-search__spinner {
+	position: absolute;
+	top: 50%;
+	right: 12px;
+	width: 14px;
+	height: 14px;
+	margin-top: -7px;
+	border: 2px solid var( --ybs-border );
+	border-top-color: var( --ybs-primary );
+	border-radius: 50%;
+	animation: ybs-spin .7s linear infinite;
+}
+
+@keyframes ybs-spin {
+	to {
+		transform: rotate( 360deg );
+	}
+}
+
+.ybs-map-search__results {
+	list-style: none;
+	margin: 0 0 8px;
+	padding: 0;
+	border: 1px solid var( --ybs-border );
+	border-radius: var( --ybs-radius );
+	overflow: hidden;
+	max-height: 180px;
+	overflow-y: auto;
+}
+
+.ybs-map-search__results li button {
+	display: block;
+	width: 100%;
+	padding: 9px 12px;
+	border: 0;
+	background: #fff;
+	text-align: left;
+	font-size: 12.5px;
+	cursor: pointer;
+	border-bottom: 1px solid var( --ybs-border );
+}
+
+.ybs-map-search__results li:last-child button {
+	border-bottom: 0;
+}
+
+.ybs-map-search__results li button:hover {
+	background: var( --ybs-bg );
+}
+
+/* --------------------------------------------------------------- TagSelect */
+
+.ybs-tagselect__pills {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	padding: 8px;
+	border: 1px solid var( --ybs-border );
+	border-radius: var( --ybs-radius );
+	background: #fff;
+}
+
+.ybs-tagselect__pills:focus-within {
+	border-color: var( --ybs-primary );
+	box-shadow: 0 0 0 3px rgba( 249, 115, 22, .16 );
+}
+
+.ybs-tagselect__pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 6px 4px 10px;
+	border-radius: var( --ybs-radius-pill );
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+	font-size: 12.5px;
+	font-weight: 600;
+}
+
+.ybs-tagselect__pill button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	border: 0;
+	border-radius: 50%;
+	background: rgba( 234, 88, 12, .18 );
+	color: var( --ybs-primary-dark );
+	font-size: 13px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.ybs-tagselect__input-wrap {
+	position: relative;
+	flex: 1;
+	min-width: 90px;
+}
+
+.ybs-tagselect__input-wrap input {
+	width: 100%;
+	border: 0;
+	outline: none;
+	font-size: 13px;
+	padding: 4px 2px;
+}
+
+.ybs-tagselect__suggestions {
+	position: absolute;
+	top: calc( 100% + 4px );
+	left: 0;
+	right: 0;
+	z-index: 20;
+	background: #fff;
+	border: 1px solid var( --ybs-border );
+	border-radius: var( --ybs-radius );
+	box-shadow: 0 10px 25px rgba( 0, 0, 0, .12 );
+	max-height: 180px;
+	overflow-y: auto;
+}
+
+.ybs-tagselect__suggestions button {
+	display: block;
+	width: 100%;
+	padding: 8px 12px;
+	border: 0;
+	background: #fff;
+	text-align: left;
+	font-size: 12.5px;
+	cursor: pointer;
+}
+
+.ybs-tagselect__suggestions button:hover {
+	background: var( --ybs-bg );
+}
+
+.ybs-tagselect__no-match {
+	padding: 8px 12px;
+	font-size: 12px;
+	color: var( --ybs-ink-faded );
+}
+
+.ybs-tagselect__add {
+	display: inline-block;
+	margin-top: 8px;
+	border: 0;
+	background: none;
+	color: var( --ybs-primary-dark );
+	font-size: 12.5px;
+	font-weight: 600;
+	cursor: pointer;
+	padding: 0;
+}
+
+.ybs-tagselect__add:hover {
+	text-decoration: underline;
+}
+
+/* ----------------------------------------------------------------- FAQ */
+
+.ybs-faq-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.ybs-faq-item {
+	border: 1px solid var( --ybs-border );
+	border-radius: 12px;
+	background: var( --ybs-bg );
+	overflow: hidden;
+	transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.ybs-faq-item:focus-within {
+	border-color: var( --ybs-primary );
+	box-shadow: 0 0 0 3px rgba( 249, 115, 22, .12 );
+}
+
+.ybs-faq-item__head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 10px 10px 14px;
+	background: var( --ybs-surface );
+	border-bottom: 1px solid var( --ybs-border );
+}
+
+.ybs-faq-item__badge {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 26px;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.ybs-faq-item__question {
+	flex: 1;
+	border: 0;
+	background: none;
+	font-size: 14.5px;
+	font-weight: 600;
+	color: var( --ybs-ink );
+	padding: 6px 4px;
+}
+
+.ybs-faq-item__question:focus {
+	outline: none;
+}
+
+.ybs-faq-item__question::placeholder {
+	font-weight: 500;
+	color: var( --ybs-ink-faded );
+}
+
+.ybs-faq-item__remove {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 30px;
+	width: 30px;
+	height: 30px;
+	border: 0;
+	border-radius: 8px;
+	background: none;
+	color: var( --ybs-ink-faded );
+	cursor: pointer;
+}
+
+.ybs-faq-item__remove:hover {
+	background: #fee2e2;
+	color: var( --ybs-danger );
+}
+
+.ybs-faq-item__body {
+	padding: 12px;
+	background: var( --ybs-surface );
+}
+
+.ybs-faq-item__body .mce-tinymce,
+.ybs-faq-item__body .wp-editor-container {
+	border-radius: 8px;
+	overflow: hidden;
+}
