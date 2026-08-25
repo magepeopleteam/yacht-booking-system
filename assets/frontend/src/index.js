@@ -3,6 +3,7 @@ import { initBookingForms } from './booking-form';
 import { initSearch } from './search';
 import { initMaps, initNewsletter } from './map';
 import { initAvailabilityCalendars } from './availability-calendar';
+import { initGalleries } from './gallery';
 
 function boot() {
 	initBookingForms();
@@ -10,6 +11,7 @@ function boot() {
 	initMaps();
 	initNewsletter();
 	initAvailabilityCalendars();
+	initGalleries();
 }
 
 if ( 'loading' === document.readyState ) {

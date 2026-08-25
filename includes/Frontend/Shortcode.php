@@ -30,7 +30,7 @@ class Shortcode {
 		wp_register_script( 'ybs-leaflet', YBS_PLUGIN_URL . 'assets/frontend/vendor/leaflet/leaflet.js', array(), '1.9.4', true );
 
 		wp_register_script( 'ybs-frontend', YBS_PLUGIN_URL . 'assets/build/frontend.js', array_merge( $asset['dependencies'], array( 'ybs-leaflet' ) ), $asset['version'], true );
-		wp_register_style( 'ybs-frontend', YBS_PLUGIN_URL . 'assets/build/style-frontend.css', array( 'ybs-leaflet' ), $asset['version'] );
+		wp_register_style( 'ybs-frontend', YBS_PLUGIN_URL . 'assets/build/style-frontend.css', array( 'ybs-leaflet', 'dashicons' ), $asset['version'] );
 
 		wp_localize_script(
 			'ybs-frontend',
@@ -47,6 +47,7 @@ class Shortcode {
 					'notAvailable'  => __( 'Not available for the selected time.', 'yacht-booking-system' ),
 					'nearMe'          => __( 'Near me', 'yacht-booking-system' ),
 					'guests'          => __( 'Guests', 'yacht-booking-system' ),
+					'seatsLeft'       => __( 'seats left', 'yacht-booking-system' ),
 					'termsRequired'   => __( 'Please accept the terms and conditions.', 'yacht-booking-system' ),
 					'noResults'       => __( 'No yachts matched your search.', 'yacht-booking-system' ),
 					'searchFailed'    => __( 'Search failed. Please try again.', 'yacht-booking-system' ),
@@ -64,8 +65,9 @@ class Shortcode {
 		wp_enqueue_script( 'ybs-frontend' );
 		wp_enqueue_style( 'ybs-frontend' );
 
-		$yacht_id = (int) $atts['yacht_id'];
-		$yachts   = $yacht_id ? array() : get_posts(
+		$yacht_id  = (int) $atts['yacht_id'];
+		$yacht_mode = $yacht_id ? ( get_post_meta( $yacht_id, 'booking_mode', true ) ?: 'full' ) : '';
+		$yachts    = $yacht_id ? array() : get_posts(
 			array(
 				'post_type'      => Yacht::POST_TYPE,
 				'post_status'    => 'publish',
@@ -73,9 +75,49 @@ class Shortcode {
 			)
 		);
 
+		// mage-eventpress style: when WooCommerce checkout is enabled, the
+		// details page posts straight into the Woo cart through the yacht's
+		// hidden linked product instead of the REST booking endpoint.
+		$wc_product_id = 0;
+
+		if ( $yacht_id && \Ybs\Payments\WooCommerceGateway::is_active() ) {
+			$wc_product_id = (int) \Ybs\Payments\WooCommerceProduct::get_product_id( $yacht_id );
+		}
+
 		ob_start();
-		?>
-		<div class="ybs-booking-form" data-ybs-booking-form data-yacht-id="<?php echo esc_attr( $yacht_id ); ?>">
+
+		if ( $wc_product_id ) :
+			?>
+			<form
+				method="post"
+				action=""
+				enctype="multipart/form-data"
+				class="ybs-booking-form"
+				data-ybs-booking-form
+				data-ybs-wc="1"
+				data-yacht-id="<?php echo esc_attr( $yacht_id ); ?>"
+				<?php echo $yacht_mode ? 'data-ybs-mode="' . esc_attr( $yacht_mode ) . '"' : ''; ?>
+			>
+				<input type="hidden" name="ybs_yacht_id" value="<?php echo esc_attr( $yacht_id ); ?>" />
+				<input type="hidden" name="ybs_booking_type" value="hourly" />
+				<input type="hidden" name="ybs_booking_mode" value="<?php echo esc_attr( 'both' === $yacht_mode ? 'full' : $yacht_mode ); ?>" />
+				<input type="hidden" name="ybs_start_datetime" value="" />
+				<input type="hidden" name="ybs_end_datetime" value="" />
+				<input type="hidden" name="ybs_guest_count" value="1" />
+		<?php else : ?>
+			<div class="ybs-booking-form" data-ybs-booking-form data-yacht-id="<?php echo esc_attr( $yacht_id ); ?>"<?php echo $yacht_mode ? ' data-ybs-mode="' . esc_attr( $yacht_mode ) . '"' : ''; ?>>
+		<?php endif; ?>
+			<?php if ( 'both' === $yacht_mode ) : ?>
+				<div class="ybs-field">
+					<label><?php esc_html_e( 'How do you want to book?', 'yacht-booking-system' ); ?></label>
+					<select class="ybs-bf-mode">
+						<option value="full"><?php esc_html_e( 'Full Charter - whole yacht', 'yacht-booking-system' ); ?></option>
+						<option value="shared"><?php esc_html_e( 'Shared - per seat', 'yacht-booking-system' ); ?></option>
+					</select>
+					<p class="ybs-hint"><?php esc_html_e( 'Once shared seats are booked for a time slot, that slot can only take further shared bookings.', 'yacht-booking-system' ); ?></p>
+				</div>
+			<?php endif; ?>
+
 			<?php if ( ! $yacht_id ) : ?>
 				<div class="ybs-field">
 					<label><?php esc_html_e( 'Yacht', 'yacht-booking-system' ); ?></label>
@@ -124,37 +166,46 @@ class Shortcode {
 
 			<div class="ybs-bf-price ybs-notice is-info" hidden></div>
 
-			<div class="ybs-field-row">
-				<div class="ybs-field">
-					<label><?php esc_html_e( 'Full Name', 'yacht-booking-system' ); ?></label>
-					<input type="text" class="ybs-bf-name" required />
+			<?php if ( ! $wc_product_id ) : ?>
+				<div class="ybs-field-row">
+					<div class="ybs-field">
+						<label><?php esc_html_e( 'Full Name', 'yacht-booking-system' ); ?></label>
+						<input type="text" name="ybs_name" class="ybs-bf-name" required />
+					</div>
+					<div class="ybs-field">
+						<label><?php esc_html_e( 'Email', 'yacht-booking-system' ); ?></label>
+						<input type="email" name="ybs_email" class="ybs-bf-email" required />
+					</div>
+					<div class="ybs-field">
+						<label><?php esc_html_e( 'Phone', 'yacht-booking-system' ); ?></label>
+						<input type="text" name="ybs_phone" class="ybs-bf-phone" required />
+					</div>
 				</div>
-				<div class="ybs-field">
-					<label><?php esc_html_e( 'Email', 'yacht-booking-system' ); ?></label>
-					<input type="email" class="ybs-bf-email" required />
-				</div>
-				<div class="ybs-field">
-					<label><?php esc_html_e( 'Phone', 'yacht-booking-system' ); ?></label>
-					<input type="text" class="ybs-bf-phone" required />
-				</div>
-			</div>
 
-			<div class="ybs-field">
-				<label><?php esc_html_e( 'Payment Method', 'yacht-booking-system' ); ?></label>
-				<select class="ybs-bf-payment"></select>
-			</div>
+				<div class="ybs-field">
+					<label><?php esc_html_e( 'Payment Method', 'yacht-booking-system' ); ?></label>
+					<select class="ybs-bf-payment"></select>
+				</div>
 
-			<div class="ybs-field">
-				<label>
-					<input type="checkbox" class="ybs-bf-terms" required />
-					<?php esc_html_e( 'I accept the terms and conditions.', 'yacht-booking-system' ); ?>
-				</label>
-			</div>
+				<div class="ybs-field">
+					<label>
+						<input type="checkbox" class="ybs-bf-terms" name="ybs_terms" value="1" required />
+						<?php esc_html_e( 'I accept the terms and conditions.', 'yacht-booking-system' ); ?>
+					</label>
+				</div>
+			<?php else : ?>
+				<p class="ybs-hint"><?php esc_html_e( 'Your details will be collected on the checkout page.', 'yacht-booking-system' ); ?></p>
+			<?php endif; ?>
 
 			<div class="ybs-bf-error ybs-notice is-error" hidden></div>
 
-			<button type="button" class="ybs-btn is-primary ybs-bf-submit"><?php esc_html_e( 'Book Now', 'yacht-booking-system' ); ?></button>
-		</div>
+			<?php if ( $wc_product_id ) : ?>
+				<button type="submit" name="add-to-cart" value="<?php echo esc_attr( $wc_product_id ); ?>" class="ybs-btn is-primary ybs-bf-submit"><?php esc_html_e( 'Book Now', 'yacht-booking-system' ); ?></button>
+			</form>
+			<?php else : ?>
+				<button type="button" class="ybs-btn is-primary ybs-bf-submit"><?php esc_html_e( 'Book Now', 'yacht-booking-system' ); ?></button>
+			</div>
+			<?php endif; ?>
 		<?php
 		return ob_get_clean();
 	}
@@ -213,10 +264,13 @@ class Shortcode {
 	}
 
 	/**
-	 * Appends the departure-point map, FAQ, and booking form to a single
-	 * yacht page automatically, so a site does not have to hand-place
-	 * shortcodes on every yacht (spec 4.5's "embedded map on each yacht's
-	 * listing page").
+	 * Replaces a single yacht's post content with the full listing-page
+	 * design: hero gallery, spec/stats bar, a two-column body (overview,
+	 * included items, occasions, charter rates, map, similar yachts, FAQ
+	 * on the left; a sticky rates + booking widget on the right). `$content`
+	 * is already the fully-filtered post content by the time this runs, so
+	 * it's used as-is for the Overview section rather than re-running it
+	 * through `the_content` (which would recurse into this same filter).
 	 */
 	public static function append_to_single_yacht( $content ) {
 		if ( ! is_singular( Yacht::POST_TYPE ) || ! in_the_loop() || ! is_main_query() ) {
@@ -224,53 +278,304 @@ class Shortcode {
 		}
 
 		$yacht_id = get_the_ID();
-		$lat      = get_post_meta( $yacht_id, 'location_lat', true );
-		$lng      = get_post_meta( $yacht_id, 'location_lng', true );
-		$name     = get_post_meta( $yacht_id, 'location_name', true );
-		$faq      = get_post_meta( $yacht_id, 'faq', true );
-		$included = get_post_meta( $yacht_id, 'included_items', true );
+		$currency = Settings::get( 'currency_symbol', '$' );
+
+		$capacity      = (int) get_post_meta( $yacht_id, 'capacity', true );
+		$cabins        = (int) get_post_meta( $yacht_id, 'cabins', true );
+		$crew          = (int) get_post_meta( $yacht_id, 'crew_size', true );
+		$length        = get_post_meta( $yacht_id, 'length', true );
+		$build_year    = get_post_meta( $yacht_id, 'build_year', true );
+		$location_name = get_post_meta( $yacht_id, 'location_name', true );
+		$lat           = get_post_meta( $yacht_id, 'location_lat', true );
+		$lng           = get_post_meta( $yacht_id, 'location_lng', true );
+		$included      = get_post_meta( $yacht_id, 'included_items', true );
+		$faq           = get_post_meta( $yacht_id, 'faq', true );
+		$gallery_ids   = get_post_meta( $yacht_id, 'gallery', true );
+		$classes       = wp_get_post_terms( $yacht_id, 'yacht_class' );
+		$occasions     = wp_get_post_terms( $yacht_id, 'yacht_occasion' );
+		$rates         = self::yacht_rates( $yacht_id );
 
 		wp_enqueue_script( 'ybs-frontend' );
 		wp_enqueue_style( 'ybs-frontend' );
 
-		ob_start();
+		$gallery_ids = is_array( $gallery_ids ) ? array_filter( array_map( 'intval', $gallery_ids ) ) : array();
+		$thumb_id    = get_post_thumbnail_id( $yacht_id );
 
-		if ( is_array( $included ) && $included ) {
-			echo '<div class="ybs-yacht-included"><h3>' . esc_html__( 'Included in every charter', 'yacht-booking-system' ) . '</h3><ul>';
-			foreach ( $included as $item ) {
-				echo '<li>' . esc_html( is_array( $item ) ? ( $item['text'] ?? '' ) : $item ) . '</li>';
-			}
-			echo '</ul></div>';
+		if ( $thumb_id && ! in_array( $thumb_id, $gallery_ids, true ) ) {
+			array_unshift( $gallery_ids, $thumb_id );
 		}
 
-		printf(
-			'<div class="ybs-availability-calendar" data-yacht-id="%d"><div class="ybs-availability-calendar__header"><button type="button" class="ybs-btn ybs-availability-calendar__prev">&larr;</button><span class="ybs-availability-calendar__label"></span><button type="button" class="ybs-btn ybs-availability-calendar__next">&rarr;</button></div><div class="ybs-availability-calendar__grid"></div></div>',
-			esc_attr( $yacht_id )
+		$gallery_urls = array_values(
+			array_filter( array_map( static fn( $id ) => wp_get_attachment_image_url( $id, 'large' ), $gallery_ids ) )
 		);
 
-		if ( $lat && $lng ) {
-			printf(
-				'<div class="ybs-yacht-map" data-lat="%s" data-lng="%s" data-name="%s"></div>',
-				esc_attr( $lat ),
-				esc_attr( $lng ),
-				esc_attr( $name )
+		ob_start();
+		?>
+		<div class="ybs-yacht-page">
+			<div class="ybs-yp-gallery" data-ybs-gallery>
+				<?php if ( $gallery_urls ) : ?>
+					<div class="ybs-yp-gallery__main">
+						<img class="ybs-yp-gallery__main-img" src="<?php echo esc_url( $gallery_urls[0] ); ?>" alt="<?php echo esc_attr( get_the_title( $yacht_id ) ); ?>" />
+						<?php if ( count( $gallery_urls ) > 1 ) : ?>
+							<span class="ybs-yp-gallery__count">
+								<span class="dashicons dashicons-camera"></span>
+								<span class="ybs-yp-gallery__count-text"><?php echo esc_html( sprintf( '1 / %d', count( $gallery_urls ) ) ); ?></span>
+							</span>
+						<?php endif; ?>
+					</div>
+					<?php if ( count( $gallery_urls ) > 1 ) : ?>
+						<div class="ybs-yp-gallery__thumbs">
+							<?php foreach ( $gallery_urls as $i => $url ) : ?>
+								<button type="button" class="ybs-yp-gallery__thumb<?php echo 0 === $i ? ' is-active' : ''; ?>" data-full="<?php echo esc_url( $url ); ?>">
+									<img src="<?php echo esc_url( $url ); ?>" alt="" />
+								</button>
+							<?php endforeach; ?>
+						</div>
+					<?php endif; ?>
+				<?php else : ?>
+					<div class="ybs-yp-gallery__placeholder"><span class="dashicons dashicons-palmtree"></span></div>
+				<?php endif; ?>
+			</div>
+
+			<div class="ybs-yp-header">
+				<?php if ( $classes ) : ?>
+					<span class="ybs-yp-class-badge"><?php echo esc_html( $classes[0]->name ); ?></span>
+				<?php endif; ?>
+				<h2 class="ybs-yp-title"><?php echo esc_html( get_the_title( $yacht_id ) ); ?></h2>
+				<div class="ybs-yp-stats">
+					<?php if ( $capacity ) : ?>
+						<span class="ybs-yp-stat"><span class="dashicons dashicons-groups"></span><?php echo esc_html( sprintf( __( '%d guests max', 'yacht-booking-system' ), $capacity ) ); ?></span>
+					<?php endif; ?>
+					<?php if ( $length ) : ?>
+						<span class="ybs-yp-stat"><span class="dashicons dashicons-leftright"></span><?php echo esc_html( sprintf( __( '%s m', 'yacht-booking-system' ), $length ) ); ?></span>
+					<?php endif; ?>
+					<?php if ( $cabins ) : ?>
+						<span class="ybs-yp-stat"><span class="dashicons dashicons-admin-home"></span><?php echo esc_html( sprintf( _n( '%d cabin', '%d cabins', $cabins, 'yacht-booking-system' ), $cabins ) ); ?></span>
+					<?php endif; ?>
+					<?php if ( $crew ) : ?>
+						<span class="ybs-yp-stat"><span class="dashicons dashicons-admin-users"></span><?php echo esc_html( sprintf( _n( '%d crew', '%d crew', $crew, 'yacht-booking-system' ), $crew ) ); ?></span>
+					<?php endif; ?>
+					<?php if ( $build_year ) : ?>
+						<span class="ybs-yp-stat"><span class="dashicons dashicons-calendar-alt"></span><?php echo esc_html( $build_year ); ?></span>
+					<?php endif; ?>
+					<?php if ( $location_name ) : ?>
+						<span class="ybs-yp-stat"><span class="dashicons dashicons-location"></span><?php echo esc_html( $location_name ); ?></span>
+					<?php endif; ?>
+				</div>
+			</div>
+
+			<div class="ybs-yp-body">
+				<div class="ybs-yp-main">
+					<section class="ybs-yp-section">
+						<h3><?php echo esc_html( sprintf( __( 'The %s Experience', 'yacht-booking-system' ), get_the_title( $yacht_id ) ) ); ?></h3>
+						<div class="ybs-yp-prose"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput -- already sanitized by earlier `the_content` filters. ?></div>
+					</section>
+
+					<?php if ( is_array( $included ) && $included ) : ?>
+						<section class="ybs-yp-section">
+							<h3><?php esc_html_e( 'Included in every charter', 'yacht-booking-system' ); ?></h3>
+							<ul class="ybs-yp-checklist">
+								<?php foreach ( $included as $item ) : ?>
+									<li><span class="dashicons dashicons-yes-alt"></span><?php echo esc_html( is_array( $item ) ? ( $item['text'] ?? '' ) : $item ); ?></li>
+								<?php endforeach; ?>
+							</ul>
+						</section>
+					<?php endif; ?>
+
+					<?php if ( $occasions ) : ?>
+						<section class="ybs-yp-section">
+							<h3><?php esc_html_e( 'Occasions this yacht fits best', 'yacht-booking-system' ); ?></h3>
+							<div class="ybs-yp-tags">
+								<?php foreach ( $occasions as $term ) : ?>
+									<span class="ybs-yp-tag"><?php echo esc_html( $term->name ); ?></span>
+								<?php endforeach; ?>
+							</div>
+						</section>
+					<?php endif; ?>
+
+					<?php if ( $rates ) : ?>
+						<section class="ybs-yp-section">
+							<h3><?php esc_html_e( 'Charter Rates', 'yacht-booking-system' ); ?></h3>
+							<table class="ybs-yp-rates-table">
+								<tbody>
+									<?php foreach ( $rates as $rate ) : ?>
+										<tr>
+											<td>
+												<?php echo esc_html( $rate['label'] ); ?>
+												<?php if ( $rate['window'] ) : ?>
+													<span class="ybs-yp-rate-window"><?php echo esc_html( $rate['window'][0] . ' – ' . $rate['window'][1] ); ?></span>
+												<?php endif; ?>
+											</td>
+											<td class="ybs-yp-rate-amount"><?php echo esc_html( self::format_price( $rate['amount'], $currency ) ); ?></td>
+										</tr>
+									<?php endforeach; ?>
+								</tbody>
+							</table>
+						</section>
+					<?php endif; ?>
+
+					<?php if ( $lat && $lng ) : ?>
+						<section class="ybs-yp-section">
+							<h3><?php esc_html_e( 'Location', 'yacht-booking-system' ); ?></h3>
+							<div class="ybs-yacht-map" data-lat="<?php echo esc_attr( $lat ); ?>" data-lng="<?php echo esc_attr( $lng ); ?>" data-name="<?php echo esc_attr( $location_name ); ?>"></div>
+						</section>
+					<?php endif; ?>
+
+					<?php
+					$similar = self::similar_yachts( $yacht_id, wp_list_pluck( $classes, 'term_id' ) );
+					if ( $similar ) :
+						?>
+						<section class="ybs-yp-section">
+							<h3><?php esc_html_e( 'Similar Yachts', 'yacht-booking-system' ); ?></h3>
+							<div class="ybs-search-results">
+								<?php foreach ( $similar as $other ) : ?>
+									<a class="ybs-yacht-card" href="<?php echo esc_url( get_permalink( $other ) ); ?>">
+										<?php $other_thumb = get_the_post_thumbnail_url( $other, 'medium' ); ?>
+										<?php if ( $other_thumb ) : ?>
+											<img src="<?php echo esc_url( $other_thumb ); ?>" alt="" />
+										<?php endif; ?>
+										<div class="ybs-yacht-card__body">
+											<h3><?php echo esc_html( get_the_title( $other ) ); ?></h3>
+											<?php
+											$other_rates = self::yacht_rates( $other->ID );
+											if ( $other_rates ) :
+												?>
+												<div class="ybs-yacht-card__price">
+													<?php echo esc_html( sprintf( __( 'From %s', 'yacht-booking-system' ), self::format_price( min( wp_list_pluck( $other_rates, 'amount' ) ), $currency ) ) ); ?>
+												</div>
+											<?php endif; ?>
+										</div>
+									</a>
+								<?php endforeach; ?>
+							</div>
+						</section>
+					<?php endif; ?>
+
+					<?php if ( is_array( $faq ) && $faq ) : ?>
+						<section class="ybs-yp-section">
+							<h3><?php esc_html_e( 'Frequently Asked Questions', 'yacht-booking-system' ); ?></h3>
+							<div class="ybs-yacht-faq">
+								<?php foreach ( $faq as $item ) : ?>
+									<details class="ybs-faq-item">
+										<summary><?php echo esc_html( $item['question'] ?? '' ); ?></summary>
+										<div><?php echo wp_kses_post( $item['answer'] ?? '' ); ?></div>
+									</details>
+								<?php endforeach; ?>
+							</div>
+						</section>
+					<?php endif; ?>
+				</div>
+
+				<aside class="ybs-yp-sidebar">
+					<div class="ybs-yp-sidebar__inner">
+						<?php if ( $rates ) : ?>
+							<span class="ybs-yp-sidebar__from">
+								<?php echo esc_html( sprintf( __( 'From %s', 'yacht-booking-system' ), self::format_price( min( wp_list_pluck( $rates, 'amount' ) ), $currency ) ) ); ?>
+							</span>
+						<?php endif; ?>
+
+						<div class="ybs-yp-sidebar__form">
+							<?php echo self::render_booking_form( array( 'yacht_id' => $yacht_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+						</div>
+					</div>
+				</aside>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * The non-empty priced booking types for a yacht, each paired with its
+	 * operating time window where one applies (half day/morning/evening/daily
+	 * have fixed windows; hourly and multi-day don't) - shared by the charter
+	 * rates table, the sidebar summary, and "similar yachts" price tags.
+	 */
+	private static function yacht_rates( $yacht_id, $meta_prefix = 'base_price_' ) {
+		$windows = Yacht::time_windows( $yacht_id );
+
+		$defs = array(
+			array( __( 'Hourly', 'yacht-booking-system' ), 'hourly', null ),
+			array( __( 'Half Day', 'yacht-booking-system' ), 'halfday', $windows['half_day'] ),
+			array( __( 'Morning Slot', 'yacht-booking-system' ), 'morning_slot', $windows['morning_slot'] ),
+			array( __( 'Evening / Sunset Slot', 'yacht-booking-system' ), 'evening_slot', $windows['evening_slot'] ),
+			array( __( 'Full Day', 'yacht-booking-system' ), 'daily', $windows['daily'] ),
+			array( __( 'Multi-Day (per night)', 'yacht-booking-system' ), 'multiday', null ),
+		);
+
+		$rates = array();
+
+		foreach ( $defs as $def ) {
+			list( $label, $key, $window ) = $def;
+			$amount                       = (float) get_post_meta( $yacht_id, $meta_prefix . $key, true );
+
+			if ( $amount <= 0 ) {
+				continue;
+			}
+
+			$rates[] = array(
+				'label'  => $label,
+				'amount' => $amount,
+				'window' => $window,
 			);
 		}
 
-		if ( is_array( $faq ) && $faq ) {
-			echo '<div class="ybs-yacht-faq"><h3>' . esc_html__( 'Frequently Asked Questions', 'yacht-booking-system' ) . '</h3>';
-			foreach ( $faq as $item ) {
-				printf(
-					'<details class="ybs-faq-item"><summary>%s</summary><div>%s</div></details>',
-					esc_html( $item['question'] ?? '' ),
-					wp_kses_post( $item['answer'] ?? '' )
-				);
-			}
-			echo '</div>';
+		return $rates;
+	}
+
+	/**
+	 * Up to 4 other published yachts sharing a class with this one, for the
+	 * "Similar Yachts" section - real fleet data rather than placeholder content.
+	 */
+	private static function similar_yachts( $yacht_id, array $class_ids ) {
+		if ( ! $class_ids ) {
+			return array();
 		}
 
-		echo self::render_booking_form( array( 'yacht_id' => $yacht_id ) ); // phpcs:ignore WordPress.Security.EscapeOutput
+		$query = new \WP_Query(
+			array(
+				'post_type'      => Yacht::POST_TYPE,
+				'post_status'    => 'publish',
+				'posts_per_page' => 4,
+				'post__not_in'   => array( $yacht_id ),
+				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+					array(
+						'taxonomy' => 'yacht_class',
+						'field'    => 'term_id',
+						'terms'    => $class_ids,
+					),
+				),
+			)
+		);
 
-		return $content . ob_get_clean();
+		return $query->posts;
+	}
+
+	/**
+	 * Public wrappers so custom single-yacht templates (plugin default or
+	 * theme override) can reuse the exact same rate/price logic as the
+	 * built-in renderer.
+	 */
+	public static function yacht_rates_public( $yacht_id ) {
+		return self::yacht_rates( $yacht_id );
+	}
+
+	/**
+	 * Per-seat rates entered under the "Shared" price grid in the wizard -
+	 * empty unless the admin priced shared charters separately.
+	 */
+	public static function yacht_shared_rates_public( $yacht_id ) {
+		return self::yacht_rates( $yacht_id, 'base_price_shared_' );
+	}
+
+	public static function format_price_public( $amount, $currency ) {
+		return self::format_price( $amount, $currency );
+	}
+
+	private static function format_price( $amount, $currency ) {
+		$amount  = (float) $amount;
+		$decimals = ( fmod( $amount, 1.0 ) === 0.0 ) ? 0 : 2;
+
+		return $currency . number_format( $amount, $decimals );
 	}
 }

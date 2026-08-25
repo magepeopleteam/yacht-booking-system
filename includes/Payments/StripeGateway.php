@@ -130,7 +130,7 @@ class StripeGateway {
 
 			if ( $booking_id && 'paid' === ( $session['payment_status'] ?? '' ) ) {
 				BookingRepository::update_payment( $booking_id, 'paid', array( 'transaction_ref' => sanitize_text_field( $session['payment_intent'] ?? '' ) ) );
-				BookingRepository::update_status( $booking_id, 'confirmed' );
+				BookingRepository::update_status( $booking_id, 'processing' );
 			}
 		}
 

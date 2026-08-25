@@ -79,9 +79,10 @@ class GuestRepository {
 	}
 
 	/**
-	 * View-only list for the admin Guests screen. A guest with no booking
-	 * left in a non-cancelled state is soft-filtered out entirely, per spec
-	 * 4.4.5 - never hard-deleted, just excluded here.
+	 * Flat view for the admin Guests screen: one row per booking (with all
+	 * guest, charter, and order details on it). A booking only appears once
+	 * its WooCommerce order status reached processing or completed - never
+	 * hard-deleted, just excluded here.
 	 */
 	public static function list_active( array $args = array() ) {
 		global $wpdb;
@@ -93,17 +94,21 @@ class GuestRepository {
 		$per_page = min( 100, max( 1, (int) ( $args['per_page'] ?? 20 ) ) );
 		$offset   = ( $page - 1 ) * $per_page;
 
-		$sql = "SELECT g.*, MAX(b.id) AS last_booking_id
-			FROM {$guests} g
-			INNER JOIN {$bookings} b ON b.guest_id = g.id AND b.status != 'cancelled'
-			GROUP BY g.id
-			ORDER BY g.id DESC
+		$paid_statuses = "'" . implode( "','", array_map( 'esc_sql', array( 'processing', 'completed' ) ) ) . "'";
+
+		$sql = "SELECT g.id AS guest_id, g.name AS guest_name, g.email AS guest_email, g.phone AS guest_phone,
+				b.*, p.post_title AS yacht_name
+			FROM {$bookings} b
+			INNER JOIN {$guests} g ON g.id = b.guest_id
+			LEFT JOIN {$wpdb->posts} p ON p.ID = b.yacht_id
+			WHERE b.status IN ({$paid_statuses})
+			ORDER BY b.start_datetime DESC
 			LIMIT %d OFFSET %d";
 
 		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $per_page, $offset ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$total = (int) $wpdb->get_var(
-			"SELECT COUNT(DISTINCT g.id) FROM {$guests} g INNER JOIN {$bookings} b ON b.guest_id = g.id AND b.status != 'cancelled'" // phpcs:ignore
+			"SELECT COUNT(*) FROM {$bookings} b WHERE b.status IN ({$paid_statuses})" // phpcs:ignore
 		);
 
 		return array(
@@ -111,6 +116,29 @@ class GuestRepository {
 			'total' => $total,
 			'pages' => (int) ceil( $total / $per_page ),
 		);
+	}
+
+	/**
+	 * Full booking history for the given guests, with yacht names and order
+	 * links attached - powers the expandable detail view on the Guests page.
+	 */
+	public static function bookings_for_guests( array $guest_ids ) {
+		global $wpdb;
+
+		if ( ! $guest_ids ) {
+			return array();
+		}
+
+		$bookings     = $wpdb->prefix . 'ybs_bookings';
+		$placeholders = implode( ',', array_fill( 0, count( $guest_ids ), '%d' ) );
+
+		$sql = "SELECT b.*, p.post_title AS yacht_name
+			FROM {$bookings} b
+			LEFT JOIN {$wpdb->posts} p ON p.ID = b.yacht_id
+			WHERE b.guest_id IN ({$placeholders})
+			ORDER BY b.start_datetime DESC";
+
+		return $wpdb->get_results( $wpdb->prepare( $sql, ...$guest_ids ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	}
 
 	/**

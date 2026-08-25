@@ -88,6 +88,16 @@ class YachtsController extends Controller {
 				'permission_callback' => '__return_true',
 			)
 		);
+
+		register_rest_route(
+			self::NAMESPACE_,
+			'/yachts/dummy-import',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'dummy_import' ),
+				'permission_callback' => array( __CLASS__, 'can_manage_settings' ),
+			)
+		);
 	}
 
 	public static function quote( WP_REST_Request $request ) {
@@ -108,7 +118,7 @@ class YachtsController extends Controller {
 			return new WP_Error( 'ybs_not_available', $availability['reason'], array( 'status' => 409 ) );
 		}
 
-		$pricing = \Ybs\Booking\PricingEngine::calculate( $yacht_id, $booking_type, $start, $end, $guest_count );
+		$pricing = \Ybs\Booking\PricingEngine::calculate( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode );
 
 		if ( is_wp_error( $pricing ) ) {
 			return $pricing;
@@ -227,9 +237,10 @@ class YachtsController extends Controller {
 
 		return rest_ensure_response(
 			array(
-				'items' => $items,
-				'total' => (int) $query->found_posts,
-				'pages' => (int) $query->max_num_pages,
+				'items'        => $items,
+				'total'        => (int) $query->found_posts,
+				'pages'        => (int) $query->max_num_pages,
+				'dummy_seeded' => (bool) get_option( 'ybs_dummy_seeded' ),
 			)
 		);
 	}
@@ -316,6 +327,235 @@ class YachtsController extends Controller {
 		wp_delete_post( $post->ID, true );
 
 		return rest_ensure_response( array( 'deleted' => true ) );
+	}
+
+	/**
+	 * One-time sample-fleet seeder so a fresh install has something to look
+	 * at immediately. The `ybs_dummy_seeded` option makes this permanently
+	 * unavailable once it has run - both the guard below and the admin UI's
+	 * button (hidden once `dummy_seeded` comes back true) rely on it.
+	 */
+	public static function dummy_import() {
+		if ( get_option( 'ybs_dummy_seeded' ) ) {
+			return new WP_Error( 'ybs_already_seeded', __( 'Sample yachts have already been imported.', 'yacht-booking-system' ), array( 'status' => 400 ) );
+		}
+
+		$imported = 0;
+
+		foreach ( self::dummy_yacht_samples() as $sample ) {
+			$post_id = wp_insert_post(
+				array(
+					'post_type'    => Yacht::POST_TYPE,
+					'post_title'   => $sample['title'],
+					'post_content' => $sample['description'],
+					'post_status'  => 'publish',
+				),
+				true
+			);
+
+			if ( is_wp_error( $post_id ) ) {
+				continue;
+			}
+
+			self::save_meta( $post_id, $sample['meta'] );
+
+			$class_term = get_term_by( 'name', $sample['class'], 'yacht_class' );
+
+			if ( $class_term ) {
+				wp_set_object_terms( $post_id, array( $class_term->term_id ), 'yacht_class' );
+			}
+
+			$occasion_ids = array();
+
+			foreach ( $sample['occasions'] as $occasion_name ) {
+				$term = get_term_by( 'name', $occasion_name, 'yacht_occasion' );
+
+				if ( $term ) {
+					$occasion_ids[] = $term->term_id;
+				}
+			}
+
+			if ( $occasion_ids ) {
+				wp_set_object_terms( $post_id, $occasion_ids, 'yacht_occasion' );
+			}
+
+			$imported++;
+		}
+
+		update_option( 'ybs_dummy_seeded', 1 );
+
+		return rest_ensure_response(
+			array(
+				'imported'     => $imported,
+				'dummy_seeded' => true,
+			)
+		);
+	}
+
+	private static function dummy_yacht_samples() {
+		return array(
+			array(
+				'title'       => __( 'Ocean Breeze', 'yacht-booking-system' ),
+				'description' => __( 'A sleek 42ft motor yacht perfect for sunset cruises and small celebrations along the coast.', 'yacht-booking-system' ),
+				'class'       => 'Comfort',
+				'occasions'   => array( 'Birthday', 'Sunset Cocktail' ),
+				'meta'        => array(
+					'capacity'                => '12',
+					'cabins'                  => '2',
+					'crew_size'               => '2',
+					'length'                  => '42',
+					'build_year'              => '2018',
+					'location_name'           => 'Miami Marina, FL',
+					'location_lat'            => '25.7743',
+					'location_lng'            => '-80.1937',
+					'base_price_hourly'       => '150',
+					'base_price_halfday'      => '650',
+					'base_price_daily'        => '1200',
+					'base_price_morning_slot' => '500',
+					'base_price_evening_slot' => '700',
+					'min_notice_hours'        => '12',
+					'buffer_minutes'          => '30',
+					'min_duration'            => '120',
+					'max_duration'            => '480',
+					'booking_mode'            => 'full',
+				),
+			),
+			array(
+				'title'       => __( 'Sapphire Horizon', 'yacht-booking-system' ),
+				'description' => __( 'A spacious 68ft luxury cruiser with a sundeck lounge, ideal for corporate charters and weddings.', 'yacht-booking-system' ),
+				'class'       => 'First Class',
+				'occasions'   => array( 'Wedding', 'Corporate' ),
+				'meta'        => array(
+					'capacity'                => '30',
+					'cabins'                  => '4',
+					'crew_size'               => '5',
+					'length'                  => '68',
+					'build_year'              => '2021',
+					'location_name'           => 'Port Hercule, Monaco',
+					'location_lat'            => '43.7325',
+					'location_lng'            => '7.4256',
+					'base_price_hourly'       => '450',
+					'base_price_halfday'      => '2200',
+					'base_price_daily'        => '4200',
+					'base_price_morning_slot' => '1800',
+					'base_price_evening_slot' => '2400',
+					'min_notice_hours'        => '24',
+					'buffer_minutes'          => '60',
+					'min_duration'            => '180',
+					'max_duration'            => '600',
+					'booking_mode'            => 'full',
+				),
+			),
+			array(
+				'title'       => __( 'Island Serenade', 'yacht-booking-system' ),
+				'description' => __( 'A breezy 36ft catamaran built for laid-back island hopping and small bachelorette groups.', 'yacht-booking-system' ),
+				'class'       => 'Comfort Plus',
+				'occasions'   => array( 'Bachelorette', 'Anniversary / Proposal' ),
+				'meta'        => array(
+					'capacity'                => '10',
+					'cabins'                  => '2',
+					'crew_size'               => '1',
+					'length'                  => '36',
+					'build_year'              => '2016',
+					'location_name'           => 'Marina Ibiza, Spain',
+					'location_lat'            => '38.9067',
+					'location_lng'            => '1.4206',
+					'base_price_hourly'       => '120',
+					'base_price_halfday'      => '520',
+					'base_price_daily'        => '980',
+					'base_price_morning_slot' => '400',
+					'base_price_evening_slot' => '560',
+					'min_notice_hours'        => '8',
+					'buffer_minutes'          => '30',
+					'min_duration'            => '120',
+					'max_duration'            => '360',
+					'booking_mode'            => 'full',
+				),
+			),
+			array(
+				'title'       => __( 'Golden Mirage', 'yacht-booking-system' ),
+				'description' => __( 'A striking 55ft superyacht with a jacuzzi deck, built for high-end business entertaining.', 'yacht-booking-system' ),
+				'class'       => 'Business',
+				'occasions'   => array( 'Corporate', 'Birthday' ),
+				'meta'        => array(
+					'capacity'                => '20',
+					'cabins'                  => '3',
+					'crew_size'               => '4',
+					'length'                  => '55',
+					'build_year'              => '2019',
+					'location_name'           => 'Dubai Marina, UAE',
+					'location_lat'            => '25.0805',
+					'location_lng'            => '55.1403',
+					'base_price_hourly'       => '320',
+					'base_price_halfday'      => '1500',
+					'base_price_daily'        => '2800',
+					'base_price_morning_slot' => '1200',
+					'base_price_evening_slot' => '1600',
+					'min_notice_hours'        => '24',
+					'buffer_minutes'          => '45',
+					'min_duration'            => '120',
+					'max_duration'            => '480',
+					'booking_mode'            => 'full',
+				),
+			),
+			array(
+				'title'       => __( 'Aegean Muse', 'yacht-booking-system' ),
+				'description' => __( 'A whitewashed 48ft sailing yacht drifting past the caldera - built for sunset proposals.', 'yacht-booking-system' ),
+				'class'       => 'Comfort',
+				'occasions'   => array( 'Anniversary / Proposal', 'Sunset Cocktail' ),
+				'meta'        => array(
+					'capacity'                => '14',
+					'cabins'                  => '2',
+					'crew_size'               => '2',
+					'length'                  => '48',
+					'build_year'              => '2017',
+					'location_name'           => 'Vlychada Marina, Santorini',
+					'location_lat'            => '36.3492',
+					'location_lng'            => '25.4615',
+					'base_price_hourly'       => '180',
+					'base_price_halfday'      => '780',
+					'base_price_daily'        => '1400',
+					'base_price_morning_slot' => '600',
+					'base_price_evening_slot' => '820',
+					'min_notice_hours'        => '12',
+					'buffer_minutes'          => '30',
+					'min_duration'            => '120',
+					'max_duration'            => '480',
+					'booking_mode'            => 'full',
+				),
+			),
+			array(
+				'title'       => __( 'Southern Star', 'yacht-booking-system' ),
+				'description' => __( 'A lively 60ft party yacht with a sound system and open deck, built for big celebrations - bookable as a full charter or by the seat.', 'yacht-booking-system' ),
+				'class'       => 'Party',
+				'occasions'   => array( 'Bachelorette', 'Birthday' ),
+				'meta'        => array(
+					'capacity'                       => '40',
+					'cabins'                         => '3',
+					'crew_size'                      => '4',
+					'length'                         => '60',
+					'build_year'                     => '2020',
+					'location_name'                  => 'Sydney Harbour, Australia',
+					'location_lat'                   => '-33.8523',
+					'location_lng'                   => '151.2108',
+					'base_price_hourly'              => '280',
+					'base_price_halfday'             => '1250',
+					'base_price_daily'               => '2300',
+					'base_price_morning_slot'        => '950',
+					'base_price_evening_slot'        => '1350',
+					'base_price_shared_hourly'       => '35',
+					'base_price_shared_halfday'      => '140',
+					'base_price_shared_daily'        => '260',
+					'base_price_shared_morning_slot' => '110',
+					'base_price_shared_evening_slot' => '160',
+					'min_notice_hours'               => '12',
+					'buffer_minutes'                 => '45',
+					'min_duration'                   => '120',
+					'max_duration'                   => '480',
+					'booking_mode'                   => 'both',
+				),
+			),
+		);
 	}
 
 	public static function availability( WP_REST_Request $request ) {

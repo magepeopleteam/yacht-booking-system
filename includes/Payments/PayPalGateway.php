@@ -105,7 +105,7 @@ class PayPalGateway {
 
 		if ( $booking_id && 'Completed' === $status ) {
 			BookingRepository::update_payment( $booking_id, 'paid', array( 'transaction_ref' => sanitize_text_field( $payload['txn_id'] ?? '' ) ) );
-			BookingRepository::update_status( $booking_id, 'confirmed' );
+			BookingRepository::update_status( $booking_id, 'processing' );
 		} elseif ( $booking_id && in_array( $status, array( 'Denied', 'Failed', 'Refunded' ), true ) ) {
 			BookingRepository::update_payment( $booking_id, 'failed' );
 		}

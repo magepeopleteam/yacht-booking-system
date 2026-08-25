@@ -37,6 +37,22 @@ function toMysql( date ) {
 	return `${ date.getFullYear() }-${ pad( date.getMonth() + 1 ) }-${ pad( date.getDate() ) } ${ pad( date.getHours() ) }:${ pad( date.getMinutes() ) }:00`;
 }
 
+function defaultDateValue() {
+	const date = new Date();
+	date.setDate( date.getDate() + 1 );
+
+	const pad = ( n ) => String( n ).padStart( 2, '0' );
+	return `${ date.getFullYear() }-${ pad( date.getMonth() + 1 ) }-${ pad( date.getDate() ) }`;
+}
+
+function debounce( fn, delay ) {
+	let timer;
+	return ( ...args ) => {
+		clearTimeout( timer );
+		timer = setTimeout( () => fn( ...args ), delay );
+	};
+}
+
 function toggleFields( form ) {
 	const type = form.querySelector( '.ybs-bf-type' ).value;
 
@@ -70,6 +86,44 @@ function currentYachtId( form ) {
 	return select ? select.value : form.dataset.yachtId;
 }
 
+function currentMode( form ) {
+	const modeSelect = form.querySelector( '.ybs-bf-mode' );
+
+	if ( modeSelect ) {
+		return modeSelect.value || 'full';
+	}
+
+	return form.dataset.ybsMode || 'full';
+}
+
+function updateHiddenFields( form ) {
+	if ( '1' !== form.dataset.ybsWc ) {
+		return;
+	}
+
+	const window_ = computeWindow( form );
+	const set = ( name, value ) => {
+		const input = form.querySelector( `input[name="${ name }"]` );
+		if ( input ) {
+			input.value = value;
+		}
+	};
+
+	set( 'ybs_booking_type', form.querySelector( '.ybs-bf-type' ).value );
+	set( 'ybs_booking_mode', currentMode( form ) );
+	set( 'ybs_guest_count', form.querySelector( '.ybs-bf-guests' ).value || 1 );
+	set( 'ybs_start_datetime', window_ ? window_.start : '' );
+	set( 'ybs_end_datetime', window_ ? window_.end : '' );
+}
+
+function setSubmitEnabled( form, enabled ) {
+	const button = form.querySelector( '.ybs-bf-submit' );
+
+	if ( button ) {
+		button.disabled = ! enabled;
+	}
+}
+
 async function refreshQuote( form ) {
 	const yachtId = currentYachtId( form );
 	const priceBox = form.querySelector( '.ybs-bf-price' );
@@ -79,6 +133,7 @@ async function refreshQuote( form ) {
 
 	if ( ! yachtId ) {
 		priceBox.hidden = true;
+		setSubmitEnabled( form, false );
 		return;
 	}
 
@@ -86,6 +141,7 @@ async function refreshQuote( form ) {
 
 	if ( ! window_ ) {
 		priceBox.hidden = true;
+		setSubmitEnabled( form, false );
 		return;
 	}
 
@@ -102,6 +158,7 @@ async function refreshQuote( form ) {
 			start_datetime: window_.start,
 			end_datetime: window_.end,
 			guest_count: guests,
+			booking_mode: currentMode( form ),
 		} );
 
 		const response = await fetch( `${ config.restRoot }yachts/${ yachtId }/quote?${ params }` );
@@ -112,11 +169,29 @@ async function refreshQuote( form ) {
 			errorBox.hidden = false;
 			errorBox.textContent = data.message || config.i18n.notAvailable;
 			form.dataset.validQuote = '';
+			// Slot unavailable (booked, off-day, too close to another
+			// booking, ...) - keep the book button unclickable.
+			setSubmitEnabled( form, false );
 			return;
 		}
 
-		priceBox.textContent = `${ config.currency }${ Number( data.pricing.total ).toFixed( 2 ) }`;
+		let label = `${ config.currency }${ Number( data.pricing.total ).toFixed( 2 ) }`;
+		const remaining = data.availability && data.availability.remaining_capacity;
+
+		if ( 'shared' === currentMode( form ) && null !== remaining && undefined !== remaining ) {
+			label += ` · ${ Number( remaining ) } ${ config.i18n.seatsLeft }`;
+
+			const guestsInput = form.querySelector( '.ybs-bf-guests' );
+
+			if ( guestsInput && Number( remaining ) > 0 ) {
+				guestsInput.max = Number( remaining );
+			}
+		}
+
+		priceBox.textContent = label;
 		form.dataset.validQuote = '1';
+		setSubmitEnabled( form, true );
+		updateHiddenFields( form );
 	} catch ( e ) {
 		priceBox.hidden = true;
 	}
@@ -142,9 +217,18 @@ async function submitBooking( form ) {
 		return;
 	}
 
+	// The live quote is what validates the slot - never submit against a
+	// failed/unknown availability check.
+	if ( '1' !== form.dataset.validQuote ) {
+		errorBox.hidden = false;
+		errorBox.textContent = config.i18n.notAvailable;
+		return;
+	}
+
 	const payload = {
 		yacht_id: Number( yachtId ),
 		booking_type: form.querySelector( '.ybs-bf-type' ).value,
+		booking_mode: currentMode( form ),
 		start_datetime: window_.start,
 		end_datetime: window_.end,
 		guest_count: Number( form.querySelector( '.ybs-bf-guests' ).value || 1 ),
@@ -193,16 +277,68 @@ async function submitBooking( form ) {
 
 export function initBookingForms() {
 	document.querySelectorAll( '[data-ybs-booking-form]' ).forEach( ( form ) => {
-		toggleFields( form );
-		populatePaymentMethods( form );
+		const wcMode = '1' === form.dataset.ybsWc;
 
-		form.querySelectorAll( '.ybs-bf-type, .ybs-bf-date, .ybs-bf-start-time, .ybs-bf-duration, .ybs-bf-nights, .ybs-bf-guests, .ybs-bf-yacht' ).forEach( ( field ) => {
+		toggleFields( form );
+
+		if ( ! wcMode ) {
+			populatePaymentMethods( form );
+		}
+
+		const dateInput = form.querySelector( '.ybs-bf-date' );
+
+		if ( dateInput && ! dateInput.value ) {
+			dateInput.value = defaultDateValue();
+		}
+
+		const debouncedRefresh = debounce( () => refreshQuote( form ), 400 );
+
+		form.querySelectorAll( '.ybs-bf-mode, .ybs-bf-type, .ybs-bf-date, .ybs-bf-yacht' ).forEach( ( field ) => {
 			field.addEventListener( 'change', () => {
 				toggleFields( form );
 				refreshQuote( form );
 			} );
 		} );
 
-		form.querySelector( '.ybs-bf-submit' ).addEventListener( 'click', () => submitBooking( form ) );
+		// Number fields (start time, duration, nights, guests) update live
+		// while typing/using the spinner, not just on blur - debounced so
+		// rapid clicks on the stepper don't fire a quote per click.
+		form.querySelectorAll( '.ybs-bf-start-time, .ybs-bf-duration, .ybs-bf-nights, .ybs-bf-guests' ).forEach( ( field ) => {
+			field.addEventListener( 'input', debouncedRefresh );
+			field.addEventListener( 'change', () => refreshQuote( form ) );
+		} );
+
+		if ( wcMode ) {
+			// WooCommerce checkout: the form posts add-to-cart natively; JS
+			// only syncs the computed booking window into hidden fields and
+			// blocks submission when the selection is incomplete.
+			form.addEventListener( 'submit', ( event ) => {
+				const errorBox = form.querySelector( '.ybs-bf-error' );
+				const yachtId = currentYachtId( form );
+				const window_ = computeWindow( form );
+				// In WooCommerce mode the guest fields/terms live on the
+				// checkout billing form, so only the charter window matters.
+				const termsInput = form.querySelector( '.ybs-bf-terms' );
+				const terms = ! termsInput || termsInput.checked;
+
+				if ( ! yachtId || ! window_ || ! terms || '1' !== form.dataset.validQuote ) {
+					event.preventDefault();
+					errorBox.hidden = false;
+					errorBox.textContent =
+						( window.ybsFrontendConfig && window.ybsFrontendConfig.i18n.notAvailable ) || 'This slot is not available.';
+					return;
+				}
+
+				updateHiddenFields( form );
+			} );
+		} else {
+			form.querySelector( '.ybs-bf-submit' ).addEventListener( 'click', () => submitBooking( form ) );
+		}
+
+		// Show a price immediately with the form's own defaults, rather than
+		// waiting for the visitor to touch a field first.
+		if ( currentYachtId( form ) ) {
+			refreshQuote( form );
+		}
 	} );
 }

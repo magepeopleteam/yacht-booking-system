@@ -7,6 +7,7 @@ use Ybs\Cron\Maintenance;
 use Ybs\Frontend\Block;
 use Ybs\Frontend\Newsletter;
 use Ybs\Frontend\Shortcode;
+use Ybs\Frontend\Templates;
 use Ybs\Install\Migrator;
 use Ybs\Payments\Gateways;
 use Ybs\PostTypes\Yacht;
@@ -50,6 +51,7 @@ final class Plugin {
 		add_action( 'init', array( YachtClass::class, 'maybe_seed_default_terms' ), 20 );
 		add_action( 'init', array( YachtOccasion::class, 'maybe_seed_default_terms' ), 20 );
 		add_action( 'init', array( Shortcode::class, 'register' ) );
+		add_action( 'init', array( Templates::class, 'register' ) );
 		add_action( 'init', array( Block::class, 'register' ) );
 		add_action( 'init', array( Newsletter::class, 'register' ) );
 

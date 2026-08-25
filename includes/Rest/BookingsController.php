@@ -54,6 +54,16 @@ class BookingsController extends Controller {
 				'permission_callback' => array( __CLASS__, 'can_manage_bookings' ),
 			)
 		);
+
+		register_rest_route(
+			self::NAMESPACE_,
+			'/bookings/(?P<id>\d+)',
+			array(
+				'methods'             => WP_REST_Server::DELETABLE,
+				'callback'            => array( __CLASS__, 'delete' ),
+				'permission_callback' => array( __CLASS__, 'can_manage_bookings' ),
+			)
+		);
 	}
 
 	public static function index( WP_REST_Request $request ) {
@@ -136,7 +146,7 @@ class BookingsController extends Controller {
 					return new WP_Error( 'ybs_not_available', $availability['reason'] ?: __( 'This slot is not available.', 'yacht-booking-system' ), array( 'status' => 409 ) );
 				}
 
-				$pricing = PricingEngine::calculate( $yacht_id, $booking_type, $start, $end, $guest_count );
+				$pricing = PricingEngine::calculate( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode );
 
 				if ( is_wp_error( $pricing ) ) {
 					return $pricing;
@@ -208,6 +218,36 @@ class BookingsController extends Controller {
 		return rest_ensure_response( array( 'id' => (int) $request['id'], 'status' => $status ) );
 	}
 
+	public static function delete( WP_REST_Request $request ) {
+		$id = (int) $request['id'];
+
+		if ( ! BookingRepository::find( $id ) ) {
+			return new WP_Error( 'ybs_not_found', __( 'Booking not found.', 'yacht-booking-system' ), array( 'status' => 404 ) );
+		}
+
+		BookingRepository::delete( $id );
+
+		return rest_ensure_response(
+			array(
+				'id'      => $id,
+				'deleted' => true,
+			)
+		);
+	}
+
+	public static function order_edit_url( $order_id ) {
+		if ( ! $order_id ) {
+			return '';
+		}
+
+		$hpos = class_exists( '\Automattic\WooCommerce\Utilities\OrderUtil' )
+			&& \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled();
+
+		return $hpos
+			? admin_url( 'admin.php?page=wc-orders&action=edit&id=' . $order_id )
+			: admin_url( 'post.php?post=' . $order_id . '&action=edit' );
+	}
+
 	private static function decorate( $booking ) {
 		$guest = GuestRepository::find( $booking['guest_id'] );
 		$yacht = get_post( $booking['yacht_id'] );
@@ -221,12 +261,17 @@ class BookingsController extends Controller {
 			'booking_type'   => $booking['booking_type'],
 			'start_datetime' => $booking['start_datetime'],
 			'end_datetime'   => $booking['end_datetime'],
+			'start_formatted' => ybs_format_datetime( $booking['start_datetime'] ),
+			'end_formatted'  => ybs_format_datetime( $booking['end_datetime'] ),
+			'duration'       => ybs_format_duration( $booking['start_datetime'], $booking['end_datetime'] ),
 			'guest_count'    => (int) $booking['guest_count'],
 			'total_price'    => (float) $booking['total_price'],
 			'currency'       => $booking['currency'],
 			'status'         => $booking['status'],
 			'payment_method' => $booking['payment_method'],
 			'payment_status' => $booking['payment_status'],
+			'woo_order_id'   => (int) $booking['woo_order_id'],
+			'woo_order_url'  => self::order_edit_url( (int) $booking['woo_order_id'] ),
 		);
 	}
 }

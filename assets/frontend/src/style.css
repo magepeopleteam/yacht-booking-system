@@ -1,11 +1,19 @@
 .ybs-booking-form,
-.ybs-search {
+.ybs-search,
+.ybs-yacht-page {
 	--ybs-primary: #f97316;
 	--ybs-primary-dark: #ea580c;
+	--ybs-primary-soft: #fff4ec;
 	--ybs-ink: #1e293b;
 	--ybs-ink-soft: #64748b;
+	--ybs-ink-faded: #94a3b8;
 	--ybs-border: #e2e8f0;
+	--ybs-success: #16a34a;
 	--ybs-radius: 8px;
+}
+
+.ybs-booking-form,
+.ybs-search {
 	max-width: 900px;
 	margin: 24px 0;
 	padding: 20px;
@@ -221,4 +229,308 @@
 .ybs-availability-day.is-unavailable {
 	background: #fee2e2;
 	color: #991b1b;
+}
+
+/* ----------------------------------------------------------- Yacht page */
+
+.ybs-yacht-page {
+	color: var( --ybs-ink );
+	max-width: 1180px;
+	margin: 0 auto;
+}
+
+.ybs-yp-gallery {
+	margin-bottom: 20px;
+}
+
+.ybs-yp-gallery__main {
+	position: relative;
+	aspect-ratio: 16 / 8;
+	border-radius: 16px;
+	overflow: hidden;
+	background: linear-gradient( 135deg, #1e293b, #334155 );
+}
+
+.ybs-yp-gallery__main-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.ybs-yp-gallery__placeholder {
+	aspect-ratio: 16 / 8;
+	border-radius: 16px;
+	background: linear-gradient( 135deg, #1e293b, #334155 );
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ybs-yp-gallery__placeholder .dashicons {
+	color: rgba( 255, 255, 255, .35 );
+	font-size: 56px;
+	width: 56px;
+	height: 56px;
+}
+
+.ybs-yp-gallery__count {
+	position: absolute;
+	bottom: 14px;
+	right: 14px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	border-radius: 20px;
+	background: rgba( 15, 23, 42, .72 );
+	color: #fff;
+	font-size: 12.5px;
+	font-weight: 600;
+}
+
+.ybs-yp-gallery__count .dashicons {
+	font-size: 15px;
+	width: 15px;
+	height: 15px;
+}
+
+.ybs-yp-gallery__thumbs {
+	display: flex;
+	gap: 8px;
+	margin-top: 8px;
+	overflow-x: auto;
+}
+
+.ybs-yp-gallery__thumb {
+	flex: 0 0 auto;
+	width: 76px;
+	height: 56px;
+	padding: 0;
+	border: 2px solid transparent;
+	border-radius: 10px;
+	overflow: hidden;
+	cursor: pointer;
+	background: none;
+	opacity: .7;
+}
+
+.ybs-yp-gallery__thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.ybs-yp-gallery__thumb:hover {
+	opacity: 1;
+}
+
+.ybs-yp-gallery__thumb.is-active {
+	border-color: var( --ybs-primary );
+	opacity: 1;
+}
+
+.ybs-yp-header {
+	margin-bottom: 28px;
+}
+
+.ybs-yp-class-badge {
+	display: inline-flex;
+	padding: 4px 12px;
+	border-radius: 20px;
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .03em;
+	margin-bottom: 10px;
+}
+
+.ybs-yp-title {
+	margin: 0 0 14px;
+	font-size: 28px;
+	font-weight: 800;
+	color: var( --ybs-ink );
+	line-height: 1.25;
+}
+
+.ybs-yp-stats {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 18px;
+}
+
+.ybs-yp-stat {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13.5px;
+	font-weight: 600;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-yp-stat .dashicons {
+	color: var( --ybs-primary );
+	font-size: 17px;
+	width: 17px;
+	height: 17px;
+}
+
+.ybs-yp-body {
+	display: grid;
+	grid-template-columns: minmax( 0, 1fr ) 340px;
+	gap: 36px;
+	align-items: start;
+}
+
+.ybs-yp-main {
+	min-width: 0;
+}
+
+.ybs-yp-section {
+	margin-bottom: 32px;
+}
+
+.ybs-yp-section h3 {
+	margin: 0 0 14px;
+	font-size: 19px;
+	font-weight: 700;
+	color: var( --ybs-ink );
+}
+
+.ybs-yp-prose {
+	font-size: 15px;
+	line-height: 1.75;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-yp-prose p {
+	margin: 0 0 14px;
+}
+
+.ybs-yp-checklist {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 220px, 1fr ) );
+	gap: 10px 20px;
+}
+
+.ybs-yp-checklist li {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	font-size: 14px;
+	color: var( --ybs-ink );
+}
+
+.ybs-yp-checklist .dashicons {
+	color: var( --ybs-success );
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+	flex: 0 0 auto;
+}
+
+.ybs-yp-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.ybs-yp-tag {
+	padding: 6px 14px;
+	border-radius: 20px;
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.ybs-yp-rates-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.ybs-yp-rates-table td {
+	padding: 12px 4px;
+	border-bottom: 1px solid var( --ybs-border );
+	font-size: 14px;
+}
+
+.ybs-yp-rates-table tr:last-child td {
+	border-bottom: 0;
+}
+
+.ybs-yp-rate-window {
+	display: block;
+	color: var( --ybs-ink-faded );
+	font-size: 12px;
+	margin-top: 2px;
+}
+
+.ybs-yp-rate-amount {
+	text-align: right;
+	font-weight: 700;
+	color: var( --ybs-primary-dark );
+	white-space: nowrap;
+}
+
+.ybs-yp-sidebar {
+	position: sticky;
+	top: 20px;
+}
+
+.ybs-yp-sidebar__inner {
+	border: 1px solid var( --ybs-border );
+	border-radius: 16px;
+	padding: 20px;
+	background: #fff;
+	box-shadow: 0 12px 32px -16px rgba( 15, 23, 42, .18 );
+}
+
+.ybs-yp-sidebar__from {
+	display: block;
+	margin-bottom: 14px;
+	font-size: 20px;
+	font-weight: 800;
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-yp-sidebar__form .ybs-booking-form {
+	max-width: none;
+	margin: 0;
+	padding: 0;
+	border: none;
+}
+
+/* The live, selection-driven quote is the single price shown once the
+   visitor picks booking details - styled to stand out since it now
+   replaces the static rate summary that used to sit above it. */
+.ybs-yp-sidebar__form .ybs-bf-price {
+	margin: 4px 0 16px;
+	padding: 14px 16px;
+	border-radius: 12px;
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+	font-size: 20px;
+	font-weight: 800;
+	border: none;
+}
+
+@media ( max-width: 860px ) {
+	.ybs-yp-body {
+		grid-template-columns: 1fr;
+	}
+
+	.ybs-yp-sidebar {
+		position: static;
+	}
+
+	.ybs-yp-title {
+		font-size: 23px;
+	}
 }

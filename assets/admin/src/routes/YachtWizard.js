@@ -47,6 +47,12 @@ const DEFAULT_FORM = {
 	base_price_halfday: '',
 	base_price_morning_slot: '',
 	base_price_evening_slot: '',
+	base_price_shared_hourly: '',
+	base_price_shared_daily: '',
+	base_price_shared_multiday: '',
+	base_price_shared_halfday: '',
+	base_price_shared_morning_slot: '',
+	base_price_shared_evening_slot: '',
 	min_notice_hours: '',
 	buffer_minutes: '',
 	min_duration: '',
@@ -388,14 +394,6 @@ function StepSpecs( { form, set } ) {
 				</Field>
 			</div>
 
-			<Field label={ __( 'Booking Mode', 'yacht-booking-system' ) } hint={ __( 'Full charter, shared by seat, or both.', 'yacht-booking-system' ) }>
-				<select value={ form.booking_mode } onChange={ ( e ) => set( 'booking_mode', e.target.value ) }>
-					<option value="full">{ __( 'Full Charter', 'yacht-booking-system' ) }</option>
-					<option value="shared">{ __( 'Shared', 'yacht-booking-system' ) }</option>
-					<option value="both">{ __( 'Both', 'yacht-booking-system' ) }</option>
-				</select>
-			</Field>
-
 			<Field label={ __( 'Included in Every Charter', 'yacht-booking-system' ) }>
 				<RepeatableRows
 					items={ form.included_items }
@@ -409,33 +407,71 @@ function StepSpecs( { form, set } ) {
 	);
 }
 
+const RATE_FIELDS = [
+	{ key: 'hourly', label: __( 'Hourly Rate', 'yacht-booking-system' ) },
+	{ key: 'halfday', label: __( 'Half-Day Rate', 'yacht-booking-system' ) },
+	{ key: 'morning_slot', label: __( 'Morning Slot Rate', 'yacht-booking-system' ) },
+	{ key: 'evening_slot', label: __( 'Evening / Sunset Slot Rate', 'yacht-booking-system' ) },
+	{ key: 'daily', label: __( 'Daily Rate', 'yacht-booking-system' ) },
+	{ key: 'multiday', label: __( 'Multi-Day Rate (per day)', 'yacht-booking-system' ) },
+];
+
+function RateGrid( { prefix, form, set } ) {
+	return (
+		<div className="ybs-field-row">
+			{ RATE_FIELDS.map( ( field ) => (
+				<Field key={ field.key } label={ field.label }>
+					<input
+						type="number"
+						value={ form[ prefix + field.key ] ?? '' }
+						onChange={ ( e ) => set( prefix + field.key, e.target.value ) }
+					/>
+				</Field>
+			) ) }
+		</div>
+	);
+}
+
 function StepPricing( { form, set } ) {
+	const mode = form.booking_mode || 'full';
+	const showShared = 'both' === mode;
+
 	return (
 		<>
 			<Card
 				title={ __( 'Base Rates', 'yacht-booking-system' ) }
-				subtitle={ __( 'Leave a rate blank to disable that booking type for this yacht.', 'yacht-booking-system' ) }
+				subtitle={
+					showShared
+						? __( 'This yacht runs both full and shared charters - set a separate price grid for each.', 'yacht-booking-system' )
+						: __( 'Leave a rate blank to disable that booking type for this yacht.', 'yacht-booking-system' )
+				}
 			>
-				<div className="ybs-field-row">
-					<Field label={ __( 'Hourly Rate', 'yacht-booking-system' ) }>
-						<input type="number" value={ form.base_price_hourly } onChange={ ( e ) => set( 'base_price_hourly', e.target.value ) } />
-					</Field>
-					<Field label={ __( 'Half-Day Rate', 'yacht-booking-system' ) }>
-						<input type="number" value={ form.base_price_halfday } onChange={ ( e ) => set( 'base_price_halfday', e.target.value ) } />
-					</Field>
-					<Field label={ __( 'Morning Slot Rate', 'yacht-booking-system' ) }>
-						<input type="number" value={ form.base_price_morning_slot } onChange={ ( e ) => set( 'base_price_morning_slot', e.target.value ) } />
-					</Field>
-					<Field label={ __( 'Evening / Sunset Slot Rate', 'yacht-booking-system' ) }>
-						<input type="number" value={ form.base_price_evening_slot } onChange={ ( e ) => set( 'base_price_evening_slot', e.target.value ) } />
-					</Field>
-					<Field label={ __( 'Daily Rate', 'yacht-booking-system' ) }>
-						<input type="number" value={ form.base_price_daily } onChange={ ( e ) => set( 'base_price_daily', e.target.value ) } />
-					</Field>
-					<Field label={ __( 'Multi-Day Rate (per day)', 'yacht-booking-system' ) }>
-						<input type="number" value={ form.base_price_multiday } onChange={ ( e ) => set( 'base_price_multiday', e.target.value ) } />
-					</Field>
+				<Field
+					label={ __( 'Booking Mode', 'yacht-booking-system' ) }
+					hint={
+						'both' === mode
+							? __( 'Two price grids are shown below - one for full charters, one for shared per-seat bookings.', 'yacht-booking-system' )
+							: __( 'Full charter, shared by seat, or both.', 'yacht-booking-system' )
+					}
+				>
+					<select value={ mode } onChange={ ( e ) => set( 'booking_mode', e.target.value ) }>
+						<option value="full">{ __( 'Full Charter', 'yacht-booking-system' ) }</option>
+						<option value="shared">{ __( 'Shared', 'yacht-booking-system' ) }</option>
+						<option value="both">{ __( 'Both', 'yacht-booking-system' ) }</option>
+					</select>
+				</Field>
+
+				<div className="ybs-field">
+					<label>{ showShared ? __( 'Full Charter Prices', 'yacht-booking-system' ) : __( 'Prices', 'yacht-booking-system' ) }</label>
+					<RateGrid prefix="base_price_" form={ form } set={ set } />
 				</div>
+
+				{ showShared && (
+					<div className="ybs-field" style={ { marginTop: 16 } }>
+						<label>{ __( 'Shared Prices (per seat)', 'yacht-booking-system' ) }</label>
+						<RateGrid prefix="base_price_shared_" form={ form } set={ set } />
+					</div>
+				) }
 			</Card>
 
 			<Card
@@ -513,6 +549,19 @@ function StepPricing( { form, set } ) {
 }
 
 function StepReview( { form } ) {
+	const mode = form.booking_mode || 'full';
+	const rateRows = ( prefix, suffix ) =>
+		RATE_FIELDS.map( ( field ) => {
+			const value = form[ prefix + field.key ];
+
+			return value ? (
+				<tr key={ field.key }>
+					<th>{ field.label }{ suffix }</th>
+					<td>{ value }</td>
+				</tr>
+			) : null;
+		} );
+
 	return (
 		<Card
 			title={ form.title || __( '(Untitled Yacht)', 'yacht-booking-system' ) }
@@ -523,9 +572,12 @@ function StepReview( { form } ) {
 				<tbody>
 					<tr><th>{ __( 'Capacity', 'yacht-booking-system' ) }</th><td>{ form.capacity }</td></tr>
 					<tr><th>{ __( 'Cabins', 'yacht-booking-system' ) }</th><td>{ form.cabins }</td></tr>
-					<tr><th>{ __( 'Booking Mode', 'yacht-booking-system' ) }</th><td>{ form.booking_mode }</td></tr>
-					<tr><th>{ __( 'Hourly Rate', 'yacht-booking-system' ) }</th><td>{ form.base_price_hourly }</td></tr>
-					<tr><th>{ __( 'Daily Rate', 'yacht-booking-system' ) }</th><td>{ form.base_price_daily }</td></tr>
+					<tr>
+						<th>{ __( 'Booking Mode', 'yacht-booking-system' ) }</th>
+						<td>{ 'full' === mode ? __( 'Full Charter', 'yacht-booking-system' ) : 'shared' === mode ? __( 'Shared', 'yacht-booking-system' ) : __( 'Both', 'yacht-booking-system' ) }</td>
+					</tr>
+					{ 'shared' !== mode && rateRows( 'base_price_', '' ) }
+					{ 'both' === mode && rateRows( 'base_price_shared_', __( ' (shared)', 'yacht-booking-system' ) ) }
 					<tr><th>{ __( 'Location', 'yacht-booking-system' ) }</th><td>{ form.location_name }</td></tr>
 				</tbody>
 			</table>

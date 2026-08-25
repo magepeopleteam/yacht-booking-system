@@ -67,7 +67,19 @@ class AvailabilityService {
 		} else {
 			if ( ! empty( $overlaps ) ) {
 				$result['available'] = false;
-				$result['reason']    = __( 'This yacht is already booked for the selected time.', 'yacht-booking-system' );
+				// A slot with shared seats sold can never take a full charter
+				// again - make that explicit instead of a generic message.
+				$has_shared = array_reduce(
+					$overlaps,
+					static function ( $carry, $row ) {
+						return $carry || 'shared' === ( $row['booking_mode'] ?? '' );
+					},
+					false
+				);
+
+				$result['reason'] = $has_shared
+					? __( 'Shared seats are already booked for this time - only shared bookings are available for this slot.', 'yacht-booking-system' )
+					: __( 'This yacht is already booked for the selected time.', 'yacht-booking-system' );
 			}
 
 			$result['remaining_capacity'] = $overlaps ? 0 : $capacity;
@@ -155,6 +167,18 @@ class AvailabilityService {
 		$buffered_end   = gmdate( 'Y-m-d H:i:s', strtotime( $context['end_datetime'] ) + ( $buffer_minutes * MINUTE_IN_SECONDS ) );
 
 		$overlaps = BookingRepository::overlapping( $context['yacht_id'], $buffered_start, $buffered_end, $context['exclude_booking_id'] );
+
+		// Shared seats stack inside one departure, so the turnaround buffer
+		// must not block another shared booking on an already-shared slot -
+		// it still applies against every full charter.
+		if ( 'shared' === ( $context['booking_mode'] ?? '' ) ) {
+			$overlaps = array_values(
+				array_filter(
+					$overlaps,
+					static fn( $row ) => 'shared' !== ( $row['booking_mode'] ?? '' )
+				)
+			);
+		}
 
 		if ( $overlaps ) {
 			$result['available'] = false;

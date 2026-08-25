@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'YBS_VERSION', '1.0.0' );
-define( 'YBS_DB_VERSION', '1' );
+define( 'YBS_DB_VERSION', '2' );
 define( 'YBS_PLUGIN_FILE', __FILE__ );
 define( 'YBS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'YBS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

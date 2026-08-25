@@ -36,21 +36,36 @@ class GuestsController extends Controller {
 			)
 		);
 
+		// One flat row per booking, attendee-list style: every detail the
+		// admin needs is right on the row - guest identity, which yacht,
+		// when, what type, the total, and the WooCommerce order + status.
 		$result['items'] = array_map(
-			static function ( $guest ) {
-				$row = array(
-					'id'    => (int) $guest['id'],
-					'name'  => $guest['name'],
-					'email' => $guest['email'],
-					'phone' => $guest['phone'],
-					'last_booking_id' => (int) $guest['last_booking_id'],
+			static function ( $row ) {
+				$item = array(
+					'id'             => (int) $row['id'],
+					'guest_id'       => (int) $row['guest_id'],
+					'name'           => $row['guest_name'],
+					'email'          => $row['guest_email'],
+					'phone'          => $row['guest_phone'],
+					'yacht_name'     => $row['yacht_name'],
+					'start_datetime' => $row['start_datetime'],
+					'end_datetime'   => $row['end_datetime'],
+					'start_formatted' => ybs_format_datetime( $row['start_datetime'] ),
+					'booking_type'   => $row['booking_type'],
+					'booking_mode'   => $row['booking_mode'],
+					'guest_count'    => (int) $row['guest_count'],
+					'total_price'    => (float) $row['total_price'],
+					'currency'       => $row['currency'],
+					'status'         => $row['status'],
+					'order_id'       => (int) $row['woo_order_id'],
+					'order_url'      => BookingsController::order_edit_url( (int) $row['woo_order_id'] ),
 				);
 
 				/**
-				 * Lets Pro attach extra per-row data (e.g. checked-in status)
-				 * matching the columns it added via `ybs_guest_list_columns`.
+				 * Lets Pro attach extra per-row data matching the columns it
+				 * added via `ybs_guest_list_columns`.
 				 */
-				return apply_filters( 'ybs_guest_list_row', $row, $guest );
+				return apply_filters( 'ybs_guest_list_row', $item, $row );
 			},
 			$result['items']
 		);

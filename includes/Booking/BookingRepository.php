@@ -7,10 +7,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class BookingRepository {
 
-	const STATUSES = array( 'pending', 'confirmed', 'paid', 'completed', 'cancelled', 'no_show' );
+	/** WooCommerce order-status slugs - booking and order statuses are kept
+	 *  1:1 so either side can drive the other. */
+	const STATUSES = array( 'pending', 'processing', 'on-hold', 'completed', 'cancelled', 'refunded', 'failed' );
 
-	/** Statuses that count against capacity - everything except cancelled/no_show. */
-	const ACTIVE_STATUSES = array( 'pending', 'confirmed', 'paid', 'completed' );
+	/** Statuses that count against capacity - everything except cancelled/refunded/failed. */
+	const ACTIVE_STATUSES = array( 'pending', 'processing', 'on-hold', 'completed' );
 
 	public static function table() {
 		global $wpdb;
@@ -55,6 +57,24 @@ class BookingRepository {
 		do_action( 'ybs_after_booking_created', $booking_id, $fields );
 
 		return $booking_id;
+	}
+
+	/**
+	 * Permanently removes a booking row (admin "delete" action).
+	 */
+	public static function delete( $id ) {
+		global $wpdb;
+
+		$deleted = (bool) $wpdb->delete( self::table(), array( 'id' => (int) $id ), array( '%d' ) );
+
+		if ( $deleted ) {
+			/**
+			 * @param int $booking_id
+			 */
+			do_action( 'ybs_after_booking_deleted', (int) $id );
+		}
+
+		return $deleted;
 	}
 
 	public static function find( $id ) {

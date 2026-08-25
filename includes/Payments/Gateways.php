@@ -18,6 +18,7 @@ class Gateways {
 		PayPalGateway::register();
 		StripeGateway::register();
 		WooCommerceGateway::register();
+		WooCommerceProduct::register();
 	}
 
 	/**

@@ -195,6 +195,26 @@ final class Migrator {
 			dbDelta( $statement );
 		}
 
+		self::migrate_statuses();
+
 		update_option( self::VERSION_OPTION, YBS_DB_VERSION );
+	}
+
+	/**
+	 * v2: booking statuses adopted the WooCommerce order-status slugs
+	 * (pending / processing / on-hold / completed / cancelled / refunded /
+	 * failed) so the two can be synced 1:1 in both directions.
+	 */
+	private static function migrate_statuses() {
+		global $wpdb;
+
+		if ( version_compare( (string) get_option( self::VERSION_OPTION, '0' ), '2', '>=' ) ) {
+			return;
+		}
+
+		$table = $wpdb->prefix . 'ybs_bookings';
+
+		$wpdb->query( "UPDATE {$table} SET status = 'processing' WHERE status IN ('confirmed', 'paid')" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( "UPDATE {$table} SET status = 'completed' WHERE status = 'no_show'" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 	}
 }
