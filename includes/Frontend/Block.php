@@ -33,8 +33,10 @@ class Block {
 			true
 		);
 
+		wp_set_script_translations( 'ybs-booking-block-editor', 'magepeople-yacht-booking-system', YBS_PLUGIN_DIR . 'languages' );
+
 		register_block_type(
-			'yacht-booking-system/booking-form',
+			'magepeople-yacht-booking-system/booking-form',
 			array(
 				'editor_script'   => 'ybs-booking-block-editor',
 				'attributes'      => array(

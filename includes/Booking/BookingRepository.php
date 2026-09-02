@@ -243,7 +243,7 @@ class BookingRepository {
 		if ( 1 !== $got ) {
 			return new \WP_Error(
 				'ybs_booking_busy',
-				__( 'Another booking for this yacht is being processed. Please try again.', 'yacht-booking-system' )
+				__( 'Another booking for this yacht is being processed. Please try again.', 'magepeople-yacht-booking-system' )
 			);
 		}
 

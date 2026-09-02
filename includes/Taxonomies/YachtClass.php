@@ -13,23 +13,23 @@ class YachtClass extends AbstractTaxonomy {
 
 	public static function labels(): array {
 		return array(
-			'name'          => __( 'Yacht Classes', 'yacht-booking-system' ),
-			'singular_name' => __( 'Yacht Class', 'yacht-booking-system' ),
-			'search_items'  => __( 'Search Classes', 'yacht-booking-system' ),
-			'all_items'     => __( 'All Classes', 'yacht-booking-system' ),
-			'edit_item'     => __( 'Edit Class', 'yacht-booking-system' ),
-			'add_new_item'  => __( 'Add New Class', 'yacht-booking-system' ),
-			'menu_name'     => __( 'Classes', 'yacht-booking-system' ),
+			'name'          => __( 'Yacht Classes', 'magepeople-yacht-booking-system' ),
+			'singular_name' => __( 'Yacht Class', 'magepeople-yacht-booking-system' ),
+			'search_items'  => __( 'Search Classes', 'magepeople-yacht-booking-system' ),
+			'all_items'     => __( 'All Classes', 'magepeople-yacht-booking-system' ),
+			'edit_item'     => __( 'Edit Class', 'magepeople-yacht-booking-system' ),
+			'add_new_item'  => __( 'Add New Class', 'magepeople-yacht-booking-system' ),
+			'menu_name'     => __( 'Classes', 'magepeople-yacht-booking-system' ),
 		);
 	}
 
 	public static function default_terms(): array {
 		return array(
-			__( 'Comfort', 'yacht-booking-system' ),
-			__( 'Comfort Plus', 'yacht-booking-system' ),
-			__( 'Business', 'yacht-booking-system' ),
-			__( 'First Class', 'yacht-booking-system' ),
-			__( 'Party', 'yacht-booking-system' ),
+			__( 'Comfort', 'magepeople-yacht-booking-system' ),
+			__( 'Comfort Plus', 'magepeople-yacht-booking-system' ),
+			__( 'Business', 'magepeople-yacht-booking-system' ),
+			__( 'First Class', 'magepeople-yacht-booking-system' ),
+			__( 'Party', 'magepeople-yacht-booking-system' ),
 		);
 	}
 }

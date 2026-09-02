@@ -4,6 +4,7 @@ import { initSearch } from './search';
 import { initMaps, initNewsletter } from './map';
 import { initAvailabilityCalendars } from './availability-calendar';
 import { initGalleries } from './gallery';
+import { initYachtList } from './yacht-list';
 
 function boot() {
 	initBookingForms();
@@ -12,6 +13,7 @@ function boot() {
 	initNewsletter();
 	initAvailabilityCalendars();
 	initGalleries();
+	initYachtList();
 }
 
 if ( 'loading' === document.readyState ) {

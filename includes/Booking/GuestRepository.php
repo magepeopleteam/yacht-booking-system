@@ -175,7 +175,7 @@ class GuestRepository {
 			$wpdb->update(
 				$guests,
 				array(
-					'name'          => __( 'Anonymized Guest', 'yacht-booking-system' ),
+					'name'          => __( 'Anonymized Guest', 'magepeople-yacht-booking-system' ),
 					'email'         => '',
 					'phone'         => '',
 					'anonymized_at' => current_time( 'mysql' ),

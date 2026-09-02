@@ -11,8 +11,8 @@ export default function GalleryPicker( { items, onChange } ) {
 		}
 
 		const frame = window.wp.media( {
-			title: __( 'Select Gallery Images', 'yacht-booking-system' ),
-			button: { text: __( 'Add to Gallery', 'yacht-booking-system' ) },
+			title: __( 'Select Gallery Images', 'magepeople-yacht-booking-system' ),
+			button: { text: __( 'Add to Gallery', 'magepeople-yacht-booking-system' ) },
 			multiple: true,
 			library: { type: 'image' },
 		} );
@@ -38,14 +38,14 @@ export default function GalleryPicker( { items, onChange } ) {
 				{ items.map( ( item ) => (
 					<div key={ item.id } className="ybs-gallery-picker__item">
 						<img src={ item.url } alt="" />
-						<button type="button" onClick={ () => remove( item.id ) } aria-label={ __( 'Remove image', 'yacht-booking-system' ) }>
+						<button type="button" onClick={ () => remove( item.id ) } aria-label={ __( 'Remove image', 'magepeople-yacht-booking-system' ) }>
 							<span className="dashicons dashicons-no-alt" />
 						</button>
 					</div>
 				) ) }
 			</div>
 			<button type="button" className="ybs-btn" onClick={ open }>
-				{ __( '+ Add Images', 'yacht-booking-system' ) }
+				{ __( '+ Add Images', 'magepeople-yacht-booking-system' ) }
 			</button>
 		</div>
 	);

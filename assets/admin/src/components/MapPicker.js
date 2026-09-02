@@ -122,7 +122,7 @@ export default function MapPicker( { lat, lng, onChange } ) {
 					type="text"
 					value={ query }
 					onChange={ ( e ) => setQuery( e.target.value ) }
-					placeholder={ __( 'Search for a marina, pier, or address…', 'yacht-booking-system' ) }
+					placeholder={ __( 'Search for a marina, pier, or address…', 'magepeople-yacht-booking-system' ) }
 				/>
 				{ searching && <span className="ybs-map-search__spinner" aria-hidden="true" /> }
 			</div>
@@ -141,7 +141,7 @@ export default function MapPicker( { lat, lng, onChange } ) {
 
 			<div ref={ containerRef } style={ { height: 280, borderRadius: 8, margin: '8px 0' } } />
 			<p className="ybs-hint">
-				{ __( 'Start typing to search, or click/drag the marker to set the exact departure point.', 'yacht-booking-system' ) }
+				{ __( 'Start typing to search, or click/drag the marker to set the exact departure point.', 'magepeople-yacht-booking-system' ) }
 			</p>
 		</div>
 	);

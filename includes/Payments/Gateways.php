@@ -29,6 +29,22 @@ class Gateways {
 	}
 
 	/**
+	 * The ids of the gateways the admin has actually switched on.
+	 *
+	 * @return string[]
+	 */
+	public static function enabled_ids() {
+		$enabled = array_filter(
+			self::available(),
+			static function ( $gateway ) {
+				return ! empty( $gateway['enabled'] );
+			}
+		);
+
+		return array_keys( $enabled );
+	}
+
+	/**
 	 * Dispatches to whichever gateway matches $gateway_id.
 	 *
 	 * @return array{redirect:string}|null|\WP_Error

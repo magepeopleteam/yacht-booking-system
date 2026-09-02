@@ -9,6 +9,7 @@ use Ybs\Frontend\Newsletter;
 use Ybs\Frontend\Shortcode;
 use Ybs\Frontend\Templates;
 use Ybs\Install\Migrator;
+use Ybs\Notifications\BookingEmailer;
 use Ybs\Payments\Gateways;
 use Ybs\PostTypes\Yacht;
 use Ybs\Rest\BookingsController;
@@ -77,12 +78,13 @@ final class Plugin {
 		AvailabilityService::register();
 		Gateways::register();
 		Maintenance::register();
+		BookingEmailer::register();
 
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 	}
 
 	public function load_textdomain(): void {
-		load_plugin_textdomain( 'yacht-booking-system', false, dirname( YBS_PLUGIN_BASENAME ) . '/languages' );
+		load_plugin_textdomain( 'magepeople-yacht-booking-system', false, dirname( YBS_PLUGIN_BASENAME ) . '/languages' );
 	}
 
 	public function maybe_flush_rewrite_rules(): void {

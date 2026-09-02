@@ -1,6 +1,39 @@
 import { useEffect, useRef } from '@wordpress/element';
 
 /**
+ * Inserts text at the cursor into a mounted classic editor - works whether
+ * the visual (TinyMCE) or text (quicktags) view is currently active, since
+ * a compact/inline editor's toolbar-less text mode has no TinyMCE instance
+ * to insert into. Returns the editor's full content after inserting, so
+ * callers can push it straight into their own `onChange` state.
+ */
+export function insertIntoEditor( id, text ) {
+	const editor = window.tinymce && window.tinymce.get( id );
+
+	if ( editor && ! editor.isHidden() ) {
+		editor.execCommand( 'mceInsertContent', false, text );
+		editor.save();
+		return editor.getContent();
+	}
+
+	const textarea = document.getElementById( id );
+
+	if ( ! textarea ) {
+		return null;
+	}
+
+	const start = textarea.selectionStart ?? textarea.value.length;
+	const end = textarea.selectionEnd ?? textarea.value.length;
+	const next = textarea.value.slice( 0, start ) + text + textarea.value.slice( end );
+
+	textarea.value = next;
+	textarea.focus();
+	textarea.selectionStart = textarea.selectionEnd = start + text.length;
+
+	return next;
+}
+
+/**
  * Mounts WordPress's classic (TinyMCE + Quicktags) editor onto a plain
  * textarea, the same API Gutenberg's own "Classic" block uses
  * (`wp.editor.initialize`/`wp.editor.remove`) - requires the host page to

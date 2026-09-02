@@ -39,11 +39,11 @@ export default function WooCommerceGatewayList() {
 	};
 
 	if ( ! gateways ) {
-		return <p className="ybs-hint">{ __( 'Loading payment methods…', 'yacht-booking-system' ) }</p>;
+		return <p className="ybs-hint">{ __( 'Loading payment methods…', 'magepeople-yacht-booking-system' ) }</p>;
 	}
 
 	if ( ! gateways.length ) {
-		return <p className="ybs-hint">{ __( 'WooCommerce has no registered payment gateways yet.', 'yacht-booking-system' ) }</p>;
+		return <p className="ybs-hint">{ __( 'WooCommerce has no registered payment gateways yet.', 'magepeople-yacht-booking-system' ) }</p>;
 	}
 
 	return (
@@ -70,7 +70,7 @@ export default function WooCommerceGatewayList() {
 				target="_blank"
 				rel="noreferrer"
 			>
-				{ __( 'Manage gateway details (API keys, instructions…) in WooCommerce Settings →', 'yacht-booking-system' ) }
+				{ __( 'Manage gateway details (API keys, instructions…) in WooCommerce Settings →', 'magepeople-yacht-booking-system' ) }
 			</a>
 		</div>
 	);

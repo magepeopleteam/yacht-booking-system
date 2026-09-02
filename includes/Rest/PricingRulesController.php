@@ -68,7 +68,7 @@ class PricingRulesController extends Controller {
 		$id = (int) $request['id'];
 
 		if ( ! PricingRuleRepository::find( $id ) ) {
-			return new WP_Error( 'ybs_not_found', __( 'Pricing rule not found.', 'yacht-booking-system' ), array( 'status' => 404 ) );
+			return new WP_Error( 'ybs_not_found', __( 'Pricing rule not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
 		}
 
 		PricingRuleRepository::update( $id, (array) $request->get_json_params() );

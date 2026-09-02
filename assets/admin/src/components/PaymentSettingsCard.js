@@ -4,9 +4,9 @@ import { api } from '../api/client';
 import PaymentSettingsModal from './PaymentSettingsModal';
 
 const METHOD_LABELS = {
-	offline: __( 'Offline', 'yacht-booking-system' ),
-	paypal: __( 'PayPal', 'yacht-booking-system' ),
-	stripe: __( 'Stripe', 'yacht-booking-system' ),
+	offline: __( 'Offline', 'magepeople-yacht-booking-system' ),
+	paypal: __( 'PayPal', 'magepeople-yacht-booking-system' ),
+	stripe: __( 'Stripe', 'magepeople-yacht-booking-system' ),
 };
 
 export default function PaymentSettingsCard() {
@@ -19,12 +19,12 @@ export default function PaymentSettingsCard() {
 				api.get( '/settings/woocommerce/gateways' )
 					.then( ( gateways ) => {
 						const enabled = gateways.filter( ( g ) => g.enabled ).map( ( g ) => g.title );
-						setActive( enabled.length ? enabled : [ __( 'WooCommerce (nothing enabled yet)', 'yacht-booking-system' ) ] );
+						setActive( enabled.length ? enabled : [ __( 'WooCommerce (nothing enabled yet)', 'magepeople-yacht-booking-system' ) ] );
 					} )
-					.catch( () => setActive( [ __( 'WooCommerce', 'yacht-booking-system' ) ] ) );
+					.catch( () => setActive( [ __( 'WooCommerce', 'magepeople-yacht-booking-system' ) ] ) );
 			} else {
 				const enabled = settings.payment_methods.map( ( m ) => METHOD_LABELS[ m ] || m );
-				setActive( enabled.length ? enabled : [ __( 'None enabled yet', 'yacht-booking-system' ) ] );
+				setActive( enabled.length ? enabled : [ __( 'None enabled yet', 'magepeople-yacht-booking-system' ) ] );
 			}
 		} );
 	};
@@ -39,18 +39,18 @@ export default function PaymentSettingsCard() {
 	return (
 		<div className="ybs-wcard">
 			<div className="ybs-wcard__head">
-				<h3>{ __( 'Payment Settings', 'yacht-booking-system' ) }</h3>
-				<p>{ __( 'Offline, PayPal, Stripe, or WooCommerce.', 'yacht-booking-system' ) }</p>
+				<h3>{ __( 'Payment Settings', 'magepeople-yacht-booking-system' ) }</h3>
+				<p>{ __( 'Offline, PayPal, Stripe, or WooCommerce.', 'magepeople-yacht-booking-system' ) }</p>
 			</div>
 			<div className="ybs-wcard__body">
 				<div className="ybs-payment-summary">
-					<span className="ybs-payment-summary__label">{ __( 'Currently active', 'yacht-booking-system' ) }</span>
+					<span className="ybs-payment-summary__label">{ __( 'Currently active', 'magepeople-yacht-booking-system' ) }</span>
 					<div className="ybs-payment-summary__pills">
 						{ active
 							? active.map( ( label ) => (
 								<span className="ybs-badge status-paid" key={ label }>{ label }</span>
 							) )
-							: <span className="ybs-hint">{ __( 'Loading…', 'yacht-booking-system' ) }</span> }
+							: <span className="ybs-hint">{ __( 'Loading…', 'magepeople-yacht-booking-system' ) }</span> }
 					</div>
 				</div>
 
@@ -60,7 +60,7 @@ export default function PaymentSettingsCard() {
 				onClick={ () => setOpen( true ) }
 				style={ { width: '100%', justifyContent: 'center' } }
 			>
-					{ __( 'Configure Payments', 'yacht-booking-system' ) }
+					{ __( 'Configure Payments', 'magepeople-yacht-booking-system' ) }
 				</button>
 			</div>
 

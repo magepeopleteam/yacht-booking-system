@@ -101,7 +101,13 @@ class YachtsController extends Controller {
 	}
 
 	public static function quote( WP_REST_Request $request ) {
-		$yacht_id     = (int) $request['id'];
+		$yacht_id = (int) $request['id'];
+		$yacht    = self::get_readable_yacht( $yacht_id );
+
+		if ( is_wp_error( $yacht ) ) {
+			return $yacht;
+		}
+
 		$booking_type = sanitize_key( $request->get_param( 'booking_type' ) );
 		$start        = sanitize_text_field( $request->get_param( 'start_datetime' ) );
 		$end          = sanitize_text_field( $request->get_param( 'end_datetime' ) );
@@ -109,7 +115,7 @@ class YachtsController extends Controller {
 		$booking_mode = sanitize_key( $request->get_param( 'booking_mode' ) ) ?: ( get_post_meta( $yacht_id, 'booking_mode', true ) ?: 'full' );
 
 		if ( ! $start || ! $end ) {
-			return new WP_Error( 'ybs_invalid_dates', __( 'Please choose a date and time.', 'yacht-booking-system' ), array( 'status' => 400 ) );
+			return new WP_Error( 'ybs_invalid_dates', __( 'Please choose a date and time.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		$availability = AvailabilityService::check( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode );
@@ -135,7 +141,21 @@ class YachtsController extends Controller {
 
 	public static function calendar( WP_REST_Request $request ) {
 		$yacht_id = (int) $request['id'];
-		$month    = sanitize_text_field( $request->get_param( 'month' ) ?: current_time( 'Y-m' ) );
+		$yacht    = self::get_readable_yacht( $yacht_id );
+
+		if ( is_wp_error( $yacht ) ) {
+			return $yacht;
+		}
+
+		$month = sanitize_text_field( $request->get_param( 'month' ) ?: current_time( 'Y-m' ) );
+
+		// Validated rather than trusted: an unparseable month makes strtotime()
+		// return false, and gmdate('t', false) then reports 31 - running a
+		// month's worth of availability checks on an unauthenticated route.
+		if ( ! preg_match( '/^\d{4}-\d{2}$/', $month ) ) {
+			return new WP_Error( 'ybs_invalid_month', __( 'Please provide a month as YYYY-MM.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+		}
+
 		$booking_mode = get_post_meta( $yacht_id, 'booking_mode', true ) ?: 'full';
 
 		$timestamp  = strtotime( $month . '-01' );
@@ -158,8 +178,10 @@ class YachtsController extends Controller {
 		$args = array(
 			'post_type'      => Yacht::POST_TYPE,
 			'post_status'    => $can_manage ? 'any' : 'publish',
-			'posts_per_page' => (int) $request->get_param( 'per_page' ) ?: 20,
-			'paged'          => (int) $request->get_param( 'page' ) ?: 1,
+			// Capped: this route is public, so an unbounded per_page would let
+			// anyone ask for the entire fleet (and its meta) in one query.
+			'posts_per_page' => min( 100, max( 1, absint( $request->get_param( 'per_page' ) ) ?: 20 ) ),
+			'paged'          => max( 1, absint( $request->get_param( 'page' ) ) ?: 1 ),
 		);
 
 		$tax_query = array();
@@ -245,11 +267,36 @@ class YachtsController extends Controller {
 		);
 	}
 
-	public static function show( WP_REST_Request $request ) {
-		$post = get_post( (int) $request['id'] );
+	/**
+	 * Resolves a yacht for one of the public (`__return_true`) read routes.
+	 *
+	 * Anything not published is treated as non-existent unless the caller can
+	 * manage yachts - without this, a draft yacht's full record (including its
+	 * unpublished rates and confirmation email body) is readable by anyone who
+	 * can guess a post id.
+	 *
+	 * @param int $yacht_id Yacht post id.
+	 * @return \WP_Post|WP_Error
+	 */
+	private static function get_readable_yacht( $yacht_id ) {
+		$post = get_post( $yacht_id );
 
 		if ( ! $post || Yacht::POST_TYPE !== $post->post_type ) {
-			return new WP_Error( 'ybs_not_found', __( 'Yacht not found.', 'yacht-booking-system' ), array( 'status' => 404 ) );
+			return new WP_Error( 'ybs_not_found', __( 'Yacht not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
+		}
+
+		if ( 'publish' !== $post->post_status && ! \Ybs\Capabilities::can( 'settings' ) ) {
+			return new WP_Error( 'ybs_not_found', __( 'Yacht not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
+		}
+
+		return $post;
+	}
+
+	public static function show( WP_REST_Request $request ) {
+		$post = self::get_readable_yacht( (int) $request['id'] );
+
+		if ( is_wp_error( $post ) ) {
+			return $post;
 		}
 
 		return rest_ensure_response( self::full( $post ) );
@@ -261,7 +308,7 @@ class YachtsController extends Controller {
 		$post_id = wp_insert_post(
 			array(
 				'post_type'    => Yacht::POST_TYPE,
-				'post_title'   => sanitize_text_field( $data['title'] ?? __( 'Untitled Yacht', 'yacht-booking-system' ) ),
+				'post_title'   => sanitize_text_field( $data['title'] ?? __( 'Untitled Yacht', 'magepeople-yacht-booking-system' ) ),
 				'post_content' => wp_kses_post( $data['description'] ?? '' ),
 				'post_status'  => sanitize_key( $data['status'] ?? 'draft' ),
 				'post_name'    => ! empty( $data['slug'] ) ? sanitize_title( $data['slug'] ) : '',
@@ -284,7 +331,7 @@ class YachtsController extends Controller {
 		$post = get_post( (int) $request['id'] );
 
 		if ( ! $post || Yacht::POST_TYPE !== $post->post_type ) {
-			return new WP_Error( 'ybs_not_found', __( 'Yacht not found.', 'yacht-booking-system' ), array( 'status' => 404 ) );
+			return new WP_Error( 'ybs_not_found', __( 'Yacht not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
 		}
 
 		$data   = $request->get_json_params();
@@ -321,7 +368,7 @@ class YachtsController extends Controller {
 		$post = get_post( (int) $request['id'] );
 
 		if ( ! $post || Yacht::POST_TYPE !== $post->post_type ) {
-			return new WP_Error( 'ybs_not_found', __( 'Yacht not found.', 'yacht-booking-system' ), array( 'status' => 404 ) );
+			return new WP_Error( 'ybs_not_found', __( 'Yacht not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
 		}
 
 		wp_delete_post( $post->ID, true );
@@ -337,7 +384,7 @@ class YachtsController extends Controller {
 	 */
 	public static function dummy_import() {
 		if ( get_option( 'ybs_dummy_seeded' ) ) {
-			return new WP_Error( 'ybs_already_seeded', __( 'Sample yachts have already been imported.', 'yacht-booking-system' ), array( 'status' => 400 ) );
+			return new WP_Error( 'ybs_already_seeded', __( 'Sample yachts have already been imported.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		$imported = 0;
@@ -395,8 +442,8 @@ class YachtsController extends Controller {
 	private static function dummy_yacht_samples() {
 		return array(
 			array(
-				'title'       => __( 'Ocean Breeze', 'yacht-booking-system' ),
-				'description' => __( 'A sleek 42ft motor yacht perfect for sunset cruises and small celebrations along the coast.', 'yacht-booking-system' ),
+				'title'       => __( 'Ocean Breeze', 'magepeople-yacht-booking-system' ),
+				'description' => __( 'A sleek 42ft motor yacht perfect for sunset cruises and small celebrations along the coast.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Comfort',
 				'occasions'   => array( 'Birthday', 'Sunset Cocktail' ),
 				'meta'        => array(
@@ -421,8 +468,8 @@ class YachtsController extends Controller {
 				),
 			),
 			array(
-				'title'       => __( 'Sapphire Horizon', 'yacht-booking-system' ),
-				'description' => __( 'A spacious 68ft luxury cruiser with a sundeck lounge, ideal for corporate charters and weddings.', 'yacht-booking-system' ),
+				'title'       => __( 'Sapphire Horizon', 'magepeople-yacht-booking-system' ),
+				'description' => __( 'A spacious 68ft luxury cruiser with a sundeck lounge, ideal for corporate charters and weddings.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'First Class',
 				'occasions'   => array( 'Wedding', 'Corporate' ),
 				'meta'        => array(
@@ -447,8 +494,8 @@ class YachtsController extends Controller {
 				),
 			),
 			array(
-				'title'       => __( 'Island Serenade', 'yacht-booking-system' ),
-				'description' => __( 'A breezy 36ft catamaran built for laid-back island hopping and small bachelorette groups.', 'yacht-booking-system' ),
+				'title'       => __( 'Island Serenade', 'magepeople-yacht-booking-system' ),
+				'description' => __( 'A breezy 36ft catamaran built for laid-back island hopping and small bachelorette groups.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Comfort Plus',
 				'occasions'   => array( 'Bachelorette', 'Anniversary / Proposal' ),
 				'meta'        => array(
@@ -473,8 +520,8 @@ class YachtsController extends Controller {
 				),
 			),
 			array(
-				'title'       => __( 'Golden Mirage', 'yacht-booking-system' ),
-				'description' => __( 'A striking 55ft superyacht with a jacuzzi deck, built for high-end business entertaining.', 'yacht-booking-system' ),
+				'title'       => __( 'Golden Mirage', 'magepeople-yacht-booking-system' ),
+				'description' => __( 'A striking 55ft superyacht with a jacuzzi deck, built for high-end business entertaining.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Business',
 				'occasions'   => array( 'Corporate', 'Birthday' ),
 				'meta'        => array(
@@ -499,8 +546,8 @@ class YachtsController extends Controller {
 				),
 			),
 			array(
-				'title'       => __( 'Aegean Muse', 'yacht-booking-system' ),
-				'description' => __( 'A whitewashed 48ft sailing yacht drifting past the caldera - built for sunset proposals.', 'yacht-booking-system' ),
+				'title'       => __( 'Aegean Muse', 'magepeople-yacht-booking-system' ),
+				'description' => __( 'A whitewashed 48ft sailing yacht drifting past the caldera - built for sunset proposals.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Comfort',
 				'occasions'   => array( 'Anniversary / Proposal', 'Sunset Cocktail' ),
 				'meta'        => array(
@@ -525,8 +572,8 @@ class YachtsController extends Controller {
 				),
 			),
 			array(
-				'title'       => __( 'Southern Star', 'yacht-booking-system' ),
-				'description' => __( 'A lively 60ft party yacht with a sound system and open deck, built for big celebrations - bookable as a full charter or by the seat.', 'yacht-booking-system' ),
+				'title'       => __( 'Southern Star', 'magepeople-yacht-booking-system' ),
+				'description' => __( 'A lively 60ft party yacht with a sound system and open deck, built for big celebrations - bookable as a full charter or by the seat.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Party',
 				'occasions'   => array( 'Bachelorette', 'Birthday' ),
 				'meta'        => array(
@@ -560,7 +607,17 @@ class YachtsController extends Controller {
 
 	public static function availability( WP_REST_Request $request ) {
 		$yacht_id = (int) $request['id'];
-		$date     = sanitize_text_field( $request->get_param( 'date' ) ?: current_time( 'Y-m-d' ) );
+		$yacht    = self::get_readable_yacht( $yacht_id );
+
+		if ( is_wp_error( $yacht ) ) {
+			return $yacht;
+		}
+
+		$date = sanitize_text_field( $request->get_param( 'date' ) ?: current_time( 'Y-m-d' ) );
+
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) {
+			return new WP_Error( 'ybs_invalid_date', __( 'Please provide a date as YYYY-MM-DD.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+		}
 
 		$slots        = Yacht::time_windows( $yacht_id );
 		$results      = array();
@@ -578,6 +635,48 @@ class YachtsController extends Controller {
 				'date'         => $date,
 				'booking_mode' => $booking_mode,
 				'slots'        => $results,
+			)
+		);
+	}
+
+	/**
+	 * Sanitizes the repeatable list metas before they are stored.
+	 *
+	 * FAQ answers are the only field here allowed to keep markup (they are
+	 * authored in the classic editor and rendered with wp_kses_post()); every
+	 * other cell is plain text.
+	 *
+	 * @param string $key   Meta key being saved.
+	 * @param mixed  $value Raw value from the request.
+	 * @return array
+	 */
+	private static function sanitize_meta_rows( $key, $value ) {
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		if ( 'faq' === $key ) {
+			return array_values(
+				array_map(
+					static function ( $row ) {
+						return array(
+							'question' => sanitize_text_field( (string) ( $row['question'] ?? '' ) ),
+							'answer'   => wp_kses_post( (string) ( $row['answer'] ?? '' ) ),
+						);
+					},
+					array_filter( $value, 'is_array' )
+				)
+			);
+		}
+
+		return array_values(
+			array_map(
+				static function ( $row ) {
+					return is_array( $row )
+						? array_map( 'sanitize_text_field', array_map( 'strval', $row ) )
+						: sanitize_text_field( (string) $row );
+				},
+				$value
 			)
 		);
 	}
@@ -600,7 +699,11 @@ class YachtsController extends Controller {
 
 				update_post_meta( $post_id, $key, array_values( array_filter( $ids ) ) );
 			} elseif ( in_array( $key, array( 'faq', 'included_items', 'off_days' ), true ) ) {
-				update_post_meta( $post_id, $key, is_array( $value ) ? $value : array() );
+				update_post_meta( $post_id, $key, self::sanitize_meta_rows( $key, $value ) );
+			} elseif ( 'confirmation_email_body' === $key ) {
+				// Rich text from the wizard's classic editor - sanitize_text_field()
+				// would strip it down to plain text.
+				update_post_meta( $post_id, $key, wp_kses_post( (string) $value ) );
 			} else {
 				update_post_meta( $post_id, $key, sanitize_text_field( (string) $value ) );
 			}
@@ -632,14 +735,30 @@ class YachtsController extends Controller {
 	}
 
 	private static function summarize( $post ) {
+		$gallery_ids = get_post_meta( $post->ID, 'gallery', true );
+		$gallery_ids = is_array( $gallery_ids ) ? array_filter( array_map( 'intval', $gallery_ids ) ) : array();
+		$thumb_id    = get_post_thumbnail_id( $post->ID );
+
+		if ( $thumb_id && ! in_array( $thumb_id, $gallery_ids, true ) ) {
+			array_unshift( $gallery_ids, $thumb_id );
+		}
+
+		$photos = array_values(
+			array_filter( array_map( static fn( $id ) => wp_get_attachment_image_url( $id, 'medium' ), $gallery_ids ) )
+		);
+
 		return array(
-			'id'         => $post->ID,
-			'title'      => get_the_title( $post ),
-			'thumbnail'  => get_the_post_thumbnail_url( $post, 'medium' ),
-			'capacity'   => (int) get_post_meta( $post->ID, 'capacity', true ),
-			'classes'    => wp_get_post_terms( $post->ID, 'yacht_class', array( 'fields' => 'names' ) ),
-			'occasions'  => wp_get_post_terms( $post->ID, 'yacht_occasion', array( 'fields' => 'names' ) ),
-			'location'   => array(
+			'id'          => $post->ID,
+			'title'       => get_the_title( $post ),
+			'thumbnail'   => get_the_post_thumbnail_url( $post, 'medium' ),
+			'photos'      => $photos,
+			'photo_count' => count( $photos ),
+			'capacity'    => (int) get_post_meta( $post->ID, 'capacity', true ),
+			'length'      => get_post_meta( $post->ID, 'length', true ),
+			'cabins'      => (int) get_post_meta( $post->ID, 'cabins', true ),
+			'classes'     => wp_get_post_terms( $post->ID, 'yacht_class', array( 'fields' => 'names' ) ),
+			'occasions'   => wp_get_post_terms( $post->ID, 'yacht_occasion', array( 'fields' => 'names' ) ),
+			'location'    => array(
 				'name' => get_post_meta( $post->ID, 'location_name', true ),
 				'lat'  => get_post_meta( $post->ID, 'location_lat', true ),
 				'lng'  => get_post_meta( $post->ID, 'location_lng', true ),

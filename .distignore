@@ -1,0 +1,23 @@
+# Everything here is development tooling or source that must not ship in the
+# distributed plugin zip. The built bundles under assets/build/ DO ship, and so
+# does vendor/ (it holds the Composer autoloader the plugin hard-requires).
+
+.git
+.gitignore
+.distignore
+.DS_Store
+Thumbs.db
+
+node_modules
+package.json
+package-lock.json
+webpack.config.js
+composer.json
+composer.lock
+
+assets/admin/src
+assets/frontend/src
+
+*.md
+*.log
+*.zip

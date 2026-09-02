@@ -15,13 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Menu {
 
-	const PAGE_SLUG = 'yacht-booking-system';
+	const PAGE_SLUG = 'magepeople-yacht-booking-system';
 	const HOOK      = 'toplevel_page_' . self::PAGE_SLUG;
 
 	public static function register() {
 		$hook = add_menu_page(
-			__( 'Yacht Booking', 'yacht-booking-system' ),
-			__( 'Yacht Booking', 'yacht-booking-system' ),
+			__( 'Yacht Booking', 'magepeople-yacht-booking-system' ),
+			__( 'Yacht Booking', 'magepeople-yacht-booking-system' ),
 			Capabilities::CAP_BOOKINGS,
 			self::PAGE_SLUG,
 			array( __CLASS__, 'render' ),
@@ -76,6 +76,10 @@ class Menu {
 			true
 		);
 
+		// Without this the admin app's @wordpress/i18n strings stay English no
+		// matter what translations are installed.
+		wp_set_script_translations( 'ybs-admin', 'magepeople-yacht-booking-system', YBS_PLUGIN_DIR . 'languages' );
+
 		wp_enqueue_style(
 			'ybs-admin',
 			YBS_PLUGIN_URL . 'assets/build/style-admin.css',
@@ -107,13 +111,14 @@ class Menu {
 				'adminUrl'    => admin_url(),
 				'extraRoutes' => array_values( $extra_routes ),
 				'currency'    => \Ybs\Settings::get( 'currency_symbol', '$' ),
+				'adminEmail'  => get_option( 'admin_email' ),
 			)
 		);
 	}
 
 	public static function missing_build_notice() {
 		echo '<div class="notice notice-error"><p>' .
-			esc_html__( 'Yacht Booking System: run "npm install && npm run build" in the plugin directory to compile the admin app.', 'yacht-booking-system' ) .
+			esc_html__( 'Yacht Booking System: run "npm install && npm run build" in the plugin directory to compile the admin app.', 'magepeople-yacht-booking-system' ) .
 			'</p></div>';
 	}
 

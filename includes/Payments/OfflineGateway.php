@@ -24,7 +24,7 @@ class OfflineGateway {
 		$enabled = in_array( self::ID, (array) Settings::get( 'payment_methods', array() ), true );
 
 		$gateways[ self::ID ] = array(
-			'label'       => __( 'Offline / Manual Payment', 'yacht-booking-system' ),
+			'label'       => __( 'Offline / Manual Payment', 'magepeople-yacht-booking-system' ),
 			'enabled'     => $enabled,
 			'instructions' => Settings::get( 'offline_instructions', '' ),
 		);

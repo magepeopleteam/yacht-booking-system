@@ -283,6 +283,28 @@ body.ybs-shell #wpbody-content > .wrap {
 	gap: 10px;
 }
 
+.ybs-select {
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	padding: 9px 30px 9px 14px;
+	border: 1px solid var( --ybs-border );
+	border-radius: var( --ybs-radius );
+	background-color: #fff;
+	background-image: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' opacity='.55'/%3E%3C/svg%3E" );
+	background-repeat: no-repeat;
+	background-position: right 12px center;
+	font-size: 13px;
+	color: var( --ybs-ink );
+	cursor: pointer;
+}
+
+.ybs-select:focus {
+	outline: none;
+	border-color: var( --ybs-primary );
+	box-shadow: 0 0 0 3px rgba( 249, 115, 22, .16 );
+}
+
 /* -------------------------------------------------------------- Buttons */
 
 .ybs-btn {
@@ -423,6 +445,40 @@ body.ybs-shell #wpbody-content > .wrap {
 .ybs-badge.status-refunded { background: #e0e7ff; color: #3730a3; }
 .ybs-badge.status-failed { background: #ffedd5; color: #9a3412; }
 
+/* A `<select>` wearing the badge look needs the native chrome stripped out -
+   otherwise it keeps browser-default height/border and sizes itself to the
+   longest option text, which is what made it look oversized. */
+select.ybs-badge {
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	border: none;
+	margin: 0;
+	width: auto;
+	max-width: 160px;
+	min-height: 0;
+	height: auto;
+	line-height: 1.4;
+	cursor: pointer;
+	padding: 4px 24px 4px 10px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	background-image: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' opacity='.55'/%3E%3C/svg%3E" );
+	background-repeat: no-repeat;
+	background-position: right 8px center;
+	transition: filter .15s ease;
+}
+
+select.ybs-badge:hover {
+	filter: brightness( 0.96 );
+}
+
+select.ybs-badge:focus {
+	outline: 2px solid var( --ybs-primary );
+	outline-offset: 1px;
+}
+
 /* ----------------------------------------------------------------- Forms */
 
 .ybs-field {
@@ -440,8 +496,6 @@ body.ybs-shell #wpbody-content > .wrap {
 .ybs-field input[type="text"],
 .ybs-field input[type="number"],
 .ybs-field input[type="email"],
-.ybs-field input[type="date"],
-.ybs-field input[type="time"],
 .ybs-field input[type="datetime-local"],
 .ybs-field select,
 .ybs-field textarea {
@@ -1767,4 +1821,763 @@ body.ybs-shell #wpbody-content > .wrap {
 @keyframes ybs-skeleton-shimmer {
 	0% { background-position: 100% 50%; }
 	100% { background-position: 0 50%; }
+}
+
+/* ------------------------------------------------------- Settings shell */
+
+.ybs-settings {
+	display: flex;
+	align-items: stretch;
+	min-height: 640px;
+	background: var( --ybs-surface );
+	border: 1px solid var( --ybs-border );
+	border-radius: 14px;
+	overflow: hidden;
+}
+
+.ybs-settings__sidebar {
+	width: 220px;
+	flex: 0 0 auto;
+	display: flex;
+	flex-direction: column;
+	border-right: 1px solid var( --ybs-border );
+	background: var( --ybs-surface );
+}
+
+.ybs-settings__sb-header {
+	padding: 18px 16px 14px;
+	border-bottom: 1px solid var( --ybs-border );
+}
+
+.ybs-settings__sb-eyebrow {
+	display: block;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	color: var( --ybs-ink-faded );
+	margin-bottom: 5px;
+}
+
+.ybs-settings__sb-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 15px;
+	font-weight: 700;
+	color: var( --ybs-ink );
+}
+
+.ybs-settings__sb-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var( --ybs-primary );
+	flex: 0 0 auto;
+}
+
+.ybs-settings__nav {
+	flex: 1;
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.ybs-settings__nav-item {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 9px 10px;
+	border-radius: 8px;
+	border: none;
+	background: none;
+	color: var( --ybs-ink-soft );
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	text-align: left;
+	width: 100%;
+}
+
+.ybs-settings__nav-item .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	color: var( --ybs-ink-faded );
+	flex: 0 0 auto;
+}
+
+.ybs-settings__nav-item:hover {
+	background: var( --ybs-bg );
+	color: var( --ybs-ink );
+}
+
+.ybs-settings__nav-item.is-active {
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+	font-weight: 700;
+}
+
+.ybs-settings__nav-item.is-active .dashicons {
+	color: var( --ybs-primary );
+}
+
+.ybs-settings__main {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	background: var( --ybs-bg );
+}
+
+.ybs-settings__topbar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	height: 56px;
+	padding: 0 20px;
+	background: var( --ybs-surface );
+	border-bottom: 1px solid var( --ybs-border );
+	flex: 0 0 auto;
+}
+
+.ybs-settings__topbar-title {
+	font-size: 15px;
+	font-weight: 700;
+	color: var( --ybs-ink );
+	white-space: nowrap;
+}
+
+.ybs-settings__topbar-sep {
+	color: var( --ybs-ink-faded );
+}
+
+.ybs-settings__topbar-sub {
+	font-size: 13px;
+	color: var( --ybs-ink-faded );
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ybs-settings__save {
+	margin-left: auto;
+	flex: 0 0 auto;
+}
+
+.ybs-settings__content {
+	flex: 1;
+	padding: 20px;
+}
+
+.ybs-settings__content .ybs-card:last-child {
+	margin-bottom: 0;
+}
+
+.ybs-settings__grid {
+	display: grid;
+	grid-template-columns: minmax( 0, 1fr ) 300px;
+	gap: 20px;
+	align-items: start;
+}
+
+.ybs-settings__grid-main .ybs-card:last-child,
+.ybs-settings__grid-side .ybs-card:last-child {
+	margin-bottom: 0;
+}
+
+@media ( max-width: 900px ) {
+	.ybs-settings {
+		flex-direction: column;
+	}
+
+	.ybs-settings__sidebar {
+		width: 100%;
+		border-right: none;
+		border-bottom: 1px solid var( --ybs-border );
+	}
+
+	.ybs-settings__nav {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+
+	.ybs-settings__grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+.ybs-checkbox-list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.ybs-checkbox-list__item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 13.5px;
+	color: var( --ybs-ink );
+}
+
+.ybs-email-vars__list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.ybs-email-vars__tag {
+	border: 1px solid var( --ybs-border );
+	background: var( --ybs-bg );
+	color: var( --ybs-ink-soft );
+	border-radius: 20px;
+	padding: 5px 12px;
+	font-size: 12px;
+	font-weight: 600;
+	font-family: monospace;
+	cursor: pointer;
+}
+
+.ybs-email-vars__tag:hover {
+	background: var( --ybs-primary-soft );
+	border-color: #f1d7c2;
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-card__head-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.ybs-card__head-row h3 {
+	margin: 0;
+}
+
+/* ------------------------------------------------- Custom date/time fields */
+
+.ybs-date-input-wrap,
+.ybs-time-input-wrap {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	width: 100%;
+	flex-shrink: 0;
+	margin: 0;
+}
+
+.ybs-date-input,
+.ybs-time-input {
+	width: 100%;
+	height: 42px;
+	padding: 9px 12px 9px 38px;
+	border: 1px solid var( --ybs-border );
+	border-radius: 10px;
+	background: #fff;
+	box-shadow: inset 0 1px 2px rgba( 15, 23, 42, .03 );
+	font-size: 13px;
+	color: var( --ybs-ink );
+	cursor: pointer;
+}
+
+.ybs-date-input-wrap::before,
+.ybs-time-input-wrap::before {
+	position: absolute;
+	left: 12px;
+	z-index: 1;
+	color: var( --ybs-ink-soft );
+	font-family: dashicons;
+	font-size: 17px;
+	line-height: 1;
+	pointer-events: none;
+}
+
+.ybs-date-input-wrap::before { content: "\f145"; }
+.ybs-time-input-wrap::before { content: "\f469"; }
+
+.ybs-date-input:focus,
+.ybs-time-input:focus {
+	outline: none;
+	border-color: var( --ybs-primary );
+	box-shadow: 0 0 0 3px rgba( 249, 115, 22, .16 );
+}
+
+/* ---- Calendar popover ---- */
+
+.ybs-custom-calendar {
+	position: absolute;
+	top: calc( 100% + 8px );
+	left: 0;
+	z-index: 100200;
+	width: 320px;
+	padding: 14px;
+	background: #fff;
+	border: 1px solid var( --ybs-border );
+	border-radius: 16px;
+	box-shadow: 0 24px 60px rgba( 15, 23, 42, .2 );
+	box-sizing: border-box;
+}
+
+.ybs-custom-calendar__head {
+	display: grid;
+	grid-template-columns: 34px 1fr 34px;
+	gap: 8px;
+	align-items: center;
+	padding-bottom: 12px;
+}
+
+.ybs-custom-calendar__title {
+	display: grid;
+	grid-template-columns: minmax( 0, 1fr ) 76px;
+	gap: 8px;
+}
+
+.ybs-custom-calendar__month,
+.ybs-custom-calendar__year {
+	width: 100%;
+	height: 34px;
+	margin: 0;
+	padding: 4px 8px;
+	border: 1px solid var( --ybs-border );
+	border-radius: 8px;
+	background: #fff;
+	color: var( --ybs-ink );
+	font-size: 12px;
+	font-weight: 700;
+	box-shadow: none;
+	box-sizing: border-box;
+}
+
+.ybs-custom-calendar__nav {
+	display: grid;
+	place-items: center;
+	width: 34px;
+	height: 34px;
+	min-width: 34px;
+	padding: 0;
+	border: 1px solid var( --ybs-border );
+	border-radius: 9px;
+	background: var( --ybs-bg );
+	color: var( --ybs-ink-soft );
+	box-shadow: none;
+	cursor: pointer;
+}
+
+.ybs-custom-calendar__nav:hover {
+	background: var( --ybs-primary-soft );
+	border-color: #f1d7c2;
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-custom-calendar__week,
+.ybs-custom-calendar__days {
+	display: grid;
+	grid-template-columns: repeat( 7, 1fr );
+	gap: 5px;
+}
+
+.ybs-custom-calendar__week {
+	margin-bottom: 5px;
+}
+
+.ybs-custom-calendar__week span {
+	display: grid;
+	place-items: center;
+	width: 100%;
+	height: 24px;
+	color: var( --ybs-ink-soft );
+	font-size: 11px;
+	font-weight: 800;
+	text-transform: uppercase;
+}
+
+.ybs-custom-calendar__empty,
+.ybs-custom-calendar__day {
+	width: 100%;
+	min-width: 0;
+	aspect-ratio: 1 / 1;
+}
+
+.ybs-custom-calendar__day {
+	display: grid;
+	place-items: center;
+	padding: 0;
+	border: 1px solid transparent;
+	border-radius: 10px;
+	background: transparent;
+	color: var( --ybs-ink );
+	font-size: 13px;
+	font-weight: 700;
+	box-shadow: none;
+	cursor: pointer;
+}
+
+.ybs-custom-calendar__day:hover {
+	background: var( --ybs-primary-soft );
+	border-color: #f1d7c2;
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-custom-calendar__day.is-today {
+	background: #f0fdf4;
+	border-color: #bbf7d0;
+	color: #166534;
+}
+
+.ybs-custom-calendar__day.is-selected {
+	background: var( --ybs-primary );
+	border-color: var( --ybs-primary );
+	color: #fff;
+	box-shadow: 0 8px 18px rgba( 249, 115, 22, .28 );
+}
+
+.ybs-custom-calendar__foot {
+	display: flex;
+	justify-content: space-between;
+	gap: 8px;
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid var( --ybs-border );
+}
+
+.ybs-custom-calendar__today,
+.ybs-custom-calendar__clear {
+	height: 34px;
+	padding: 0 12px;
+	border-radius: 9px;
+	font-size: 12px;
+	font-weight: 800;
+	cursor: pointer;
+}
+
+.ybs-custom-calendar__today {
+	background: var( --ybs-primary-soft );
+	border: 1px solid #f1d7c2;
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-custom-calendar__clear {
+	background: #fff1f2;
+	border: 1px solid #fecdd3;
+	color: var( --ybs-danger );
+}
+
+/* ---- Time popover ---- */
+
+.ybs-custom-time-picker {
+	position: absolute;
+	top: calc( 100% + 8px );
+	left: 0;
+	z-index: 100300;
+	width: 320px;
+	padding: 16px;
+	background: #fff;
+	border: 1px solid var( --ybs-border );
+	border-radius: 16px;
+	box-shadow: 0 24px 60px rgba( 15, 23, 42, .2 );
+	box-sizing: border-box;
+}
+
+.ybs-custom-time-picker__preview {
+	display: flex;
+	align-items: baseline;
+	justify-content: center;
+	gap: 2px;
+	margin-bottom: 14px;
+	padding: 14px 12px;
+	border-radius: 14px;
+	background: linear-gradient( 180deg, #fff8f2 0%, #fff1e6 100% );
+	border: 1px solid #f6ddc2;
+	color: var( --ybs-ink );
+}
+
+.ybs-custom-time-picker__preview-hour,
+.ybs-custom-time-picker__preview-minute {
+	font-size: 32px;
+	font-weight: 800;
+	line-height: 1;
+	letter-spacing: .02em;
+	font-variant-numeric: tabular-nums;
+}
+
+.ybs-custom-time-picker__preview-colon {
+	font-size: 28px;
+	font-weight: 700;
+	line-height: 1;
+	margin: 0 2px;
+	color: var( --ybs-ink-faded );
+}
+
+.ybs-custom-time-picker__preview-period {
+	margin-left: 8px;
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: #fff;
+	border: 1px solid #f1d7c2;
+	color: var( --ybs-primary-dark );
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: .04em;
+}
+
+.ybs-custom-time-picker__period {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+	margin-bottom: 14px;
+}
+
+.ybs-custom-time-picker__period-btn {
+	height: 38px;
+	margin: 0;
+	padding: 0;
+	border: 1px solid var( --ybs-border );
+	border-radius: 10px;
+	background: var( --ybs-bg );
+	color: var( --ybs-ink-soft );
+	font-size: 13px;
+	font-weight: 800;
+	letter-spacing: .04em;
+	box-shadow: none;
+	cursor: pointer;
+	transition: background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.ybs-custom-time-picker__period-btn:hover {
+	background: var( --ybs-primary-soft );
+	border-color: #f1d7c2;
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-custom-time-picker__period-btn.is-selected {
+	background: var( --ybs-primary );
+	border-color: var( --ybs-primary );
+	color: #fff;
+	box-shadow: 0 8px 18px rgba( 249, 115, 22, .28 );
+}
+
+.ybs-custom-time-picker__grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 14px;
+	margin-bottom: 14px;
+}
+
+.ybs-custom-time-picker__section {
+	background: var( --ybs-bg );
+	border-radius: 10px;
+	padding: 10px;
+	border: 1px solid var( --ybs-border );
+}
+
+.ybs-custom-time-picker__label {
+	margin-bottom: 8px;
+	color: var( --ybs-ink-soft );
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+}
+
+.ybs-custom-time-picker__hours,
+.ybs-custom-time-picker__minutes {
+	display: grid;
+	gap: 6px;
+}
+
+.ybs-custom-time-picker__hours {
+	grid-template-columns: repeat( 3, 1fr );
+}
+
+.ybs-custom-time-picker__minutes {
+	grid-template-columns: repeat( 4, 1fr );
+	max-height: 168px;
+	overflow-y: auto;
+	padding-right: 2px;
+	scrollbar-width: thin;
+	scrollbar-color: #cbd5e1 transparent;
+}
+
+.ybs-custom-time-picker__chip {
+	display: grid;
+	place-items: center;
+	height: 36px;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 1px solid transparent;
+	border-radius: 10px;
+	background: #fff;
+	color: var( --ybs-ink );
+	font-size: 13px;
+	font-weight: 800;
+	font-variant-numeric: tabular-nums;
+	box-shadow: none;
+	cursor: pointer;
+	transition: background .12s ease, border-color .12s ease, color .12s ease, box-shadow .12s ease;
+}
+
+.ybs-custom-time-picker__chip:hover {
+	background: var( --ybs-primary-soft );
+	border-color: #f1d7c2;
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-custom-time-picker__chip.is-selected {
+	background: var( --ybs-primary );
+	border-color: var( --ybs-primary );
+	color: #fff;
+	box-shadow: 0 6px 14px rgba( 249, 115, 22, .24 );
+}
+
+.ybs-custom-time-picker__chip.is-custom {
+	border-style: dashed;
+	border-color: #fbbf83;
+}
+
+.ybs-custom-time-picker__presets {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 14px;
+	padding-top: 12px;
+	border-top: 1px solid var( --ybs-border );
+}
+
+.ybs-custom-time-picker__preset {
+	height: 30px;
+	margin: 0;
+	padding: 0 10px;
+	border: 1px solid var( --ybs-border );
+	border-radius: 999px;
+	background: #fff;
+	color: var( --ybs-ink-soft );
+	font-size: 11px;
+	font-weight: 700;
+	box-shadow: none;
+	cursor: pointer;
+	transition: background .12s ease, border-color .12s ease, color .12s ease;
+}
+
+.ybs-custom-time-picker__preset:hover {
+	background: var( --ybs-primary-soft );
+	border-color: #f1d7c2;
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-custom-time-picker__foot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding-top: 12px;
+	border-top: 1px solid var( --ybs-border );
+}
+
+.ybs-custom-time-picker__foot-actions {
+	display: flex;
+	gap: 8px;
+}
+
+.ybs-custom-time-picker__now,
+.ybs-custom-time-picker__clear,
+.ybs-custom-time-picker__done {
+	height: 34px;
+	padding: 0 12px;
+	border-radius: 9px;
+	font-size: 12px;
+	font-weight: 800;
+	box-shadow: none;
+	cursor: pointer;
+}
+
+.ybs-custom-time-picker__now {
+	background: var( --ybs-primary-soft );
+	border: 1px solid #f1d7c2;
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-custom-time-picker__clear {
+	background: #fff1f2;
+	border: 1px solid #fecdd3;
+	color: var( --ybs-danger );
+}
+
+.ybs-custom-time-picker__done {
+	background: var( --ybs-primary );
+	border: 1px solid var( --ybs-primary );
+	color: #fff;
+}
+
+.ybs-custom-time-picker__done:hover {
+	background: var( --ybs-primary-dark );
+	border-color: var( --ybs-primary-dark );
+}
+
+/* ------------------------------------------------------ Calendar tooltips */
+
+.ybs-cal-item {
+	position: relative;
+	outline: none;
+}
+
+.ybs-cal-tooltip {
+	position: absolute;
+	left: 50%;
+	bottom: calc( 100% + 8px );
+	transform: translateX( -50% );
+	z-index: 100100;
+	width: 240px;
+	max-width: 80vw;
+	padding: 12px 14px;
+	background: #fff;
+	border: 1px solid var( --ybs-border );
+	border-radius: 12px;
+	box-shadow: 0 20px 45px rgba( 15, 23, 42, .18 );
+	text-align: left;
+	font-size: 12px;
+	color: var( --ybs-ink );
+	visibility: hidden;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity .12s ease;
+}
+
+.ybs-cal-item:hover .ybs-cal-tooltip,
+.ybs-cal-item:focus-within .ybs-cal-tooltip {
+	visibility: visible;
+	opacity: 1;
+}
+
+.ybs-cal-tooltip strong {
+	display: block;
+	margin-bottom: 8px;
+	font-size: 13px;
+	color: var( --ybs-ink );
+}
+
+.ybs-cal-tooltip__row {
+	display: flex;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 3px 0;
+	border-top: 1px solid var( --ybs-bg );
+}
+
+.ybs-cal-tooltip__row:first-of-type {
+	border-top: none;
+}
+
+.ybs-cal-tooltip__row span:first-child {
+	flex-shrink: 0;
+	color: var( --ybs-ink-soft );
+	font-weight: 600;
+}
+
+.ybs-cal-tooltip__row span:last-child {
+	text-align: right;
+	overflow-wrap: anywhere;
 }

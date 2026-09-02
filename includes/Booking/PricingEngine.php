@@ -62,7 +62,7 @@ class PricingEngine {
 		}
 
 		if ( $blocked ) {
-			return new \WP_Error( 'ybs_date_blocked', __( 'This date is not available for booking.', 'yacht-booking-system' ) );
+			return new \WP_Error( 'ybs_date_blocked', __( 'This date is not available for booking.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		$components = array(
@@ -130,14 +130,14 @@ class PricingEngine {
 				break;
 
 			default:
-				return new \WP_Error( 'ybs_invalid_booking_type', __( 'Unknown booking type.', 'yacht-booking-system' ) );
+				return new \WP_Error( 'ybs_invalid_booking_type', __( 'Unknown booking type.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		// A blank rate means the admin deliberately left this booking type
 		// disabled for this yacht (per the wizard's own "leave blank to
 		// disable" hint) - quoting $0 for it would be worse than an error.
 		if ( $total <= 0 ) {
-			return new \WP_Error( 'ybs_booking_type_unavailable', __( 'This booking type is not available for this yacht.', 'yacht-booking-system' ) );
+			return new \WP_Error( 'ybs_booking_type_unavailable', __( 'This booking type is not available for this yacht.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		return $total;

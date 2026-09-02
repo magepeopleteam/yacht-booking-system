@@ -1,15 +1,19 @@
 <?php
 /**
- * Plugin Name: Yacht Booking System
+ * Plugin Name: MagePeople Yacht Booking System
  * Plugin URI: https://magepeople.com/
  * Description: Yacht and boat charter booking - yacht management, a full booking engine, and built-in payments (Offline, PayPal, Stripe, WooCommerce).
  * Version: 1.0.0
+ * Requires at least: 5.3
  * Requires PHP: 8.0
  * Author: MagePeople
- * Text Domain: yacht-booking-system
+ * Author URI: https://magepeople.com/
+ * Text Domain: magepeople-yacht-booking-system
  * Domain Path: /languages
- * License: GPL-2.0-or-later
+ * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * @package magepeople-yacht-booking-system
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -32,7 +36,7 @@ if ( file_exists( $ybs_autoload ) ) {
 		'admin_notices',
 		function () {
 			echo '<div class="notice notice-error"><p>' .
-				esc_html__( 'Yacht Booking System: the Composer autoloader is missing. Run "composer install" (or "composer dump-autoload") in the plugin directory.', 'yacht-booking-system' ) .
+				esc_html__( 'Yacht Booking System: the Composer autoloader is missing. Run "composer install" (or "composer dump-autoload") in the plugin directory.', 'magepeople-yacht-booking-system' ) .
 				'</p></div>';
 		}
 	);

@@ -4,12 +4,12 @@ import { navigate } from '../router';
 import { ToastHost } from './Toast';
 
 const BUILTIN_NAV = [
-	{ id: 'dashboard', label: __( 'Dashboard', 'yacht-booking-system' ), icon: 'dashicons-chart-area' },
-	{ id: 'yachts', label: __( 'Yachts', 'yacht-booking-system' ), icon: 'dashicons-palmtree' },
-	{ id: 'bookings', label: __( 'Bookings', 'yacht-booking-system' ), icon: 'dashicons-tickets-alt' },
-	{ id: 'calendar', label: __( 'Calendar', 'yacht-booking-system' ), icon: 'dashicons-calendar-alt' },
-	{ id: 'guests', label: __( 'Guests', 'yacht-booking-system' ), icon: 'dashicons-groups' },
-	{ id: 'settings', label: __( 'Settings', 'yacht-booking-system' ), icon: 'dashicons-admin-generic' },
+	{ id: 'dashboard', label: __( 'Dashboard', 'magepeople-yacht-booking-system' ), icon: 'dashicons-chart-area' },
+	{ id: 'yachts', label: __( 'Yachts', 'magepeople-yacht-booking-system' ), icon: 'dashicons-palmtree' },
+	{ id: 'bookings', label: __( 'Bookings', 'magepeople-yacht-booking-system' ), icon: 'dashicons-tickets-alt' },
+	{ id: 'calendar', label: __( 'Calendar', 'magepeople-yacht-booking-system' ), icon: 'dashicons-calendar-alt' },
+	{ id: 'guests', label: __( 'Guests', 'magepeople-yacht-booking-system' ), icon: 'dashicons-groups' },
+	{ id: 'settings', label: __( 'Settings', 'magepeople-yacht-booking-system' ), icon: 'dashicons-admin-generic' },
 ];
 
 function extraNav() {
@@ -31,7 +31,7 @@ export default function Shell( { active, children } ) {
 						<span className="dashicons dashicons-palmtree" />
 					</span>
 					<span className="ybs-shell-rail__brand-text">
-						{ __( 'Yacht Booking', 'yacht-booking-system' ) }
+						{ __( 'Yacht Booking', 'magepeople-yacht-booking-system' ) }
 					</span>
 				</div>
 
@@ -55,7 +55,7 @@ export default function Shell( { active, children } ) {
 
 				<a className="ybs-shell-rail__back" href={ window.ybsAdminConfig?.adminUrl || '#' }>
 					<span className="dashicons dashicons-arrow-left-alt2" />
-					{ __( 'Back to WordPress', 'yacht-booking-system' ) }
+					{ __( 'Back to WordPress', 'magepeople-yacht-booking-system' ) }
 				</a>
 			</nav>
 
@@ -65,11 +65,11 @@ export default function Shell( { active, children } ) {
 						type="button"
 						className="ybs-shell__burger"
 						onClick={ () => setOpen( ( value ) => ! value ) }
-						aria-label={ __( 'Toggle navigation', 'yacht-booking-system' ) }
+						aria-label={ __( 'Toggle navigation', 'magepeople-yacht-booking-system' ) }
 					>
 						<span className="dashicons dashicons-menu-alt2" />
 					</button>
-					<span className="ybs-shell__brand-mini">{ __( 'Yacht Booking System', 'yacht-booking-system' ) }</span>
+					<span className="ybs-shell__brand-mini">{ __( 'Yacht Booking System', 'magepeople-yacht-booking-system' ) }</span>
 				</header>
 
 				<main className="ybs-shell__content">{ children }</main>

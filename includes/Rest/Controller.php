@@ -23,7 +23,7 @@ abstract class Controller {
 
 		return new WP_Error(
 			'ybs_forbidden',
-			__( 'You do not have permission to do this.', 'yacht-booking-system' ),
+			__( 'You do not have permission to do this.', 'magepeople-yacht-booking-system' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}

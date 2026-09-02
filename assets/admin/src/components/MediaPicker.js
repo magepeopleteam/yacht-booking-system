@@ -11,8 +11,8 @@ export default function MediaPicker( { id, url, onChange } ) {
 		}
 
 		const frame = window.wp.media( {
-			title: __( 'Select Featured Image', 'yacht-booking-system' ),
-			button: { text: __( 'Use this image', 'yacht-booking-system' ) },
+			title: __( 'Select Featured Image', 'magepeople-yacht-booking-system' ),
+			button: { text: __( 'Use this image', 'magepeople-yacht-booking-system' ) },
 			multiple: false,
 			library: { type: 'image' },
 		} );
@@ -39,11 +39,11 @@ export default function MediaPicker( { id, url, onChange } ) {
 
 			<div className="ybs-media-picker__actions">
 				<button type="button" className="ybs-btn" onClick={ open }>
-					{ id ? __( 'Replace Image', 'yacht-booking-system' ) : __( 'Select Image', 'yacht-booking-system' ) }
+					{ id ? __( 'Replace Image', 'magepeople-yacht-booking-system' ) : __( 'Select Image', 'magepeople-yacht-booking-system' ) }
 				</button>
 				{ id ? (
 					<button type="button" className="ybs-btn is-danger" onClick={ () => onChange( 0, '' ) }>
-						{ __( 'Remove', 'yacht-booking-system' ) }
+						{ __( 'Remove', 'magepeople-yacht-booking-system' ) }
 					</button>
 				) : null }
 			</div>

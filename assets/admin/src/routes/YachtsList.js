@@ -27,7 +27,7 @@ function formatPrice( amount, currency ) {
 function StatusBadge( { status } ) {
 	return (
 		<span className={ 'ybs-badge status-' + ( 'publish' === status ? 'paid' : 'pending' ) }>
-			{ 'publish' === status ? __( 'Published', 'yacht-booking-system' ) : __( 'Draft', 'yacht-booking-system' ) }
+			{ 'publish' === status ? __( 'Published', 'magepeople-yacht-booking-system' ) : __( 'Draft', 'magepeople-yacht-booking-system' ) }
 		</span>
 	);
 }
@@ -83,7 +83,8 @@ export default function YachtsList() {
 			.then( ( res ) => {
 				setImporting( false );
 				setDummySeeded( true );
-				toast( sprintf( __( '%d sample yachts imported.', 'yacht-booking-system' ), res.imported ) );
+				// translators: %d: number of sample yachts imported.
+				toast( sprintf( __( '%d sample yachts imported.', 'magepeople-yacht-booking-system' ), res.imported ) );
 				load( search );
 			} )
 			.catch( ( err ) => {
@@ -112,7 +113,8 @@ export default function YachtsList() {
 	};
 
 	const remove = ( id, title ) => {
-		if ( ! window.confirm( sprintf( __( 'Delete "%s"? This cannot be undone.', 'yacht-booking-system' ), title ) ) ) {
+		// translators: %s: yacht name.
+		if ( ! window.confirm( sprintf( __( 'Delete "%s"? This cannot be undone.', 'magepeople-yacht-booking-system' ), title ) ) ) {
 			return;
 		}
 
@@ -136,19 +138,19 @@ export default function YachtsList() {
 		<div className="ybs-yachts-list">
 			<div className="ybs-page-header">
 				<div>
-					<h2>{ __( 'Yachts', 'yacht-booking-system' ) }</h2>
-					<p>{ __( 'Manage your fleet.', 'yacht-booking-system' ) }</p>
+					<h2>{ __( 'Yachts', 'magepeople-yacht-booking-system' ) }</h2>
+					<p>{ __( 'Manage your fleet.', 'magepeople-yacht-booking-system' ) }</p>
 				</div>
 				<div className="ybs-page-header__actions">
 					{ ! dummySeeded && (
 						<button className="ybs-btn" onClick={ importDummyYachts } disabled={ importing }>
 							<span className="dashicons dashicons-download" />
-							{ importing ? __( 'Importing…', 'yacht-booking-system' ) : __( 'Import Dummy Data', 'yacht-booking-system' ) }
+							{ importing ? __( 'Importing…', 'magepeople-yacht-booking-system' ) : __( 'Import Dummy Data', 'magepeople-yacht-booking-system' ) }
 						</button>
 					) }
 					<button className="ybs-btn is-primary" onClick={ () => navigate( 'yachts/new' ) }>
 						<span className="dashicons dashicons-plus-alt2" />
-						{ __( 'Add New Yacht', 'yacht-booking-system' ) }
+						{ __( 'Add New Yacht', 'magepeople-yacht-booking-system' ) }
 					</button>
 				</div>
 			</div>
@@ -163,7 +165,7 @@ export default function YachtsList() {
 							type="text"
 							value={ search }
 							onChange={ ( e ) => setSearch( e.target.value ) }
-							placeholder={ __( 'Search yachts by name…', 'yacht-booking-system' ) }
+							placeholder={ __( 'Search yachts by name…', 'magepeople-yacht-booking-system' ) }
 						/>
 					</div>
 
@@ -175,16 +177,16 @@ export default function YachtsList() {
 								className={ 'ybs-chip-filter' + ( status === value ? ' is-active' : '' ) }
 								onClick={ () => setStatus( value ) }
 							>
-								{ value === 'any' && __( 'All', 'yacht-booking-system' ) }
-								{ value === 'publish' && __( 'Published', 'yacht-booking-system' ) }
-								{ value === 'draft' && __( 'Drafts', 'yacht-booking-system' ) }
+								{ value === 'any' && __( 'All', 'magepeople-yacht-booking-system' ) }
+								{ value === 'publish' && __( 'Published', 'magepeople-yacht-booking-system' ) }
+								{ value === 'draft' && __( 'Drafts', 'magepeople-yacht-booking-system' ) }
 							</button>
 						) ) }
 					</div>
 
 					{ filtered && (
 						<span className="ybs-yachts-count">
-							{ sprintf( __( '%d yacht(s)', 'yacht-booking-system' ), filtered.length ) }
+							{ /* translators: %d: number of yachts listed. */ sprintf( __( '%d yacht(s)', 'magepeople-yacht-booking-system' ), filtered.length ) }
 						</span>
 					) }
 
@@ -193,8 +195,8 @@ export default function YachtsList() {
 							type="button"
 							className={ 'ybs-view-switch__btn' + ( 'list' === view ? ' is-active' : '' ) }
 							onClick={ () => changeView( 'list' ) }
-							aria-label={ __( 'List view', 'yacht-booking-system' ) }
-							title={ __( 'List view', 'yacht-booking-system' ) }
+							aria-label={ __( 'List view', 'magepeople-yacht-booking-system' ) }
+							title={ __( 'List view', 'magepeople-yacht-booking-system' ) }
 						>
 							<span className="dashicons dashicons-list-view" />
 						</button>
@@ -202,8 +204,8 @@ export default function YachtsList() {
 							type="button"
 							className={ 'ybs-view-switch__btn' + ( 'grid' === view ? ' is-active' : '' ) }
 							onClick={ () => changeView( 'grid' ) }
-							aria-label={ __( 'Grid view', 'yacht-booking-system' ) }
-							title={ __( 'Grid view', 'yacht-booking-system' ) }
+							aria-label={ __( 'Grid view', 'magepeople-yacht-booking-system' ) }
+							title={ __( 'Grid view', 'magepeople-yacht-booking-system' ) }
 						>
 							<span className="dashicons dashicons-grid-view" />
 						</button>
@@ -228,17 +230,17 @@ export default function YachtsList() {
 					<div className="ybs-empty-state__icon">
 						<span className="dashicons dashicons-palmtree" />
 					</div>
-					<h3>{ __( 'Your fleet is empty', 'yacht-booking-system' ) }</h3>
-					<p>{ __( 'Add your first yacht to start taking bookings.', 'yacht-booking-system' ) }</p>
+					<h3>{ __( 'Your fleet is empty', 'magepeople-yacht-booking-system' ) }</h3>
+					<p>{ __( 'Add your first yacht to start taking bookings.', 'magepeople-yacht-booking-system' ) }</p>
 					<div className="ybs-empty-state__actions">
 						<button className="ybs-btn is-primary" onClick={ () => navigate( 'yachts/new' ) }>
 							<span className="dashicons dashicons-plus-alt2" />
-							{ __( 'Add New Yacht', 'yacht-booking-system' ) }
+							{ __( 'Add New Yacht', 'magepeople-yacht-booking-system' ) }
 						</button>
 						{ ! dummySeeded && (
 							<button className="ybs-btn" onClick={ importDummyYachts } disabled={ importing }>
 								<span className="dashicons dashicons-download" />
-								{ importing ? __( 'Importing…', 'yacht-booking-system' ) : __( 'Import Dummy Data', 'yacht-booking-system' ) }
+								{ importing ? __( 'Importing…', 'magepeople-yacht-booking-system' ) : __( 'Import Dummy Data', 'magepeople-yacht-booking-system' ) }
 							</button>
 						) }
 					</div>
@@ -247,9 +249,9 @@ export default function YachtsList() {
 
 			{ filtered && items.length > 0 && filtered.length === 0 && (
 				<div className="ybs-empty-state">
-					<p>{ __( 'No yachts match your filters.', 'yacht-booking-system' ) }</p>
+					<p>{ __( 'No yachts match your filters.', 'magepeople-yacht-booking-system' ) }</p>
 					<button className="ybs-btn" onClick={ clearFilters }>
-						{ __( 'Clear filters', 'yacht-booking-system' ) }
+						{ __( 'Clear filters', 'magepeople-yacht-booking-system' ) }
 					</button>
 				</div>
 			) }
@@ -275,23 +277,23 @@ export default function YachtsList() {
 									<span className="ybs-yacht-card__status">
 										<StatusBadge status={ yacht.status } />
 									</span>
-									{ price && <span className="ybs-yacht-card__price">{ sprintf( __( 'From %s', 'yacht-booking-system' ), price ) }</span> }
+									{ price && <span className="ybs-yacht-card__price">{ sprintf( __( 'From %s', 'magepeople-yacht-booking-system' ), price ) }</span> }
 								</div>
 
 								<div className="ybs-yacht-card__body">
 									<h3 className="ybs-yacht-card__title" onClick={ () => navigate( `yachts/${ yacht.id }/edit` ) }>
-										{ yacht.title || __( '(untitled yacht)', 'yacht-booking-system' ) }
+										{ yacht.title || __( '(untitled yacht)', 'magepeople-yacht-booking-system' ) }
 									</h3>
 
 									<div className="ybs-yacht-card__location">
 										<span className="dashicons dashicons-location" />
-										{ yacht.location?.name || __( 'No location set', 'yacht-booking-system' ) }
+										{ yacht.location?.name || __( 'No location set', 'magepeople-yacht-booking-system' ) }
 									</div>
 
 									<div className="ybs-yacht-card__meta">
 										<span className="ybs-yacht-card__meta-item">
 											<span className="dashicons dashicons-groups" />
-											{ sprintf( __( '%d guests', 'yacht-booking-system' ), yacht.capacity || 0 ) }
+											{ sprintf( __( '%d guests', 'magepeople-yacht-booking-system' ), yacht.capacity || 0 ) }
 										</span>
 									</div>
 
@@ -308,18 +310,18 @@ export default function YachtsList() {
 								<div className="ybs-yacht-card__footer">
 									<button className="ybs-btn" onClick={ () => navigate( `yachts/${ yacht.id }/edit` ) }>
 										<span className="dashicons dashicons-edit" />
-										{ __( 'Edit', 'yacht-booking-system' ) }
+										{ __( 'Edit', 'magepeople-yacht-booking-system' ) }
 									</button>
 									{ yacht.permalink && 'publish' === yacht.status && (
 										<a className="ybs-btn" href={ yacht.permalink } target="_blank" rel="noreferrer">
 											<span className="dashicons dashicons-visibility" />
-											{ __( 'View', 'yacht-booking-system' ) }
+											{ __( 'View', 'magepeople-yacht-booking-system' ) }
 										</a>
 									) }
 									<button
 										className="ybs-btn is-danger ybs-yacht-card__delete"
 										onClick={ () => remove( yacht.id, yacht.title ) }
-										aria-label={ __( 'Delete', 'yacht-booking-system' ) }
+										aria-label={ __( 'Delete', 'magepeople-yacht-booking-system' ) }
 									>
 										<span className="dashicons dashicons-trash" />
 									</button>
@@ -351,20 +353,20 @@ export default function YachtsList() {
 								<div className="ybs-yacht-row__main" onClick={ () => navigate( `yachts/${ yacht.id }/edit` ) }>
 									<div className="ybs-yacht-row__title-line">
 										<h3 className="ybs-yacht-row__title">
-											{ yacht.title || __( '(untitled yacht)', 'yacht-booking-system' ) }
+											{ yacht.title || __( '(untitled yacht)', 'magepeople-yacht-booking-system' ) }
 										</h3>
 										<StatusBadge status={ yacht.status } />
 									</div>
 									<div className="ybs-yacht-row__location">
 										<span className="dashicons dashicons-location" />
-										{ yacht.location?.name || __( 'No location set', 'yacht-booking-system' ) }
+										{ yacht.location?.name || __( 'No location set', 'magepeople-yacht-booking-system' ) }
 									</div>
 								</div>
 
 								<div className="ybs-yacht-row__meta">
 									<span className="ybs-yacht-card__meta-item">
 										<span className="dashicons dashicons-groups" />
-										{ sprintf( __( '%d guests', 'yacht-booking-system' ), yacht.capacity || 0 ) }
+										{ sprintf( __( '%d guests', 'magepeople-yacht-booking-system' ), yacht.capacity || 0 ) }
 									</span>
 								</div>
 
@@ -376,24 +378,24 @@ export default function YachtsList() {
 								</div>
 
 								<div className="ybs-yacht-row__price">
-									{ price ? sprintf( __( 'From %s', 'yacht-booking-system' ), price ) : '—' }
+									{ price ? sprintf( __( 'From %s', 'magepeople-yacht-booking-system' ), price ) : '—' }
 								</div>
 
 								<div className="ybs-yacht-row__actions">
 									<button className="ybs-btn" onClick={ () => navigate( `yachts/${ yacht.id }/edit` ) }>
 										<span className="dashicons dashicons-edit" />
-										{ __( 'Edit', 'yacht-booking-system' ) }
+										{ __( 'Edit', 'magepeople-yacht-booking-system' ) }
 									</button>
 									{ yacht.permalink && 'publish' === yacht.status && (
-										<a className="ybs-btn" href={ yacht.permalink } target="_blank" rel="noreferrer" title={ __( 'View', 'yacht-booking-system' ) }>
+										<a className="ybs-btn" href={ yacht.permalink } target="_blank" rel="noreferrer" title={ __( 'View', 'magepeople-yacht-booking-system' ) }>
 											<span className="dashicons dashicons-visibility" />
 										</a>
 									) }
 									<button
 										className="ybs-btn is-danger"
 										onClick={ () => remove( yacht.id, yacht.title ) }
-										aria-label={ __( 'Delete', 'yacht-booking-system' ) }
-										title={ __( 'Delete', 'yacht-booking-system' ) }
+										aria-label={ __( 'Delete', 'magepeople-yacht-booking-system' ) }
+										title={ __( 'Delete', 'magepeople-yacht-booking-system' ) }
 									>
 										<span className="dashicons dashicons-trash" />
 									</button>

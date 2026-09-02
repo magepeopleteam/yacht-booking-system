@@ -33,6 +33,20 @@ class Settings {
 			'woocommerce_enabled'      => false,
 			'retention_months'         => 0,
 			'remove_data_on_uninstall' => false,
+			'email_enabled'            => true,
+			'email_from_name'          => '',
+			'email_from_address'       => '',
+			'email_subject'            => 'Your booking for {yacht_name} is confirmed',
+			'email_body'               => "<p>Hi {guest_name},</p><p>Thank you for booking <strong>{yacht_name}</strong>. Here are your booking details:</p><ul><li>Booking ID: {booking_id}</li><li>Date: {start_date}</li><li>Time: {start_time} - {end_time}</li><li>Guests: {guest_count}</li><li>Total: {total_price}</li></ul><p>We look forward to welcoming you aboard.</p><p>{site_name}</p>",
+			'email_trigger_statuses'   => array( 'pending' ),
+			// Translated because they are rendered on the front end as-is until
+			// an admin overrides them. Safe to call __() here: nothing reads
+			// settings before `init` (see Plugin::boot()).
+			'cta_eyebrow'              => __( 'Ready when you are', 'magepeople-yacht-booking-system' ),
+			'cta_heading'              => __( 'Book the {yacht_name} today', 'magepeople-yacht-booking-system' ),
+			'cta_text'                 => __( 'Dates fill fast - lock in your preferred slot with an instant booking request.', 'magepeople-yacht-booking-system' ),
+			'cta_button_label'         => __( 'Book Now', 'magepeople-yacht-booking-system' ),
+			'cta_button2_label'        => __( 'Browse all yachts', 'magepeople-yacht-booking-system' ),
 		);
 	}
 
@@ -67,6 +81,13 @@ class Settings {
 
 		foreach ( $data as $key => $value ) {
 			if ( ! array_key_exists( $key, $defaults ) ) {
+				continue;
+			}
+
+			// The confirmation email body is edited as rich text (classic
+			// editor) - sanitize_text_field() would strip it down to plain text.
+			if ( 'email_body' === $key ) {
+				$clean[ $key ] = wp_kses_post( (string) $value );
 				continue;
 			}
 

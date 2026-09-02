@@ -55,7 +55,7 @@ export default function FaqEditor( { items, onChange } ) {
 							<input
 								type="text"
 								className="ybs-faq-item__question"
-								placeholder={ __( 'Question, e.g. "Can we bring our own drinks?"', 'yacht-booking-system' ) }
+								placeholder={ __( 'Question, e.g. "Can we bring our own drinks?"', 'magepeople-yacht-booking-system' ) }
 								value={ item.question || '' }
 								onChange={ ( e ) => update( uid, 'question', e.target.value ) }
 							/>
@@ -63,7 +63,7 @@ export default function FaqEditor( { items, onChange } ) {
 								type="button"
 								className="ybs-faq-item__remove"
 								onClick={ () => remove( uid ) }
-								aria-label={ __( 'Remove this FAQ', 'yacht-booking-system' ) }
+								aria-label={ __( 'Remove this FAQ', 'magepeople-yacht-booking-system' ) }
 							>
 								<span className="dashicons dashicons-trash" />
 							</button>
@@ -81,7 +81,7 @@ export default function FaqEditor( { items, onChange } ) {
 			} ) }
 
 			<button type="button" className="ybs-btn" onClick={ add }>
-				{ __( '+ Add FAQ', 'yacht-booking-system' ) }
+				{ __( '+ Add FAQ', 'magepeople-yacht-booking-system' ) }
 			</button>
 		</div>
 	);

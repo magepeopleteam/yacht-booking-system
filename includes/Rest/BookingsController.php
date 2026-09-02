@@ -69,12 +69,12 @@ class BookingsController extends Controller {
 	public static function index( WP_REST_Request $request ) {
 		$result = BookingRepository::list(
 			array(
-				'page'      => $request->get_param( 'page' ),
-				'per_page'  => $request->get_param( 'per_page' ),
-				'status'    => $request->get_param( 'status' ),
-				'yacht_id'  => $request->get_param( 'yacht_id' ),
-				'date_from' => $request->get_param( 'date_from' ),
-				'date_to'   => $request->get_param( 'date_to' ),
+				'page'      => absint( $request->get_param( 'page' ) ),
+				'per_page'  => absint( $request->get_param( 'per_page' ) ),
+				'status'    => sanitize_key( (string) $request->get_param( 'status' ) ),
+				'yacht_id'  => absint( $request->get_param( 'yacht_id' ) ),
+				'date_from' => sanitize_text_field( (string) $request->get_param( 'date_from' ) ),
+				'date_to'   => sanitize_text_field( (string) $request->get_param( 'date_to' ) ),
 			)
 		);
 
@@ -91,7 +91,7 @@ class BookingsController extends Controller {
 		$booking = BookingRepository::find( (int) $request['id'] );
 
 		if ( ! $booking ) {
-			return new WP_Error( 'ybs_not_found', __( 'Booking not found.', 'yacht-booking-system' ), array( 'status' => 404 ) );
+			return new WP_Error( 'ybs_not_found', __( 'Booking not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
 		}
 
 		return rest_ensure_response(
@@ -99,7 +99,7 @@ class BookingsController extends Controller {
 				'id'               => (int) $booking['id'],
 				'status'           => $booking['status'],
 				'pro_required'     => ! ybs_is_pro_active(),
-				'upgrade_message'  => __( 'Upgrade to Pro to view full booking details.', 'yacht-booking-system' ),
+				'upgrade_message'  => __( 'Upgrade to Pro to view full booking details.', 'magepeople-yacht-booking-system' ),
 			)
 		);
 	}
@@ -111,7 +111,7 @@ class BookingsController extends Controller {
 		$yacht    = get_post( $yacht_id );
 
 		if ( ! $yacht_id || ! $yacht || 'yacht' !== $yacht->post_type || 'publish' !== $yacht->post_status ) {
-			return new WP_Error( 'ybs_invalid_yacht', __( 'Please choose a valid yacht.', 'yacht-booking-system' ), array( 'status' => 400 ) );
+			return new WP_Error( 'ybs_invalid_yacht', __( 'Please choose a valid yacht.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		$booking_type = sanitize_key( $data['booking_type'] ?? '' );
@@ -119,23 +119,49 @@ class BookingsController extends Controller {
 		$end          = sanitize_text_field( $data['end_datetime'] ?? '' );
 		$guest_count  = max( 1, (int) ( $data['guest_count'] ?? 1 ) );
 		$yacht_mode   = get_post_meta( $yacht_id, 'booking_mode', true ) ?: 'full';
-		$booking_mode = sanitize_key( $data['booking_mode'] ?? ( 'both' === $yacht_mode ? 'full' : $yacht_mode ) );
 
-		if ( ! $start || ! $end ) {
-			return new WP_Error( 'ybs_invalid_dates', __( 'Please choose a valid date and time.', 'yacht-booking-system' ), array( 'status' => 400 ) );
+		// The mode decides which price table is used (whole-yacht vs per-seat),
+		// so it can never be taken from the client as-is: a yacht sold as a
+		// full charter would otherwise be bookable at one seat's rate.
+		$allowed_modes = 'both' === $yacht_mode ? array( 'full', 'shared' ) : array( $yacht_mode );
+		$booking_mode  = sanitize_key( $data['booking_mode'] ?? $allowed_modes[0] );
+
+		if ( ! in_array( $booking_mode, $allowed_modes, true ) ) {
+			$booking_mode = $allowed_modes[0];
 		}
+
+		$start_ts = $start ? strtotime( $start ) : false;
+		$end_ts   = $end ? strtotime( $end ) : false;
+
+		if ( ! $start_ts || ! $end_ts || $end_ts <= $start_ts ) {
+			return new WP_Error( 'ybs_invalid_dates', __( 'Please choose a valid date and time.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+		}
+
+		// Re-normalize so only well-formed values ever reach the DATETIME
+		// columns - an unparseable string would silently become 0000-00-00 and
+		// stop matching the overlap checks that prevent double-booking.
+		$start = gmdate( 'Y-m-d H:i:s', $start_ts );
+		$end   = gmdate( 'Y-m-d H:i:s', $end_ts );
 
 		$guest = $data['guest'] ?? array();
 
 		if ( empty( $guest['name'] ) || empty( $guest['email'] ) || empty( $guest['phone'] ) ) {
-			return new WP_Error( 'ybs_missing_guest_info', __( 'Please provide your name, email and phone number.', 'yacht-booking-system' ), array( 'status' => 400 ) );
+			return new WP_Error( 'ybs_missing_guest_info', __( 'Please provide your name, email and phone number.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		if ( empty( $data['terms_accepted'] ) ) {
-			return new WP_Error( 'ybs_terms_required', __( 'Please accept the terms and conditions.', 'yacht-booking-system' ), array( 'status' => 400 ) );
+			return new WP_Error( 'ybs_terms_required', __( 'Please accept the terms and conditions.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
+		// Only a gateway the admin actually enabled may be selected - otherwise
+		// a visitor could pick "offline" on a card-only site and hold a slot
+		// with a booking that was never going to be paid for.
 		$payment_method = sanitize_key( $data['payment_method'] ?? Settings::get( 'default_payment_method', 'offline' ) );
+		$enabled_methods = Gateways::enabled_ids();
+
+		if ( ! in_array( $payment_method, $enabled_methods, true ) ) {
+			return new WP_Error( 'ybs_invalid_payment_method', __( 'Please choose an available payment method.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+		}
 
 		$result = BookingRepository::with_yacht_lock(
 			$yacht_id,
@@ -143,7 +169,7 @@ class BookingsController extends Controller {
 				$availability = AvailabilityService::check( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode );
 
 				if ( ! $availability['available'] ) {
-					return new WP_Error( 'ybs_not_available', $availability['reason'] ?: __( 'This slot is not available.', 'yacht-booking-system' ), array( 'status' => 409 ) );
+					return new WP_Error( 'ybs_not_available', $availability['reason'] ?: __( 'This slot is not available.', 'magepeople-yacht-booking-system' ), array( 'status' => 409 ) );
 				}
 
 				$pricing = PricingEngine::calculate( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode );
@@ -212,7 +238,7 @@ class BookingsController extends Controller {
 		$status = sanitize_key( $request->get_param( 'status' ) );
 
 		if ( ! BookingRepository::update_status( (int) $request['id'], $status ) ) {
-			return new WP_Error( 'ybs_invalid_status', __( 'Invalid booking or status.', 'yacht-booking-system' ), array( 'status' => 400 ) );
+			return new WP_Error( 'ybs_invalid_status', __( 'Invalid booking or status.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		return rest_ensure_response( array( 'id' => (int) $request['id'], 'status' => $status ) );
@@ -222,7 +248,7 @@ class BookingsController extends Controller {
 		$id = (int) $request['id'];
 
 		if ( ! BookingRepository::find( $id ) ) {
-			return new WP_Error( 'ybs_not_found', __( 'Booking not found.', 'yacht-booking-system' ), array( 'status' => 404 ) );
+			return new WP_Error( 'ybs_not_found', __( 'Booking not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
 		}
 
 		BookingRepository::delete( $id );
@@ -258,7 +284,9 @@ class BookingsController extends Controller {
 			'yacht_name'     => $yacht ? $yacht->post_title : '',
 			'guest_name'     => $guest['name'] ?? '',
 			'guest_email'    => $guest['email'] ?? '',
+			'guest_phone'    => $guest['phone'] ?? '',
 			'booking_type'   => $booking['booking_type'],
+			'booking_mode'   => $booking['booking_mode'],
 			'start_datetime' => $booking['start_datetime'],
 			'end_datetime'   => $booking['end_datetime'],
 			'start_formatted' => ybs_format_datetime( $booking['start_datetime'] ),

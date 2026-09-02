@@ -26,7 +26,7 @@ export default function PaymentSettingsModal( { onRequestClose } ) {
 		api.put( '/settings', settings )
 			.then( () => {
 				setSaving( false );
-				toast( __( 'Payment settings saved.', 'yacht-booking-system' ) );
+				toast( __( 'Payment settings saved.', 'magepeople-yacht-booking-system' ) );
 				onRequestClose();
 			} )
 			.catch( ( err ) => {
@@ -37,11 +37,11 @@ export default function PaymentSettingsModal( { onRequestClose } ) {
 
 	return (
 		<Modal
-			title={ __( 'Payment Settings', 'yacht-booking-system' ) }
+			title={ __( 'Payment Settings', 'magepeople-yacht-booking-system' ) }
 			onRequestClose={ onRequestClose }
 			className="ybs-payment-modal"
 		>
-			{ ! settings && <div className="ybs-loading">{ __( 'Loading…', 'yacht-booking-system' ) }</div> }
+			{ ! settings && <div className="ybs-loading">{ __( 'Loading…', 'magepeople-yacht-booking-system' ) }</div> }
 
 			{ settings && (
 				<>
@@ -49,10 +49,10 @@ export default function PaymentSettingsModal( { onRequestClose } ) {
 
 					<div style={ { display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 } }>
 						<Button variant="tertiary" onClick={ onRequestClose }>
-							{ __( 'Cancel', 'yacht-booking-system' ) }
+							{ __( 'Cancel', 'magepeople-yacht-booking-system' ) }
 						</Button>
 						<Button variant="primary" onClick={ save } isBusy={ saving } disabled={ saving }>
-							{ __( 'Save Payment Settings', 'yacht-booking-system' ) }
+							{ __( 'Save Payment Settings', 'magepeople-yacht-booking-system' ) }
 						</Button>
 					</div>
 				</>

@@ -55,7 +55,7 @@ class WooCommerceGateway {
 
 	public static function declare_self( $gateways ) {
 		$gateways[ self::ID ] = array(
-			'label'   => __( 'WooCommerce Checkout', 'yacht-booking-system' ),
+			'label'   => __( 'WooCommerce Checkout', 'magepeople-yacht-booking-system' ),
 			'enabled' => self::is_active(),
 		);
 
@@ -73,19 +73,19 @@ class WooCommerceGateway {
 		}
 
 		if ( ! self::is_active() || ! function_exists( 'WC' ) ) {
-			return new \WP_Error( 'ybs_woocommerce_inactive', __( 'WooCommerce is not active.', 'yacht-booking-system' ) );
+			return new \WP_Error( 'ybs_woocommerce_inactive', __( 'WooCommerce is not active.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		$booking = BookingRepository::find( $booking_id );
 
 		if ( ! $booking ) {
-			return new \WP_Error( 'ybs_booking_missing', __( 'Booking could not be found.', 'yacht-booking-system' ) );
+			return new \WP_Error( 'ybs_booking_missing', __( 'Booking could not be found.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		$product_id = WooCommerceProduct::get_product_id( (int) $booking['yacht_id'] );
 
 		if ( ! $product_id ) {
-			return new \WP_Error( 'ybs_woocommerce_product_error', __( 'Could not prepare the WooCommerce product for this yacht.', 'yacht-booking-system' ) );
+			return new \WP_Error( 'ybs_woocommerce_product_error', __( 'Could not prepare the WooCommerce product for this yacht.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		WC()->cart->add_to_cart(
@@ -138,7 +138,7 @@ class WooCommerceGateway {
 				);
 
 				if ( ! $availability['available'] ) {
-					return new \WP_Error( 'ybs_not_available', $availability['reason'] ?: __( 'This slot is not available.', 'yacht-booking-system' ) );
+					return new \WP_Error( 'ybs_not_available', $availability['reason'] ?: __( 'This slot is not available.', 'magepeople-yacht-booking-system' ) );
 				}
 
 				$pricing = PricingEngine::calculate(
@@ -225,15 +225,15 @@ class WooCommerceGateway {
 		$data = $cart_item['ybs_booking'];
 
 		$item_data[] = array(
-			'name'  => __( 'Charter Start', 'yacht-booking-system' ),
+			'name'  => __( 'Charter Start', 'magepeople-yacht-booking-system' ),
 			'value' => ybs_format_datetime( $data['start_datetime'] ),
 		);
 		$item_data[] = array(
-			'name'  => __( 'Booking Type', 'yacht-booking-system' ),
+			'name'  => __( 'Booking Type', 'magepeople-yacht-booking-system' ),
 			'value' => self::type_label( $data['booking_type'], $data['booking_mode'] ),
 		);
 		$item_data[] = array(
-			'name'  => __( 'Guests', 'yacht-booking-system' ),
+			'name'  => __( 'Guests', 'magepeople-yacht-booking-system' ),
 			'value' => (int) $data['guest_count'],
 		);
 
@@ -270,10 +270,10 @@ class WooCommerceGateway {
 			// Visible line-item meta (no underscore prefix) so the booking
 			// details show on the thank-you page, order view and emails -
 			// the underscore-prefixed copy below is the machine-readable one.
-			$item->add_meta_data( __( 'Charter Start', 'yacht-booking-system' ), ybs_format_datetime( $data['start_datetime'] ), true );
-			$item->add_meta_data( __( 'Booking Type', 'yacht-booking-system' ), self::type_label( $data['booking_type'], $data['booking_mode'] ), true );
+			$item->add_meta_data( __( 'Charter Start', 'magepeople-yacht-booking-system' ), ybs_format_datetime( $data['start_datetime'] ), true );
+			$item->add_meta_data( __( 'Booking Type', 'magepeople-yacht-booking-system' ), self::type_label( $data['booking_type'], $data['booking_mode'] ), true );
 			/* translators: %d: number of guests */
-			$item->add_meta_data( __( 'Guests', 'yacht-booking-system' ), sprintf( __( '%d guests', 'yacht-booking-system' ), (int) $data['guest_count'] ), true );
+			$item->add_meta_data( __( 'Guests', 'magepeople-yacht-booking-system' ), sprintf( __( '%d guests', 'magepeople-yacht-booking-system' ), (int) $data['guest_count'] ), true );
 
 			$item->add_meta_data( '_ybs_booking_data', $values['ybs_booking'], true );
 		}
@@ -448,7 +448,7 @@ class WooCommerceGateway {
 		$yacht = get_post( $yacht_id );
 
 		if ( ! $yacht || 'publish' !== $yacht->post_status ) {
-			return new \WP_Error( 'ybs_invalid_yacht', __( 'Please choose a valid yacht.', 'yacht-booking-system' ) );
+			return new \WP_Error( 'ybs_invalid_yacht', __( 'Please choose a valid yacht.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		$booking_type = sanitize_key( $post['ybs_booking_type'] ?? '' );
@@ -459,7 +459,7 @@ class WooCommerceGateway {
 		$booking_mode = sanitize_key( $post['ybs_booking_mode'] ?? ( 'both' === $yacht_mode ? 'full' : $yacht_mode ) );
 
 		if ( ! $booking_type || ! $start || ! $end ) {
-			return new \WP_Error( 'ybs_invalid_dates', __( 'Please choose a valid date and time.', 'yacht-booking-system' ) );
+			return new \WP_Error( 'ybs_invalid_dates', __( 'Please choose a valid date and time.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		// Guest identity is optional here: the built-in gateways collect it
@@ -487,18 +487,18 @@ class WooCommerceGateway {
 
 	private static function type_label( $type, $mode ) {
 		$labels = array(
-			'hourly'       => __( 'Hourly', 'yacht-booking-system' ),
-			'half_day'     => __( 'Half-Day', 'yacht-booking-system' ),
-			'morning_slot' => __( 'Morning Slot', 'yacht-booking-system' ),
-			'evening_slot' => __( 'Evening Slot', 'yacht-booking-system' ),
-			'daily'        => __( 'Full Day', 'yacht-booking-system' ),
-			'multiday'     => __( 'Multi-Day', 'yacht-booking-system' ),
+			'hourly'       => __( 'Hourly', 'magepeople-yacht-booking-system' ),
+			'half_day'     => __( 'Half-Day', 'magepeople-yacht-booking-system' ),
+			'morning_slot' => __( 'Morning Slot', 'magepeople-yacht-booking-system' ),
+			'evening_slot' => __( 'Evening Slot', 'magepeople-yacht-booking-system' ),
+			'daily'        => __( 'Full Day', 'magepeople-yacht-booking-system' ),
+			'multiday'     => __( 'Multi-Day', 'magepeople-yacht-booking-system' ),
 		);
 
 		$label = $labels[ $type ] ?? $type;
 
 		if ( 'shared' === $mode ) {
-			$label .= ' · ' . __( 'Shared', 'yacht-booking-system' );
+			$label .= ' · ' . __( 'Shared', 'magepeople-yacht-booking-system' );
 		}
 
 		return $label;

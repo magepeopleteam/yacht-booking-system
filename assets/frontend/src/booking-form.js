@@ -86,6 +86,60 @@ function currentYachtId( form ) {
 	return select ? select.value : form.dataset.yachtId;
 }
 
+function currentCapacity( form ) {
+	const yachtSelect = form.querySelector( '.ybs-bf-yacht' );
+
+	if ( yachtSelect ) {
+		const option = yachtSelect.selectedOptions[ 0 ];
+		return option ? parseInt( option.dataset.capacity || '0', 10 ) : 0;
+	}
+
+	return parseInt( form.dataset.capacity || '0', 10 );
+}
+
+// Keeps the guests field from ever accepting more than the yacht can
+// actually take - capacity for a full charter, remaining seats for a
+// shared one (refreshQuote tightens the max further once it knows that).
+function clampGuests( form ) {
+	const input = form.querySelector( '.ybs-bf-guests' );
+
+	if ( ! input || '' === input.max ) {
+		return;
+	}
+
+	const max = parseInt( input.max, 10 );
+	const min = parseInt( input.min || '1', 10 );
+	const value = parseInt( input.value, 10 );
+
+	if ( isNaN( value ) ) {
+		return;
+	}
+
+	if ( value > max ) {
+		input.value = String( max );
+	} else if ( value < min ) {
+		input.value = String( min );
+	}
+}
+
+function resetGuestsMax( form ) {
+	const input = form.querySelector( '.ybs-bf-guests' );
+
+	if ( ! input ) {
+		return;
+	}
+
+	const capacity = currentCapacity( form );
+
+	if ( capacity > 0 ) {
+		input.max = String( capacity );
+	} else {
+		input.removeAttribute( 'max' );
+	}
+
+	clampGuests( form );
+}
+
 function currentMode( form ) {
 	const modeSelect = form.querySelector( '.ybs-bf-mode' );
 
@@ -185,6 +239,7 @@ async function refreshQuote( form ) {
 
 			if ( guestsInput && Number( remaining ) > 0 ) {
 				guestsInput.max = Number( remaining );
+				clampGuests( form );
 			}
 		}
 
@@ -291,11 +346,17 @@ export function initBookingForms() {
 			dateInput.value = defaultDateValue();
 		}
 
+		resetGuestsMax( form );
+
 		const debouncedRefresh = debounce( () => refreshQuote( form ), 400 );
 
 		form.querySelectorAll( '.ybs-bf-mode, .ybs-bf-type, .ybs-bf-date, .ybs-bf-yacht' ).forEach( ( field ) => {
 			field.addEventListener( 'change', () => {
 				toggleFields( form );
+				// A yacht/mode switch changes what "too many guests" means -
+				// full mode caps at the yacht's capacity, so reset there
+				// before refreshQuote tightens it further for shared mode.
+				resetGuestsMax( form );
 				refreshQuote( form );
 			} );
 		} );
@@ -307,6 +368,15 @@ export function initBookingForms() {
 			field.addEventListener( 'input', debouncedRefresh );
 			field.addEventListener( 'change', () => refreshQuote( form ) );
 		} );
+
+		// Guests specifically also gets clamped immediately as the visitor
+		// types, independent of the debounced quote refresh above - typing
+		// a number over the cap snaps back down right away.
+		const guestsField = form.querySelector( '.ybs-bf-guests' );
+
+		if ( guestsField ) {
+			guestsField.addEventListener( 'input', () => clampGuests( form ) );
+		}
 
 		if ( wcMode ) {
 			// WooCommerce checkout: the form posts add-to-cart natively; JS

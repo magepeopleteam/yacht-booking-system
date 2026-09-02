@@ -76,7 +76,7 @@ export default function PaymentMethodFields( { settings, onSettingsChange } ) {
 			.then( ( data ) => {
 				setInstalling( false );
 				onSettingsChange( { ...settings, ...data, payment_methods: [], default_payment_method: 'woocommerce' } );
-				toast( __( 'WooCommerce is installed and active. Cash on Delivery is enabled by default - turn on more methods below. Refresh the page to see it reflected everywhere in wp-admin.', 'yacht-booking-system' ) );
+				toast( __( 'WooCommerce is installed and active. Cash on Delivery is enabled by default - turn on more methods below. Refresh the page to see it reflected everywhere in wp-admin.', 'magepeople-yacht-booking-system' ) );
 			} )
 			.catch( ( err ) => {
 				setInstalling( false );
@@ -87,16 +87,16 @@ export default function PaymentMethodFields( { settings, onSettingsChange } ) {
 	return (
 		<div className="ybs-payment-methods">
 			<p className="ybs-hint" style={ { marginTop: 0, marginBottom: 12 } }>
-				{ __( 'Choose either your own payment methods or WooCommerce checkout - not both.', 'yacht-booking-system' ) }
+				{ __( 'Choose either your own payment methods or WooCommerce checkout - not both.', 'magepeople-yacht-booking-system' ) }
 			</p>
 
 			<ToggleRow
-				label={ __( 'Offline / Manual Payment', 'yacht-booking-system' ) }
+				label={ __( 'Offline / Manual Payment', 'magepeople-yacht-booking-system' ) }
 				checked={ settings.payment_methods.includes( 'offline' ) }
 				disabled={ wcMode }
 				onChange={ () => toggleMethod( 'offline' ) }
 			>
-				<Field label={ __( 'Instructions shown to the guest', 'yacht-booking-system' ) }>
+				<Field label={ __( 'Instructions shown to the guest', 'magepeople-yacht-booking-system' ) }>
 					<textarea
 						rows={ 2 }
 						value={ settings.offline_instructions || '' }
@@ -106,43 +106,43 @@ export default function PaymentMethodFields( { settings, onSettingsChange } ) {
 			</ToggleRow>
 
 			<ToggleRow
-				label={ __( 'PayPal', 'yacht-booking-system' ) }
+				label={ __( 'PayPal', 'magepeople-yacht-booking-system' ) }
 				checked={ settings.payment_methods.includes( 'paypal' ) }
 				disabled={ wcMode }
 				onChange={ () => toggleMethod( 'paypal' ) }
 			>
 				<div className="ybs-field-row">
-					<Field label={ __( 'PayPal Email', 'yacht-booking-system' ) }>
+					<Field label={ __( 'PayPal Email', 'magepeople-yacht-booking-system' ) }>
 						<input type="text" value={ settings.paypal_email || '' } onChange={ ( e ) => set( 'paypal_email', e.target.value ) } />
 					</Field>
-					<Field label={ __( 'Mode', 'yacht-booking-system' ) }>
+					<Field label={ __( 'Mode', 'magepeople-yacht-booking-system' ) }>
 						<select value={ settings.paypal_mode } onChange={ ( e ) => set( 'paypal_mode', e.target.value ) }>
-							<option value="sandbox">{ __( 'Sandbox', 'yacht-booking-system' ) }</option>
-							<option value="live">{ __( 'Live', 'yacht-booking-system' ) }</option>
+							<option value="sandbox">{ __( 'Sandbox', 'magepeople-yacht-booking-system' ) }</option>
+							<option value="live">{ __( 'Live', 'magepeople-yacht-booking-system' ) }</option>
 						</select>
 					</Field>
 				</div>
 			</ToggleRow>
 
 			<ToggleRow
-				label={ __( 'Stripe', 'yacht-booking-system' ) }
+				label={ __( 'Stripe', 'magepeople-yacht-booking-system' ) }
 				checked={ settings.payment_methods.includes( 'stripe' ) }
 				disabled={ wcMode }
 				onChange={ () => toggleMethod( 'stripe' ) }
 			>
 				<div className="ybs-field-row">
-					<Field label={ __( 'Publishable Key', 'yacht-booking-system' ) }>
+					<Field label={ __( 'Publishable Key', 'magepeople-yacht-booking-system' ) }>
 						<input type="text" value={ settings.stripe_publishable_key || '' } onChange={ ( e ) => set( 'stripe_publishable_key', e.target.value ) } />
 					</Field>
 					<Field
-						label={ __( 'Secret Key', 'yacht-booking-system' ) }
-						hint={ settings.stripe_secret_key_set ? __( 'A key is already saved. Leave blank to keep it.', 'yacht-booking-system' ) : '' }
+						label={ __( 'Secret Key', 'magepeople-yacht-booking-system' ) }
+						hint={ settings.stripe_secret_key_set ? __( 'A key is already saved. Leave blank to keep it.', 'magepeople-yacht-booking-system' ) : '' }
 					>
 						<input type="password" value={ settings.stripe_secret_key || '' } onChange={ ( e ) => set( 'stripe_secret_key', e.target.value ) } />
 					</Field>
 					<Field
-						label={ __( 'Webhook Secret', 'yacht-booking-system' ) }
-						hint={ settings.stripe_webhook_secret_set ? __( 'A secret is already saved. Leave blank to keep it.', 'yacht-booking-system' ) : '' }
+						label={ __( 'Webhook Secret', 'magepeople-yacht-booking-system' ) }
+						hint={ settings.stripe_webhook_secret_set ? __( 'A secret is already saved. Leave blank to keep it.', 'magepeople-yacht-booking-system' ) : '' }
 					>
 						<input type="password" value={ settings.stripe_webhook_secret || '' } onChange={ ( e ) => set( 'stripe_webhook_secret', e.target.value ) } />
 					</Field>
@@ -150,12 +150,12 @@ export default function PaymentMethodFields( { settings, onSettingsChange } ) {
 			</ToggleRow>
 
 			<div className="ybs-payment-group-divider">
-				<span>{ __( 'or', 'yacht-booking-system' ) }</span>
+				<span>{ __( 'or', 'magepeople-yacht-booking-system' ) }</span>
 			</div>
 
 			{ settings.woocommerce_active ? (
 				<ToggleRow
-					label={ __( 'WooCommerce Checkout', 'yacht-booking-system' ) }
+					label={ __( 'WooCommerce Checkout', 'magepeople-yacht-booking-system' ) }
 					checked={ wcMode }
 					onChange={ toggleWooCommerce }
 				>
@@ -164,28 +164,28 @@ export default function PaymentMethodFields( { settings, onSettingsChange } ) {
 			) : (
 				<div className="ybs-toggle-row">
 					<div className="ybs-toggle__label" style={ { marginBottom: 8 } }>
-						{ __( 'WooCommerce Checkout', 'yacht-booking-system' ) }
+						{ __( 'WooCommerce Checkout', 'magepeople-yacht-booking-system' ) }
 					</div>
 					<div className="ybs-notice is-info" style={ { margin: 0 } }>
 						<p style={ { margin: '0 0 8px' } }>
-							{ __( 'Install WooCommerce to accept payments through it. Cash on Delivery will be enabled automatically once it is active - you can turn on more methods afterward.', 'yacht-booking-system' ) }
+							{ __( 'Install WooCommerce to accept payments through it. Cash on Delivery will be enabled automatically once it is active - you can turn on more methods afterward.', 'magepeople-yacht-booking-system' ) }
 						</p>
 						<button type="button" className="ybs-btn is-primary" onClick={ installWooCommerce } disabled={ installing }>
-							{ installing ? __( 'Installing…', 'yacht-booking-system' ) : __( 'Install & Activate WooCommerce', 'yacht-booking-system' ) }
+							{ installing ? __( 'Installing…', 'magepeople-yacht-booking-system' ) : __( 'Install & Activate WooCommerce', 'magepeople-yacht-booking-system' ) }
 						</button>
 					</div>
 				</div>
 			) }
 
 			{ ! wcMode && (
-				<Field label={ __( 'Default Payment Method', 'yacht-booking-system' ) }>
+				<Field label={ __( 'Default Payment Method', 'magepeople-yacht-booking-system' ) }>
 					{ settings.payment_methods.length > 0 ? (
 						<select value={ settings.default_payment_method } onChange={ ( e ) => set( 'default_payment_method', e.target.value ) }>
 							{ settings.payment_methods.map( ( m ) => <option key={ m } value={ m }>{ m }</option> ) }
 						</select>
 					) : (
 						<select disabled>
-							<option>{ __( 'Enable a payment method above first', 'yacht-booking-system' ) }</option>
+							<option>{ __( 'Enable a payment method above first', 'magepeople-yacht-booking-system' ) }</option>
 						</select>
 					) }
 				</Field>

@@ -76,9 +76,9 @@ class GuestsController extends Controller {
 		$result['columns'] = apply_filters(
 			'ybs_guest_list_columns',
 			array(
-				array( 'key' => 'name', 'label' => __( 'Name', 'yacht-booking-system' ) ),
-				array( 'key' => 'email', 'label' => __( 'Email', 'yacht-booking-system' ) ),
-				array( 'key' => 'phone', 'label' => __( 'Phone', 'yacht-booking-system' ) ),
+				array( 'key' => 'name', 'label' => __( 'Name', 'magepeople-yacht-booking-system' ) ),
+				array( 'key' => 'email', 'label' => __( 'Email', 'magepeople-yacht-booking-system' ) ),
+				array( 'key' => 'phone', 'label' => __( 'Phone', 'magepeople-yacht-booking-system' ) ),
 			)
 		);
 

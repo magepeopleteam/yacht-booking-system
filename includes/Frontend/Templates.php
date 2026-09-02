@@ -9,16 +9,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Loads the plugin's own full-page single-yacht template, overridable by the
- * active theme at `yourtheme/yacht-booking-system/single-yacht.php` (child
+ * active theme at `yourtheme/magepeople-yacht-booking-system/single-yacht.php` (child
  * theme wins over parent theme). Falls back to the copy shipped inside
- * `plugins/yacht-booking-system/templates/`.
+ * `plugins/magepeople-yacht-booking-system/templates/`.
  *
  * While a YBS template is in play the legacy `the_content` renderer is
  * removed so the page isn't rendered twice.
  */
 class Templates {
 
-	const THEME_DIR = 'yacht-booking-system';
+	const THEME_DIR = 'magepeople-yacht-booking-system';
 
 	public static function register() {
 		add_filter( 'template_include', array( __CLASS__, 'load_single_yacht_template' ), 20 );
@@ -80,7 +80,7 @@ class Templates {
 
 		$skip_link = sprintf(
 			/* translators: %s: yacht name. */
-			__( 'Skip to %s content', 'yacht-booking-system' ),
+			__( 'Skip to %s content', 'magepeople-yacht-booking-system' ),
 			get_the_title()
 		);
 
@@ -89,9 +89,7 @@ class Templates {
 		language_attributes();
 		echo '>
 <head>
-<meta charset="';
-		bloginfo( 'charset' );
-		echo '" />
+<meta charset="' . esc_attr( get_bloginfo( 'charset' ) ) . '" />
 ';
 		wp_head();
 		echo '</head>

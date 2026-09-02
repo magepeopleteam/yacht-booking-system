@@ -40,12 +40,12 @@ export default function RepeatableRows( { items, fields, onChange, addLabel, emp
 						)
 					) }
 					<button type="button" className="ybs-btn is-danger" onClick={ () => remove( index ) } style={ { flex: '0 0 auto' } }>
-						{ __( 'Remove', 'yacht-booking-system' ) }
+						{ __( 'Remove', 'magepeople-yacht-booking-system' ) }
 					</button>
 				</div>
 			) ) }
 			<button type="button" className="ybs-btn" onClick={ add }>
-				{ addLabel || __( '+ Add Row', 'yacht-booking-system' ) }
+				{ addLabel || __( '+ Add Row', 'magepeople-yacht-booking-system' ) }
 			</button>
 		</div>
 	);

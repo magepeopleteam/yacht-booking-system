@@ -39,17 +39,25 @@ foreach ( $yacht_ids as $yacht_id ) {
 // Taxonomy terms (registered on `init`, which uninstall.php never fires, so
 // term_taxonomy rows are removed directly rather than via the term API).
 foreach ( array( 'yacht_class', 'yacht_occasion' ) as $taxonomy ) {
-	$term_taxonomy_ids = $wpdb->get_col(
-		$wpdb->prepare( "SELECT term_taxonomy_id FROM {$wpdb->term_taxonomy} WHERE taxonomy = %s", $taxonomy )
+	$rows = $wpdb->get_results(
+		$wpdb->prepare( "SELECT term_id, term_taxonomy_id FROM {$wpdb->term_taxonomy} WHERE taxonomy = %s", $taxonomy )
 	);
 
-	if ( $term_taxonomy_ids ) {
-		$placeholders = implode( ',', array_fill( 0, count( $term_taxonomy_ids ), '%d' ) );
-		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->term_relationships} WHERE term_taxonomy_id IN ({$placeholders})", $term_taxonomy_ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->term_taxonomy} WHERE term_taxonomy_id IN ({$placeholders})", $term_taxonomy_ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+	if ( ! $rows ) {
+		continue;
 	}
 
-	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->terms} WHERE term_id NOT IN (SELECT term_id FROM {$wpdb->term_taxonomy})" ) ); // phpcs:ignore
+	$term_ids          = wp_list_pluck( $rows, 'term_id' );
+	$term_taxonomy_ids = wp_list_pluck( $rows, 'term_taxonomy_id' );
+
+	$tt_placeholders = implode( ',', array_fill( 0, count( $term_taxonomy_ids ), '%d' ) );
+	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->term_relationships} WHERE term_taxonomy_id IN ({$tt_placeholders})", $term_taxonomy_ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders built from a counted array of ints.
+	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->term_taxonomy} WHERE term_taxonomy_id IN ({$tt_placeholders})", $term_taxonomy_ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders built from a counted array of ints.
+
+	// Only this taxonomy's own terms, and only those left with no remaining
+	// taxonomy row - a shared term still used elsewhere must survive.
+	$term_placeholders = implode( ',', array_fill( 0, count( $term_ids ), '%d' ) );
+	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->terms} WHERE term_id IN ({$term_placeholders}) AND term_id NOT IN ( SELECT term_id FROM {$wpdb->term_taxonomy} )", $term_ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders built from a counted array of ints.
 }
 
 // Custom tables - every one the migrator creates.

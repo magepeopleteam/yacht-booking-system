@@ -55,6 +55,11 @@ class Yacht {
 		'faq',
 		'included_items',
 		'off_days',
+		'confirmation_email_subject',
+		'confirmation_email_body',
+		'cta_heading',
+		'cta_text',
+		'cta_disabled',
 	);
 
 	public static function register() {
@@ -62,14 +67,14 @@ class Yacht {
 			self::POST_TYPE,
 			array(
 				'labels'        => array(
-					'name'               => __( 'Yachts', 'yacht-booking-system' ),
-					'singular_name'      => __( 'Yacht', 'yacht-booking-system' ),
-					'add_new_item'       => __( 'Add New Yacht', 'yacht-booking-system' ),
-					'edit_item'          => __( 'Edit Yacht', 'yacht-booking-system' ),
-					'view_item'          => __( 'View Yacht', 'yacht-booking-system' ),
-					'search_items'       => __( 'Search Yachts', 'yacht-booking-system' ),
-					'not_found'          => __( 'No yachts found', 'yacht-booking-system' ),
-					'not_found_in_trash' => __( 'No yachts found in Trash', 'yacht-booking-system' ),
+					'name'               => __( 'Yachts', 'magepeople-yacht-booking-system' ),
+					'singular_name'      => __( 'Yacht', 'magepeople-yacht-booking-system' ),
+					'add_new_item'       => __( 'Add New Yacht', 'magepeople-yacht-booking-system' ),
+					'edit_item'          => __( 'Edit Yacht', 'magepeople-yacht-booking-system' ),
+					'view_item'          => __( 'View Yacht', 'magepeople-yacht-booking-system' ),
+					'search_items'       => __( 'Search Yachts', 'magepeople-yacht-booking-system' ),
+					'not_found'          => __( 'No yachts found', 'magepeople-yacht-booking-system' ),
+					'not_found_in_trash' => __( 'No yachts found in Trash', 'magepeople-yacht-booking-system' ),
 				),
 				'public'        => true,
 				'show_ui'       => false, // Managed entirely by the React admin app, not the classic editor.

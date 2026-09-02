@@ -12,17 +12,17 @@ export default function PublishBox( { status, slug, title, saving, onSlugChange,
 	return (
 		<div className="ybs-wcard ybs-publishbox">
 			<div className="ybs-wcard__head">
-				<h3>{ __( 'Publish', 'yacht-booking-system' ) }</h3>
+				<h3>{ __( 'Publish', 'magepeople-yacht-booking-system' ) }</h3>
 			</div>
 			<div className="ybs-wcard__body">
 				<div className="ybs-publishbox__status">
 					<span className={ 'ybs-badge ' + ( isPublished ? 'status-paid' : 'status-pending' ) }>
-						{ isPublished ? __( 'Published', 'yacht-booking-system' ) : __( 'Draft', 'yacht-booking-system' ) }
+						{ isPublished ? __( 'Published', 'magepeople-yacht-booking-system' ) : __( 'Draft', 'magepeople-yacht-booking-system' ) }
 					</span>
 				</div>
 
 				<div className="ybs-field">
-					<label>{ __( 'Slug', 'yacht-booking-system' ) }</label>
+					<label>{ __( 'Slug', 'magepeople-yacht-booking-system' ) }</label>
 					<input
 						type="text"
 						value={ slug || '' }
@@ -38,14 +38,14 @@ export default function PublishBox( { status, slug, title, saving, onSlugChange,
 
 				<div className="ybs-publishbox__actions">
 					<button type="button" className="ybs-btn" onClick={ onSaveDraft } disabled={ saving }>
-						{ __( 'Save Draft', 'yacht-booking-system' ) }
+						{ __( 'Save Draft', 'magepeople-yacht-booking-system' ) }
 					</button>
 					<button type="button" className="ybs-btn is-primary" onClick={ onPublish } disabled={ saving }>
 						{ saving
-							? __( 'Saving…', 'yacht-booking-system' )
+							? __( 'Saving…', 'magepeople-yacht-booking-system' )
 							: isPublished
-								? __( 'Update', 'yacht-booking-system' )
-								: __( 'Publish', 'yacht-booking-system' ) }
+								? __( 'Update', 'magepeople-yacht-booking-system' )
+								: __( 'Publish', 'magepeople-yacht-booking-system' ) }
 					</button>
 				</div>
 			</div>

@@ -29,7 +29,7 @@ class StripeGateway {
 
 	public static function declare_self( $gateways ) {
 		$gateways[ self::ID ] = array(
-			'label'   => __( 'Stripe', 'yacht-booking-system' ),
+			'label'   => __( 'Stripe', 'magepeople-yacht-booking-system' ),
 			'enabled' => in_array( self::ID, (array) Settings::get( 'payment_methods', array() ), true ) && Settings::get( 'stripe_secret_key' ),
 		);
 
@@ -44,13 +44,13 @@ class StripeGateway {
 		$booking = BookingRepository::find( $booking_id );
 
 		if ( ! $booking ) {
-			return new \WP_Error( 'ybs_booking_missing', __( 'Booking could not be found.', 'yacht-booking-system' ) );
+			return new \WP_Error( 'ybs_booking_missing', __( 'Booking could not be found.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		$secret_key = Settings::get( 'stripe_secret_key' );
 
 		if ( ! $secret_key ) {
-			return new \WP_Error( 'ybs_stripe_not_configured', __( 'Stripe is not configured.', 'yacht-booking-system' ) );
+			return new \WP_Error( 'ybs_stripe_not_configured', __( 'Stripe is not configured.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		$body = array(
@@ -65,7 +65,7 @@ class StripeGateway {
 						'unit_amount'  => (int) round( (float) $booking['total_price'] * 100 ),
 						'product_data' => array(
 							/* translators: %d: booking id */
-							'name' => sprintf( __( 'Yacht Booking #%d', 'yacht-booking-system' ), $booking_id ),
+							'name' => sprintf( __( 'Yacht Booking #%d', 'magepeople-yacht-booking-system' ), $booking_id ),
 						),
 					),
 				),
@@ -92,7 +92,7 @@ class StripeGateway {
 		$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( empty( $data['url'] ) ) {
-			$message = $data['error']['message'] ?? __( 'Stripe did not return a checkout URL.', 'yacht-booking-system' );
+			$message = $data['error']['message'] ?? __( 'Stripe did not return a checkout URL.', 'magepeople-yacht-booking-system' );
 			return new \WP_Error( 'ybs_stripe_error', $message );
 		}
 
@@ -137,21 +137,45 @@ class StripeGateway {
 		return rest_ensure_response( array( 'received' => true ) );
 	}
 
-	private static function verify_signature( $payload, $signature_header, $secret ) {
-		$parts = array();
+	/**
+	 * Stripe's tolerance window, in seconds - a correctly signed payload older
+	 * than this is rejected so a captured webhook can't be replayed forever.
+	 */
+	const SIGNATURE_TOLERANCE = 300;
 
+	private static function verify_signature( $payload, $signature_header, $secret ) {
+		$timestamp  = '';
+		$signatures = array();
+
+		// A header can carry several `v1=` signatures during a secret roll, so
+		// collect them all rather than letting the last one overwrite the rest.
 		foreach ( explode( ',', $signature_header ) as $part ) {
-			[ $key, $value ] = array_pad( explode( '=', $part, 2 ), 2, '' );
-			$parts[ $key ]   = $value;
+			[ $key, $value ] = array_pad( explode( '=', trim( $part ), 2 ), 2, '' );
+
+			if ( 't' === $key ) {
+				$timestamp = $value;
+			} elseif ( 'v1' === $key ) {
+				$signatures[] = $value;
+			}
 		}
 
-		if ( empty( $parts['t'] ) || empty( $parts['v1'] ) ) {
+		if ( '' === $timestamp || ! $signatures ) {
 			return false;
 		}
 
-		$expected = hash_hmac( 'sha256', $parts['t'] . '.' . $payload, $secret );
+		if ( abs( time() - (int) $timestamp ) > self::SIGNATURE_TOLERANCE ) {
+			return false;
+		}
 
-		return hash_equals( $expected, $parts['v1'] );
+		$expected = hash_hmac( 'sha256', $timestamp . '.' . $payload, $secret );
+
+		foreach ( $signatures as $signature ) {
+			if ( hash_equals( $expected, $signature ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

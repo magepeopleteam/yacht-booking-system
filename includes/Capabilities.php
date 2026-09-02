@@ -53,7 +53,7 @@ class Capabilities {
 	public static function install() {
 		add_role(
 			self::ROLE_MANAGER,
-			__( 'Yacht Manager', 'yacht-booking-system' ),
+			__( 'Yacht Manager', 'magepeople-yacht-booking-system' ),
 			array(
 				'read'              => true,
 				self::CAP_BOOKINGS  => true,
@@ -64,7 +64,7 @@ class Capabilities {
 
 		add_role(
 			self::ROLE_STAFF,
-			__( 'Yacht Staff', 'yacht-booking-system' ),
+			__( 'Yacht Staff', 'magepeople-yacht-booking-system' ),
 			array(
 				'read'             => true,
 				self::CAP_BOOKINGS => true,

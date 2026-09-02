@@ -47,7 +47,8 @@ export default function TagSelect( { label, taxonomy, terms, selected, onChange,
 				setNewName( '' );
 				setModalOpen( false );
 				setCreating( false );
-				toast( sprintf( __( '"%s" added.', 'yacht-booking-system' ), term.name ) );
+				// translators: %s: name of the term that was added.
+				toast( sprintf( __( '"%s" added.', 'magepeople-yacht-booking-system' ), term.name ) );
 			} )
 			.catch( ( err ) => {
 				setCreating( false );
@@ -61,7 +62,7 @@ export default function TagSelect( { label, taxonomy, terms, selected, onChange,
 				{ selectedTerms.map( ( term ) => (
 					<span key={ term.id } className="ybs-tagselect__pill">
 						{ term.name }
-						<button type="button" onClick={ () => remove( term.id ) } aria-label={ __( 'Remove', 'yacht-booking-system' ) }>
+						<button type="button" onClick={ () => remove( term.id ) } aria-label={ __( 'Remove', 'magepeople-yacht-booking-system' ) }>
 							×
 						</button>
 					</span>
@@ -85,7 +86,7 @@ export default function TagSelect( { label, taxonomy, terms, selected, onChange,
 								</button>
 							) ) }
 							{ 0 === suggestions.length && (
-								<div className="ybs-tagselect__no-match">{ __( 'No matches.', 'yacht-booking-system' ) }</div>
+								<div className="ybs-tagselect__no-match">{ __( 'No matches.', 'magepeople-yacht-booking-system' ) }</div>
 							) }
 						</div>
 					) }
@@ -93,12 +94,12 @@ export default function TagSelect( { label, taxonomy, terms, selected, onChange,
 			</div>
 
 			<button type="button" className="ybs-tagselect__add" onClick={ () => setModalOpen( true ) }>
-				{ sprintf( __( '+ Add New %s', 'yacht-booking-system' ), label ) }
+				{ /* translators: %s: taxonomy label, e.g. "Class". */ sprintf( __( '+ Add New %s', 'magepeople-yacht-booking-system' ), label ) }
 			</button>
 
 			{ modalOpen && (
 				<Modal
-					title={ sprintf( __( 'Add New %s', 'yacht-booking-system' ), label ) }
+					title={ /* translators: %s: taxonomy label, e.g. "Class". */ sprintf( __( 'Add New %s', 'magepeople-yacht-booking-system' ), label ) }
 					onRequestClose={ () => setModalOpen( false ) }
 				>
 					<TextControl
@@ -109,10 +110,10 @@ export default function TagSelect( { label, taxonomy, terms, selected, onChange,
 					/>
 					<div style={ { display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 } }>
 						<Button variant="tertiary" onClick={ () => setModalOpen( false ) }>
-							{ __( 'Cancel', 'yacht-booking-system' ) }
+							{ __( 'Cancel', 'magepeople-yacht-booking-system' ) }
 						</Button>
 						<Button variant="primary" onClick={ createTerm } isBusy={ creating } disabled={ creating }>
-							{ __( 'Save', 'yacht-booking-system' ) }
+							{ __( 'Save', 'magepeople-yacht-booking-system' ) }
 						</Button>
 					</div>
 				</Modal>

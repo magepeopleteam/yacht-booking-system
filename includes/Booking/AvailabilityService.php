@@ -62,10 +62,19 @@ class AvailabilityService {
 
 			if ( $remaining < $guest_count ) {
 				$result['available'] = false;
-				$result['reason']    = __( 'Not enough remaining capacity for this time slot.', 'yacht-booking-system' );
+				$result['reason']    = __( 'Not enough remaining capacity for this time slot.', 'magepeople-yacht-booking-system' );
 			}
 		} else {
-			if ( ! empty( $overlaps ) ) {
+			if ( $capacity > 0 && $guest_count > $capacity ) {
+				// Checked before overlaps - "too many guests" is a clearer,
+				// more actionable reason than a generic scheduling conflict.
+				$result['available'] = false;
+				$result['reason']    = sprintf(
+					/* translators: %d: maximum guest capacity. */
+					__( 'This yacht can take a maximum of %d guests.', 'magepeople-yacht-booking-system' ),
+					$capacity
+				);
+			} elseif ( ! empty( $overlaps ) ) {
 				$result['available'] = false;
 				// A slot with shared seats sold can never take a full charter
 				// again - make that explicit instead of a generic message.
@@ -78,8 +87,8 @@ class AvailabilityService {
 				);
 
 				$result['reason'] = $has_shared
-					? __( 'Shared seats are already booked for this time - only shared bookings are available for this slot.', 'yacht-booking-system' )
-					: __( 'This yacht is already booked for the selected time.', 'yacht-booking-system' );
+					? __( 'Shared seats are already booked for this time - only shared bookings are available for this slot.', 'magepeople-yacht-booking-system' )
+					: __( 'This yacht is already booked for the selected time.', 'magepeople-yacht-booking-system' );
 			}
 
 			$result['remaining_capacity'] = $overlaps ? 0 : $capacity;
@@ -98,7 +107,7 @@ class AvailabilityService {
 
 		if ( in_array( $date, $off_days, true ) ) {
 			$result['available'] = false;
-			$result['reason']    = __( 'This date is not available for booking.', 'yacht-booking-system' );
+			$result['reason']    = __( 'This date is not available for booking.', 'magepeople-yacht-booking-system' );
 
 			return $result;
 		}
@@ -107,7 +116,7 @@ class AvailabilityService {
 
 		if ( $rule && ( 'block' === $rule['adjustment_type'] || 'off_day' === $rule['rule_type'] ) ) {
 			$result['available'] = false;
-			$result['reason']    = __( 'This date is not available for booking.', 'yacht-booking-system' );
+			$result['reason']    = __( 'This date is not available for booking.', 'magepeople-yacht-booking-system' );
 		}
 
 		return $result;
@@ -125,7 +134,7 @@ class AvailabilityService {
 
 			if ( strtotime( $context['start_datetime'] ) < $earliest ) {
 				$result['available'] = false;
-				$result['reason']    = __( 'This booking does not meet the minimum notice period required.', 'yacht-booking-system' );
+				$result['reason']    = __( 'This booking does not meet the minimum notice period required.', 'magepeople-yacht-booking-system' );
 			}
 		}
 
@@ -143,10 +152,10 @@ class AvailabilityService {
 
 		if ( $min_duration && $minutes < $min_duration ) {
 			$result['available'] = false;
-			$result['reason']    = __( 'This booking is shorter than the minimum allowed duration.', 'yacht-booking-system' );
+			$result['reason']    = __( 'This booking is shorter than the minimum allowed duration.', 'magepeople-yacht-booking-system' );
 		} elseif ( $max_duration && $minutes > $max_duration ) {
 			$result['available'] = false;
-			$result['reason']    = __( 'This booking is longer than the maximum allowed duration.', 'yacht-booking-system' );
+			$result['reason']    = __( 'This booking is longer than the maximum allowed duration.', 'magepeople-yacht-booking-system' );
 		}
 
 		return $result;
@@ -182,7 +191,7 @@ class AvailabilityService {
 
 		if ( $overlaps ) {
 			$result['available'] = false;
-			$result['reason']    = __( 'This time is too close to another booking for this yacht.', 'yacht-booking-system' );
+			$result['reason']    = __( 'This time is too close to another booking for this yacht.', 'magepeople-yacht-booking-system' );
 		}
 
 		return $result;

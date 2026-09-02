@@ -106,17 +106,17 @@ if ( ! function_exists( 'ybs_format_duration' ) ) {
 
 		if ( $days > 0 ) {
 			/* translators: %d: number of days */
-			$parts[] = sprintf( _n( '%d day', '%d days', $days, 'yacht-booking-system' ), $days );
+			$parts[] = sprintf( _n( '%d day', '%d days', $days, 'magepeople-yacht-booking-system' ), $days );
 		}
 
 		if ( $hours > 0 ) {
 			/* translators: %d: number of hours */
-			$parts[] = sprintf( _n( '%d hour', '%d hours', $hours, 'yacht-booking-system' ), $hours );
+			$parts[] = sprintf( _n( '%d hour', '%d hours', $hours, 'magepeople-yacht-booking-system' ), $hours );
 		}
 
 		if ( $minutes > 0 ) {
 			/* translators: %d: number of minutes */
-			$parts[] = sprintf( _n( '%d minute', '%d minutes', $minutes, 'yacht-booking-system' ), $minutes );
+			$parts[] = sprintf( _n( '%d minute', '%d minutes', $minutes, 'magepeople-yacht-booking-system' ), $minutes );
 		}
 
 		return implode( ' ', $parts );

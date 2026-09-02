@@ -38,7 +38,7 @@ class Newsletter {
 		$email = sanitize_email( $request->get_param( 'email' ) );
 
 		if ( ! $email || ! is_email( $email ) ) {
-			return new \WP_Error( 'ybs_invalid_email', __( 'Please provide a valid email address.', 'yacht-booking-system' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'ybs_invalid_email', __( 'Please provide a valid email address.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		$table = $wpdb->prefix . 'ybs_newsletter_subscribers';
@@ -64,8 +64,8 @@ class Newsletter {
 	public static function render( $atts ) {
 		$atts = shortcode_atts(
 			array(
-				'title'       => __( 'Stay in the loop', 'yacht-booking-system' ),
-				'placeholder' => __( 'Your email address', 'yacht-booking-system' ),
+				'title'       => __( 'Stay in the loop', 'magepeople-yacht-booking-system' ),
+				'placeholder' => __( 'Your email address', 'magepeople-yacht-booking-system' ),
 			),
 			$atts,
 			'ybs_newsletter'
@@ -80,7 +80,7 @@ class Newsletter {
 			<p class="ybs-newsletter__title"><?php echo esc_html( $atts['title'] ); ?></p>
 			<form class="ybs-newsletter__form">
 				<input type="email" required placeholder="<?php echo esc_attr( $atts['placeholder'] ); ?>" class="ybs-newsletter__input" />
-				<button type="submit" class="ybs-btn is-primary"><?php esc_html_e( 'Subscribe', 'yacht-booking-system' ); ?></button>
+				<button type="submit" class="ybs-btn is-primary"><?php esc_html_e( 'Subscribe', 'magepeople-yacht-booking-system' ); ?></button>
 			</form>
 			<p class="ybs-newsletter__message" hidden></p>
 		</div>

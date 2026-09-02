@@ -126,7 +126,7 @@ class WooCommerceProduct {
 		}
 
 		$product = new \WC_Product_Simple();
-		$product->set_name( get_the_title( $yacht_id ) ?: __( 'Yacht Charter', 'yacht-booking-system' ) );
+		$product->set_name( get_the_title( $yacht_id ) ?: __( 'Yacht Charter', 'magepeople-yacht-booking-system' ) );
 		$product->set_status( 'publish' );
 		$product->set_catalog_visibility( 'hidden' );
 		$product->set_virtual( true );
