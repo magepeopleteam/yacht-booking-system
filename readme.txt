@@ -116,15 +116,6 @@ Yes. Copy `templates/single-yacht.php` from the plugin into `yourtheme/magepeopl
 
 Only if you ask for it. Enable "Remove all plugin data when uninstalled" under **Settings → Data & Privacy** before deleting the plugin. Otherwise your yachts, bookings and settings are left untouched.
 
-== Screenshots ==
-
-1. The fleet listing with search, class filters and grid/list views.
-2. The single yacht page with gallery, specs and booking widget.
-3. The yacht editor — pricing and availability step.
-4. Bookings list in the admin dashboard.
-5. Booking calendar.
-6. Settings — payments.
-
 == Changelog ==
 
 = 1.0.0 =
