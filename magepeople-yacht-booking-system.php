@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: MagePeople Yacht Booking System
- * Plugin URI: https://magepeople.com/
+ * Plugin URI: https://wordpress.org/plugins/magepeople-yacht-booking-system
  * Description: Yacht and boat charter booking - yacht management, a full booking engine, and built-in payments (Offline, PayPal, Stripe, WooCommerce).
  * Version: 1.0.0
  * Requires at least: 5.9
