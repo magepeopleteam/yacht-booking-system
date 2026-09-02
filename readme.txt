@@ -2,7 +2,7 @@
 Contributors: magepeopleteam, aamahin
 Tags: yacht booking, boat rental, charter booking, booking system, woocommerce
 Requires at least: 5.3
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 8.0
 Stable tag: 1.0.0
 License: GPLv2 or later
@@ -110,7 +110,7 @@ Yes. Add off-day rules under **Settings → Pricing Rules** to block dates or da
 
 = Can I customize the single yacht page? =
 
-Yes. Copy `templates/single-yacht.php` from the plugin into `yourtheme/magepeople-magepeople-yacht-booking-system/single-yacht.php` and edit it there — your copy is used instead of the plugin's.
+Yes. Copy `templates/single-yacht.php` from the plugin into `yourtheme/magepeople-yacht-booking-system/single-yacht.php` and edit it there — your copy is used instead of the plugin's.
 
 = Is the booking data removed when I uninstall? =
 

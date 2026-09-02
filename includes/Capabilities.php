@@ -21,6 +21,32 @@ class Capabilities {
 	const ROLE_STAFF   = 'ybs_yacht_staff';
 
 	/**
+	 * The `yacht` post type declares `capability_type => array( 'yacht',
+	 * 'yachts' )` with `map_meta_cap`, so WordPress maps every yacht meta cap
+	 * onto these names. They must be granted explicitly - otherwise nothing,
+	 * not even an administrator, can edit a yacht through any core code path.
+	 *
+	 * @return string[]
+	 */
+	public static function yacht_post_caps() {
+		return array(
+			'edit_yacht',
+			'read_yacht',
+			'delete_yacht',
+			'edit_yachts',
+			'edit_others_yachts',
+			'publish_yachts',
+			'read_private_yachts',
+			'delete_yachts',
+			'delete_private_yachts',
+			'delete_published_yachts',
+			'delete_others_yachts',
+			'edit_private_yachts',
+			'edit_published_yachts',
+		);
+	}
+
+	/**
 	 * The capability that always grants access, overridable per site.
 	 */
 	public static function admin_capability() {
@@ -51,25 +77,26 @@ class Capabilities {
 	 * on every activation.
 	 */
 	public static function install() {
-		add_role(
-			self::ROLE_MANAGER,
-			__( 'Yacht Manager', 'magepeople-yacht-booking-system' ),
+		// A yacht manager runs the whole operation, including the fleet, so it
+		// needs the mapped post caps as well as the plugin's own.
+		$manager_caps = array_merge(
+			array( 'read' => true ),
 			array(
-				'read'              => true,
-				self::CAP_BOOKINGS  => true,
-				self::CAP_SETTINGS  => true,
-				self::CAP_PAYMENTS  => true,
-			)
+				self::CAP_BOOKINGS => true,
+				self::CAP_SETTINGS => true,
+				self::CAP_PAYMENTS => true,
+			),
+			array_fill_keys( self::yacht_post_caps(), true )
 		);
 
-		add_role(
-			self::ROLE_STAFF,
-			__( 'Yacht Staff', 'magepeople-yacht-booking-system' ),
-			array(
-				'read'             => true,
-				self::CAP_BOOKINGS => true,
-			)
+		// Staff work the booking desk only - no fleet or settings access.
+		$staff_caps = array(
+			'read'             => true,
+			self::CAP_BOOKINGS => true,
 		);
+
+		self::ensure_role( self::ROLE_MANAGER, __( 'Yacht Manager', 'magepeople-yacht-booking-system' ), $manager_caps );
+		self::ensure_role( self::ROLE_STAFF, __( 'Yacht Staff', 'magepeople-yacht-booking-system' ), $staff_caps );
 
 		$administrator = get_role( 'administrator' );
 
@@ -77,6 +104,34 @@ class Capabilities {
 			$administrator->add_cap( self::CAP_BOOKINGS );
 			$administrator->add_cap( self::CAP_SETTINGS );
 			$administrator->add_cap( self::CAP_PAYMENTS );
+
+			foreach ( self::yacht_post_caps() as $cap ) {
+				$administrator->add_cap( $cap );
+			}
+		}
+	}
+
+	/**
+	 * `add_role()` is a no-op when the role already exists, which would leave
+	 * an upgraded site missing any capability added since it first activated.
+	 * Create the role if it is new, then top up its caps either way.
+	 *
+	 * @param string              $role  Role slug.
+	 * @param string              $label Translated display name.
+	 * @param array<string, bool> $caps  Capabilities to grant.
+	 */
+	private static function ensure_role( $role, $label, array $caps ) {
+		$existing = get_role( $role );
+
+		if ( ! $existing ) {
+			add_role( $role, $label, $caps );
+			return;
+		}
+
+		foreach ( array_keys( $caps ) as $cap ) {
+			if ( ! $existing->has_cap( $cap ) ) {
+				$existing->add_cap( $cap );
+			}
 		}
 	}
 
@@ -90,6 +145,10 @@ class Capabilities {
 			$administrator->remove_cap( self::CAP_BOOKINGS );
 			$administrator->remove_cap( self::CAP_SETTINGS );
 			$administrator->remove_cap( self::CAP_PAYMENTS );
+
+			foreach ( self::yacht_post_caps() as $cap ) {
+				$administrator->remove_cap( $cap );
+			}
 		}
 	}
 }

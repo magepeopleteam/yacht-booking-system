@@ -52,6 +52,10 @@ final class Migrator {
 
 		set_transient( self::LOCK_OPTION, 1, MINUTE_IN_SECONDS );
 		self::install();
+		// Roles/caps too, not just the schema: a site that activated an
+		// earlier version would otherwise never receive capabilities added
+		// since. `Capabilities::install()` is idempotent.
+		Capabilities::install();
 		delete_transient( self::LOCK_OPTION );
 	}
 

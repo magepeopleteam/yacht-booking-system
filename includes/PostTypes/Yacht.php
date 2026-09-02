@@ -1,6 +1,8 @@
 <?php
 namespace Ybs\PostTypes;
 
+use Ybs\Capabilities;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -117,8 +119,11 @@ class Yacht {
 					'single'        => true,
 					'show_in_rest'  => $show_in_rest,
 					'type'          => $is_list ? 'array' : 'string',
+					// These hold rates and capacity, so they gate on the same
+					// check as the REST write routes - not the generic
+					// `edit_posts`, which every Author on the site has.
 					'auth_callback' => function () {
-						return current_user_can( 'edit_posts' );
+						return Capabilities::can( 'settings' );
 					},
 				)
 			);

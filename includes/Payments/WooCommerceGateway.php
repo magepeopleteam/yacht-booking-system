@@ -455,12 +455,34 @@ class WooCommerceGateway {
 		$start        = sanitize_text_field( $post['ybs_start_datetime'] ?? '' );
 		$end          = sanitize_text_field( $post['ybs_end_datetime'] ?? '' );
 		$guest_count  = max( 1, (int) ( $post['ybs_guest_count'] ?? 1 ) );
-		$yacht_mode   = get_post_meta( $yacht_id, 'booking_mode', true ) ?: 'full';
-		$booking_mode = sanitize_key( $post['ybs_booking_mode'] ?? ( 'both' === $yacht_mode ? 'full' : $yacht_mode ) );
 
 		if ( ! $booking_type || ! $start || ! $end ) {
 			return new \WP_Error( 'ybs_invalid_dates', __( 'Please choose a valid date and time.', 'magepeople-yacht-booking-system' ) );
 		}
+
+		// The mode picks which price table applies, so it can never be taken
+		// from the request as-is: a full-charter-only yacht would otherwise be
+		// bookable at a single shared seat's rate.
+		$yacht_mode    = get_post_meta( $yacht_id, 'booking_mode', true ) ?: 'full';
+		$allowed_modes = 'both' === $yacht_mode ? array( 'full', 'shared' ) : array( $yacht_mode );
+		$booking_mode  = sanitize_key( $post['ybs_booking_mode'] ?? $allowed_modes[0] );
+
+		if ( ! in_array( $booking_mode, $allowed_modes, true ) ) {
+			$booking_mode = $allowed_modes[0];
+		}
+
+		// Normalize before anything compares or stores these: an unparseable
+		// datetime would reach the DB as-is and silently defeat the
+		// double-booking check.
+		$start_ts = strtotime( $start );
+		$end_ts   = strtotime( $end );
+
+		if ( ! $start_ts || ! $end_ts || $end_ts <= $start_ts ) {
+			return new \WP_Error( 'ybs_invalid_dates', __( 'Please choose a valid date and time.', 'magepeople-yacht-booking-system' ) );
+		}
+
+		$start = gmdate( 'Y-m-d H:i:s', $start_ts );
+		$end   = gmdate( 'Y-m-d H:i:s', $end_ts );
 
 		// Guest identity is optional here: the built-in gateways collect it
 		// on the booking form, while the WooCommerce checkout collects it in
