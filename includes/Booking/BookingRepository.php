@@ -5,6 +5,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/*
+ * The data layer for `wp_ybs_bookings`, one of the plugin's own tables, so
+ * every call below is necessarily a direct query - core has no API for it.
+ * Nothing here is cached on purpose: these rows back the availability and
+ * seat-count checks, and serving a stale count would oversell a charter.
+ */
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 class BookingRepository {
 
 	/** WooCommerce order-status slugs - booking and order statuses are kept
@@ -80,8 +87,11 @@ class BookingRepository {
 	public static function find( $id ) {
 		global $wpdb;
 
+		$table = self::table();
+
 		return $wpdb->get_row(
-			$wpdb->prepare( 'SELECT * FROM ' . self::table() . ' WHERE id = %d', $id ),
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a prefixed identifier; $id goes through prepare().
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ),
 			ARRAY_A
 		);
 	}
@@ -170,8 +180,10 @@ class BookingRepository {
 
 		$list_params  = array_merge( $params, array( $per_page, $offset ) );
 
-		$items = $wpdb->get_results( $wpdb->prepare( $sql, $list_params ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$total = $params ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $params ) ) : (int) $wpdb->get_var( $count_sql ); // phpcs:ignore
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is assembled from a fixed identifier and a placeholder-only WHERE clause; all values pass through prepare().
+		$items = $wpdb->get_results( $wpdb->prepare( $sql, $list_params ), ARRAY_A );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- same assembled $count_sql; values pass through prepare().
+		$total = $params ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $params ) ) : (int) $wpdb->get_var( $count_sql );
 
 		return array(
 			'items' => $items,
@@ -203,7 +215,8 @@ class BookingRepository {
 			$params[] = $exclude_booking_id;
 		}
 
-		return $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $statuses is an esc_sql'd whitelist from a class constant; every caller value is a placeholder.
+		return $wpdb->get_results( $wpdb->prepare( $sql, $params ), ARRAY_A );
 	}
 
 	public static function counts_for_dashboard() {
@@ -213,14 +226,17 @@ class BookingRepository {
 		$today = current_time( 'Y-m-d' );
 
 		$today_bookings = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE DATE(start_datetime) = %s AND status != 'cancelled'", $today ) // phpcs:ignore
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a prefixed identifier; $today is a placeholder.
+			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE DATE(start_datetime) = %s AND status != 'cancelled'", $today )
 		);
 
 		$upcoming_bookings = (int) $wpdb->get_var(
-			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE start_datetime > %s AND status != 'cancelled'", current_time( 'mysql' ) ) // phpcs:ignore
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a prefixed identifier; the time is a placeholder.
+			$wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE start_datetime > %s AND status != 'cancelled'", current_time( 'mysql' ) )
 		);
 
-		$cancelled_bookings = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE status = 'cancelled'" ); // phpcs:ignore
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- no user input; $table is a prefixed identifier.
+		$cancelled_bookings = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE status = 'cancelled'" );
 
 		return array(
 			'today_bookings'     => $today_bookings,
@@ -254,3 +270,4 @@ class BookingRepository {
 		}
 	}
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

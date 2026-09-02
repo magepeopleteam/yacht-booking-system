@@ -1,7 +1,7 @@
-=== MagePeople Yacht Booking System – Yacht Charter & Boat Rental Booking ===
+=== MagePeople Yacht Booking System ===
 Contributors: magepeopleteam, aamahin
 Tags: yacht booking, boat rental, charter booking, booking system, woocommerce
-Requires at least: 5.3
+Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 8.0
 Stable tag: 1.0.0

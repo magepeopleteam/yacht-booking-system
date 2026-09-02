@@ -9,6 +9,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * `wp_ybs_guests`. A guest is found-or-created by email so returning
  * customers accumulate one profile rather than a duplicate row per booking.
  */
+/*
+ * The data layer for `wp_ybs_guests`, one of the plugin's own tables, so every
+ * call below is necessarily a direct query - core has no API for it. Guest
+ * rows are not cached: they carry personal data that the retention job
+ * anonymises in place, and a cached copy would outlive the erasure.
+ */
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 class GuestRepository {
 
 	private static function table() {
@@ -22,8 +29,11 @@ class GuestRepository {
 		$email = sanitize_email( $data['email'] ?? '' );
 		$now   = current_time( 'mysql' );
 
+		$table = self::table();
+
 		$existing_id = $email ? (int) $wpdb->get_var(
-			$wpdb->prepare( 'SELECT id FROM ' . self::table() . ' WHERE email = %s LIMIT 1', $email )
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a prefixed identifier; $email goes through prepare().
+			$wpdb->prepare( "SELECT id FROM {$table} WHERE email = %s LIMIT 1", $email )
 		) : 0;
 
 		$fields = array(
@@ -72,8 +82,11 @@ class GuestRepository {
 	public static function find( $id ) {
 		global $wpdb;
 
+		$table = self::table();
+
 		return $wpdb->get_row(
-			$wpdb->prepare( 'SELECT * FROM ' . self::table() . ' WHERE id = %d', $id ),
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a prefixed identifier; $id goes through prepare().
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ),
 			ARRAY_A
 		);
 	}
@@ -105,10 +118,12 @@ class GuestRepository {
 			ORDER BY b.start_datetime DESC
 			LIMIT %d OFFSET %d";
 
-		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $per_page, $offset ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- identifiers are prefixed table names and $paid_statuses is an esc_sql'd literal whitelist; paging values are placeholders.
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $per_page, $offset ), ARRAY_A );
 
 		$total = (int) $wpdb->get_var(
-			"SELECT COUNT(*) FROM {$bookings} b WHERE b.status IN ({$paid_statuses})" // phpcs:ignore
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $bookings is a prefixed identifier and $paid_statuses is an esc_sql'd literal whitelist; no user input.
+			"SELECT COUNT(*) FROM {$bookings} b WHERE b.status IN ({$paid_statuses})"
 		);
 
 		return array(
@@ -138,7 +153,8 @@ class GuestRepository {
 			WHERE b.guest_id IN ({$placeholders})
 			ORDER BY b.start_datetime DESC";
 
-		return $wpdb->get_results( $wpdb->prepare( $sql, ...$guest_ids ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- identifiers are prefixed table names and $placeholders is a generated "%d,%d,..." list; the ids themselves go through prepare().
+		return $wpdb->get_results( $wpdb->prepare( $sql, ...$guest_ids ), ARRAY_A );
 	}
 
 	/**
@@ -157,6 +173,7 @@ class GuestRepository {
 		$cutoff   = gmdate( 'Y-m-d H:i:s', strtotime( "-{$months} months" ) );
 
 		$candidate_ids = $wpdb->get_col(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $guests/$bookings are prefixed identifiers; $cutoff goes through prepare().
 			$wpdb->prepare(
 				"SELECT g.id FROM {$guests} g
 				WHERE g.anonymized_at IS NULL
@@ -188,3 +205,4 @@ class GuestRepository {
 		return count( $candidate_ids );
 	}
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

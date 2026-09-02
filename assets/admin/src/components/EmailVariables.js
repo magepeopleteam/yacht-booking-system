@@ -28,24 +28,24 @@ export const EMAIL_TAGS = [
  * editor instance `editorId` names - shared by the global Settings > Email
  * tab and the per-yacht confirmation email editor in the wizard.
  */
-export default function EmailVariables( { onInsert } ) {
+export default function EmailVariables({ onInsert }) {
 	return (
 		<div className="ybs-card ybs-email-vars">
-			<h3>{ __( 'Dynamic Variables', 'magepeople-yacht-booking-system' ) }</h3>
-			<p className="ybs-hint" style={ { marginTop: 0 } }>
-				{ __( 'Click a variable to insert it into the email body.', 'magepeople-yacht-booking-system' ) }
+			<h3>{__('Dynamic Variables', 'magepeople-yacht-booking-system')}</h3>
+			<p className="ybs-hint" style={{ marginTop: 0 }}>
+				{__('Click a variable to insert it into the email body.', 'magepeople-yacht-booking-system')}
 			</p>
 			<div className="ybs-email-vars__list">
-				{ EMAIL_TAGS.map( ( tag ) => (
+				{EMAIL_TAGS.map((tag) => (
 					<button
 						type="button"
-						key={ tag }
+						key={tag}
 						className="ybs-email-vars__tag"
-						onClick={ () => onInsert( tag ) }
+						onClick={() => onInsert(tag)}
 					>
-						{ tag }
+						{tag}
 					</button>
-				) ) }
+				))}
 			</div>
 		</div>
 	);

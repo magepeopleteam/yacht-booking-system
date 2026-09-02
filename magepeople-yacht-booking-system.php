@@ -4,7 +4,7 @@
  * Plugin URI: https://magepeople.com/
  * Description: Yacht and boat charter booking - yacht management, a full booking engine, and built-in payments (Offline, PayPal, Stripe, WooCommerce).
  * Version: 1.0.0
- * Requires at least: 5.3
+ * Requires at least: 5.9
  * Requires PHP: 8.0
  * Author: MagePeople
  * Author URI: https://magepeople.com/

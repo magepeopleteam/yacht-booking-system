@@ -72,6 +72,7 @@ class WooCommerceProduct {
 		// the yacht-side pointer instead.
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- reverse meta_value lookup, which get_post_meta() cannot do; runs only on the legacy fallback path.
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ('_ybs_wc_product_id','link_wc_product') AND meta_value = %s AND post_id != %d LIMIT 1",
@@ -222,6 +223,7 @@ class WooCommerceProduct {
 	public static function exclude_from_sitemap( $excluded ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- collects every linked product id for sitemap exclusion; no core API returns this set.
 		$ids = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s",

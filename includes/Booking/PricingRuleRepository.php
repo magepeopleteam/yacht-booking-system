@@ -11,6 +11,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * `rule_type`/`adjustment_type` combination already work end-to-end so Pro's
  * seasonal/peak rule types (spec 4.7) need no schema change, just more UI.
  */
+/*
+ * This class is the data layer for one of the plugin's own custom tables, so
+ * every call below is necessarily a direct query - core has no API for it.
+ * Results are deliberately not cached: pricing rules feed live quotes, and a
+ * stale rule would quote a price the operator no longer offers.
+ */
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 class PricingRuleRepository {
 
 	public static function table() {
@@ -21,23 +28,27 @@ class PricingRuleRepository {
 	public static function list( $yacht_id = null ) {
 		global $wpdb;
 
+		$table = self::table();
+
 		if ( $yacht_id ) {
 			return $wpdb->get_results(
-				$wpdb->prepare(
-					'SELECT * FROM ' . self::table() . ' WHERE (yacht_id = %d OR yacht_id IS NULL) AND active = 1 ORDER BY priority DESC',
-					$yacht_id
-				),
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a prefixed identifier, which prepare() cannot parameterise; $yacht_id is a placeholder.
+				$wpdb->prepare( "SELECT * FROM {$table} WHERE (yacht_id = %d OR yacht_id IS NULL) AND active = 1 ORDER BY priority DESC", $yacht_id ),
 				ARRAY_A
 			);
 		}
 
-		return $wpdb->get_results( 'SELECT * FROM ' . self::table() . ' ORDER BY priority DESC, id DESC', ARRAY_A ); // phpcs:ignore
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- no user input in this query; $table is a prefixed identifier.
+		return $wpdb->get_results( "SELECT * FROM {$table} ORDER BY priority DESC, id DESC", ARRAY_A );
 	}
 
 	public static function find( $id ) {
 		global $wpdb;
 
-		return $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . self::table() . ' WHERE id = %d', $id ), ARRAY_A );
+		$table = self::table();
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a prefixed identifier; $id goes through prepare().
+		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ), ARRAY_A );
 	}
 
 	public static function create( array $data ) {
@@ -171,3 +182,4 @@ class PricingRuleRepository {
 		return $fields;
 	}
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

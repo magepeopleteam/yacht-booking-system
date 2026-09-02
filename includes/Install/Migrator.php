@@ -218,7 +218,12 @@ final class Migrator {
 
 		$table = $wpdb->prefix . 'ybs_bookings';
 
-		$wpdb->query( "UPDATE {$table} SET status = 'processing' WHERE status IN ('confirmed', 'paid')" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$wpdb->query( "UPDATE {$table} SET status = 'completed' WHERE status = 'no_show'" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// One-time status rename on the plugin's own table. No user input in
+		// either statement; $table is a prefixed identifier, which prepare()
+		// cannot parameterise. Caching is irrelevant to a schema migration.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( "UPDATE {$table} SET status = 'processing' WHERE status IN ('confirmed', 'paid')" );
+		$wpdb->query( "UPDATE {$table} SET status = 'completed' WHERE status = 'no_show'" );
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 }

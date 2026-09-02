@@ -80,11 +80,9 @@ final class Plugin {
 		Maintenance::register();
 		BookingEmailer::register();
 
-		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
-	}
-
-	public function load_textdomain(): void {
-		load_plugin_textdomain( 'magepeople-yacht-booking-system', false, dirname( YBS_PLUGIN_BASENAME ) . '/languages' );
+		// No load_plugin_textdomain() call: WordPress has loaded translations
+		// for a wordpress.org-hosted plugin's own text domain automatically
+		// since 4.6, and calling it manually is now discouraged.
 	}
 
 	public function maybe_flush_rewrite_rules(): void {
