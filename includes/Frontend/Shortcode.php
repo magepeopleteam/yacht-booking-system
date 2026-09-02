@@ -650,12 +650,14 @@ class Shortcode {
 			return array();
 		}
 
+		// Fetch one extra and drop the current yacht in PHP rather than asking
+		// MySQL for a NOT IN: excluding a single id costs more in the query
+		// than filtering a handful of rows does here.
 		$query = new \WP_Query(
 			array(
 				'post_type'      => Yacht::POST_TYPE,
 				'post_status'    => 'publish',
-				'posts_per_page' => 4,
-				'post__not_in'   => array( $yacht_id ),
+				'posts_per_page' => 5,
 				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 					array(
 						'taxonomy' => 'yacht_class',
@@ -666,7 +668,27 @@ class Shortcode {
 			)
 		);
 
-		return $query->posts;
+		$posts = array_filter(
+			$query->posts,
+			static function ( $post ) use ( $yacht_id ) {
+				return (int) $post->ID !== (int) $yacht_id;
+			}
+		);
+
+		return array_slice( array_values( $posts ), 0, 4 );
+	}
+
+	/**
+	 * Public wrapper so a theme's single-yacht override renders the same
+	 * "Similar Yachts" set as the built-in template, instead of repeating
+	 * the query.
+	 *
+	 * @param int   $yacht_id  Yacht being viewed; excluded from the results.
+	 * @param int[] $class_ids `yacht_class` term ids to match on.
+	 * @return \WP_Post[]
+	 */
+	public static function similar_yachts_public( $yacht_id, array $class_ids ) {
+		return self::similar_yachts( $yacht_id, (array) $class_ids );
 	}
 
 	/**

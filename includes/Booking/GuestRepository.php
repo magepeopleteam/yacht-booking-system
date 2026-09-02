@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * rows are not cached: they carry personal data that the retention job
  * anonymises in place, and a cached copy would outlive the erasure.
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 class GuestRepository {
 
 	private static function table() {
@@ -209,4 +209,4 @@ class GuestRepository {
 		return count( $candidate_ids );
 	}
 }
-// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter

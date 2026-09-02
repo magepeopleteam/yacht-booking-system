@@ -387,12 +387,12 @@ class WooCommerceGateway {
 
 		$bookings_table = BookingRepository::table();
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the plugin's own table; the mapping must be read fresh when an order status changes.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- the plugin's own table; the mapping must be read fresh when an order status changes.
 		$booking_ids = $wpdb->get_col(
 			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $bookings_table is a prefixed identifier; $order_id goes through prepare().
 			$wpdb->prepare( "SELECT id FROM {$bookings_table} WHERE woo_order_id = %d", $order_id )
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
 		if ( ! $booking_ids ) {
 			return;

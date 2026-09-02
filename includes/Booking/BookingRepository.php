@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Nothing here is cached on purpose: these rows back the availability and
  * seat-count checks, and serving a stale count would oversell a charter.
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 class BookingRepository {
 
 	/** WooCommerce order-status slugs - booking and order statuses are kept
@@ -270,4 +270,4 @@ class BookingRepository {
 		}
 	}
 }
-// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter

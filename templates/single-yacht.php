@@ -70,23 +70,8 @@ foreach ( $gallery_ids as $gid ) {
 $similar = array();
 
 if ( $classes ) {
-	$query = new WP_Query(
-		array(
-			'post_type'      => Yacht::POST_TYPE,
-			'post_status'    => 'publish',
-			'posts_per_page' => 4,
-			'post__not_in'   => array( $yacht_id ),
-			'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-				array(
-					'taxonomy' => 'yacht_class',
-					'field'    => 'term_id',
-					'terms'    => wp_list_pluck( $classes, 'term_id' ),
-				),
-			),
-		)
-	);
-
-	$similar = $query->posts;
+	// One implementation, shared with the shortcode renderer.
+	$similar = Shortcode::similar_yachts_public( $yacht_id, wp_list_pluck( $classes, 'term_id' ) );
 }
 
 \Ybs\Frontend\Templates::document_start();

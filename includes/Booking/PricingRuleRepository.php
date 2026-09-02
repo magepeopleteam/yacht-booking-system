@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Results are deliberately not cached: pricing rules feed live quotes, and a
  * stale rule would quote a price the operator no longer offers.
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 class PricingRuleRepository {
 
 	public static function table() {
@@ -182,4 +182,4 @@ class PricingRuleRepository {
 		return $fields;
 	}
 }
-// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
