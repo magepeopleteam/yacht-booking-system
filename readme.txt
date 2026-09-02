@@ -129,8 +129,3 @@ Only if you ask for it. Enable "Remove all plugin data when uninstalled" under *
 
 = 1.0.0 =
 * Initial release.
-
-== Upgrade Notice ==
-
-= 1.0.0 =
-First release.
