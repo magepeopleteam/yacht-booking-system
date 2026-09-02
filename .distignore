@@ -12,8 +12,9 @@ node_modules
 package.json
 package-lock.json
 webpack.config.js
-composer.json
-composer.lock
+
+# composer.json/lock DO ship: vendor/ is distributed, and Plugin Check
+# (rightly) wants the manifest that generated the autoloader to ship with it.
 
 assets/admin/src
 assets/frontend/src

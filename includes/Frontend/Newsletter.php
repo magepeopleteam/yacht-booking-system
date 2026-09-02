@@ -45,16 +45,17 @@ class Newsletter {
 
 		// Direct insert into the plugin's own subscribers table; nothing to
 		// cache on a write, and $table is a prefixed identifier.
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		// $table is a prefixed identifier, which prepare() cannot parameterise;
+		// both values are placeholders.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$wpdb->query(
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a prefixed identifier; both values are placeholders.
 			$wpdb->prepare(
 				"INSERT IGNORE INTO {$table} (email, subscribed_at) VALUES (%s, %s)",
 				$email,
 				current_time( 'mysql' )
 			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		/**
 		 * Lets a site (or a future ESP add-on) react to a new subscriber.

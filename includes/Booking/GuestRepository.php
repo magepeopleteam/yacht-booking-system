@@ -118,7 +118,7 @@ class GuestRepository {
 			ORDER BY b.start_datetime DESC
 			LIMIT %d OFFSET %d";
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- identifiers are prefixed table names and $paid_statuses is an esc_sql'd literal whitelist; paging values are placeholders.
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql's identifiers are prefixed table names and $paid_statuses is an esc_sql'd literal whitelist; the paging values are placeholders.
 		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $per_page, $offset ), ARRAY_A );
 
 		$total = (int) $wpdb->get_var(
@@ -172,8 +172,11 @@ class GuestRepository {
 		$bookings = $wpdb->prefix . 'ybs_bookings';
 		$cutoff   = gmdate( 'Y-m-d H:i:s', strtotime( "-{$months} months" ) );
 
+		// $guests/$bookings are prefixed identifiers, which prepare() cannot
+		// parameterise; $cutoff is a placeholder. Disabled across the whole
+		// statement because the sniff reports on the inner string lines.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$candidate_ids = $wpdb->get_col(
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $guests/$bookings are prefixed identifiers; $cutoff goes through prepare().
 			$wpdb->prepare(
 				"SELECT g.id FROM {$guests} g
 				WHERE g.anonymized_at IS NULL
@@ -183,6 +186,7 @@ class GuestRepository {
 				$cutoff
 			)
 		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		if ( ! $candidate_ids ) {
 			return 0;
