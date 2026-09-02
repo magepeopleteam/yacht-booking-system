@@ -6,7 +6,7 @@ Tested up to: 7.1
 Requires PHP: 8.0
 Stable tag: 1.0.0
 License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Yacht and boat charter booking for WordPress. Manage your fleet, take hourly, half-day, daily and multi-day bookings, and get paid — free.
 
@@ -87,7 +87,7 @@ This plugin bundles [Leaflet](https://leafletjs.com/) (BSD-2-Clause) for its map
 1. Upload the plugin folder to `/wp-content/plugins/`, or install it through **Plugins → Add New**.
 2. Activate the plugin through the **Plugins** menu in WordPress.
 3. Go to **Yacht Booking → Settings** and set your currency, tax rate and payment method.
-4. Go to **Yacht Booking → Yachts → Add Yacht** and add your first yacht.
+4. Go to **Yacht Booking → Yachts → Add New Yacht** and add your first yacht.
 5. Put `[yacht-list search="yes"]` on a page to show your fleet.
 
 == Frequently Asked Questions ==
@@ -114,7 +114,7 @@ Yes. Copy `templates/single-yacht.php` from the plugin into `yourtheme/magepeopl
 
 = Is the booking data removed when I uninstall? =
 
-Only if you ask for it. Enable "Remove all plugin data when uninstalled" under **Settings → Privacy** before deleting the plugin. Otherwise your yachts, bookings and settings are left untouched.
+Only if you ask for it. Enable "Remove all plugin data when uninstalled" under **Settings → Data & Privacy** before deleting the plugin. Otherwise your yachts, bookings and settings are left untouched.
 
 == Screenshots ==
 
@@ -129,3 +129,8 @@ Only if you ask for it. Enable "Remove all plugin data when uninstalled" under *
 
 = 1.0.0 =
 * Initial release.
+
+== Upgrade Notice ==
+
+= 1.0.0 =
+First release.
