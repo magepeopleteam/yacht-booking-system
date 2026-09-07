@@ -68,7 +68,7 @@ final class Plugin {
 		add_action( 'rest_api_init', array( ReportsController::class, 'register_routes' ) );
 
 		/**
-		 * Pro registers additional `ybs/v1` routes here (spec section 7) -
+		 * Add-ons and site code can register additional `ybs/v1` routes here -
 		 * e.g. `/guests/{id}` edit/delete, `/tickets/{id}/pdf`.
 		 */
 		add_action( 'rest_api_init', function () {

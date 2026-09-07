@@ -10,8 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * View-only in Free (spec 4.4.5) - no edit/delete routes exist here on
- * purpose; Pro adds those via its own routes registered through the
+ * Read-only: guest records are written by the booking flow, so this screen
+ * lists them rather than editing them. Extra routes can be registered via the
  * `ybs_rest_namespace_routes` filter rather than this controller growing them.
  */
 class GuestsController extends Controller {
@@ -62,7 +62,7 @@ class GuestsController extends Controller {
 				);
 
 				/**
-				 * Lets Pro attach extra per-row data matching the columns it
+				 * Lets add-ons attach extra per-row data matching the columns they
 				 * added via `ybs_guest_list_columns`.
 				 */
 				return apply_filters( 'ybs_guest_list_row', $item, $row );
@@ -71,7 +71,7 @@ class GuestsController extends Controller {
 		);
 
 		/**
-		 * Free's columns are fixed; Pro appends its own (spec section 7).
+		 * Lets add-ons append their own columns.
 		 */
 		$result['columns'] = apply_filters(
 			'ybs_guest_list_columns',

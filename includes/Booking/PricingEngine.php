@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Resolves a yacht's base rate for a booking type, applies the single
  * best-matching pricing rule (specificity, then priority - same resolution
  * order as the sibling shuttle plugin's passenger price calculator), then
- * lets `ybs_booking_price_components` (spec section 7's required Pro seam)
+ * lets `ybs_booking_price_components`
  * layer add-ons/deposits on top before tax.
  */
 class PricingEngine {
@@ -73,7 +73,7 @@ class PricingEngine {
 		);
 
 		/**
-		 * Pro injects add-ons/deposits here (spec section 7).
+		 * Add-ons, deposits and any other line items can be injected here.
 		 *
 		 * @param array $components
 		 * @param array $context

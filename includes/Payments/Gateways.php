@@ -6,10 +6,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * No gateway class hierarchy - each gateway (including a future Pro one)
+ * No gateway class hierarchy - each gateway
  * only needs to add itself to the `ybs_payment_gateways` list and answer the
  * `ybs_payment_start` filter for its own id. This is the same seam the
- * sibling shuttle plugin uses to keep its Free/Pro gateways decoupled.
+ * sibling shuttle plugin uses to keep its gateways decoupled.
  */
 class Gateways {
 

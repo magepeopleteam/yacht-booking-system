@@ -78,6 +78,41 @@ The departure-point map uses OpenStreetMap:
 * **OpenStreetMap tiles** — when a yacht has a location set, the visitor's browser requests map tiles from OpenStreetMap's tile servers, which receives the visitor's IP address and the map area being viewed. This happens on the front end only on pages that display a yacht map. [Tile Usage Policy](https://operations.osmfoundation.org/policies/tiles/) | [Privacy Policy](https://wiki.osmfoundation.org/wiki/Privacy_Policy)
 * **OpenStreetMap Nominatim** — in the admin only, when you type an address into the location search while editing a yacht, that search text is sent to Nominatim to look up coordinates. [Usage Policy](https://operations.osmfoundation.org/policies/nominatim/) | [Privacy Policy](https://wiki.osmfoundation.org/wiki/Privacy_Policy)
 
+== Source code and build process ==
+
+Nothing in this plugin is obfuscated, and no compiled file ships without its
+source.
+
+The files in `assets/build/` are generated bundles. Their complete,
+human-readable sources ship inside the plugin next to them:
+
+* `assets/build/admin.js` — built from `assets/admin/src/` (entry: `assets/admin/src/index.js`)
+* `assets/build/frontend.js` — built from `assets/frontend/src/` (entry: `assets/frontend/src/index.js`)
+* `assets/build/booking-block.js` — built from `assets/frontend/src/block/index.js`
+* `assets/build/style-admin.css` — built from `assets/admin/src/style.css`
+* `assets/build/style-frontend.css` — built from `assets/frontend/src/style.css`
+
+The build tools ship too: `package.json`, `package-lock.json` and
+`webpack.config.js`. To regenerate every bundle from source:
+
+`npm install`
+`npm run build`
+
+That runs `wp-scripts build` (@wordpress/scripts, webpack) using the entry
+points declared in `webpack.config.js`, writing output to `assets/build/`.
+Use `npm run start` for a watching development build.
+
+PHP classes are autoloaded by Composer from `includes/` (PSR-4). The
+autoloader in `vendor/` is generated from the shipped `composer.json` with:
+
+`composer dump-autoload`
+
+Development happens in the open at
+https://github.com/magepeopleteam/yacht-booking-system
+
+Third-party libraries are unmodified and carry their own upstream headers and
+licenses — see == Credits == below.
+
 == Credits ==
 
 This plugin bundles [Leaflet](https://leafletjs.com/) (BSD-2-Clause) for its maps, and the [Plus Jakarta Sans](https://github.com/tokotype/PlusJakartaSans) typeface (SIL Open Font License 1.1). Both licenses ship with the plugin.

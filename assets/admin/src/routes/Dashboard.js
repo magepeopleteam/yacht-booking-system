@@ -2,6 +2,11 @@ import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import { api } from '../api/client';
 
+// Paid statuses only - see BookingRepository::counts_for_dashboard().
+function money(stats, amount) {
+	return `${stats.currency_symbol || ''}${Number(amount || 0).toFixed(2)}`;
+}
+
 export default function Dashboard() {
 	const [stats, setStats] = useState(null);
 	const [error, setError] = useState('');
@@ -42,6 +47,14 @@ export default function Dashboard() {
 					<div className="ybs-stat-card">
 						<div className="ybs-stat-card__label">{__('Active Yachts', 'magepeople-yacht-booking-system')}</div>
 						<div className="ybs-stat-card__value">{stats.active_yachts}</div>
+					</div>
+					<div className="ybs-stat-card">
+						<div className="ybs-stat-card__label">{__('Revenue This Month', 'magepeople-yacht-booking-system')}</div>
+						<div className="ybs-stat-card__value">{money(stats, stats.revenue_this_month)}</div>
+					</div>
+					<div className="ybs-stat-card">
+						<div className="ybs-stat-card__label">{__('Revenue To Date', 'magepeople-yacht-booking-system')}</div>
+						<div className="ybs-stat-card__value">{money(stats, stats.revenue_total)}</div>
 					</div>
 				</div>
 			)}

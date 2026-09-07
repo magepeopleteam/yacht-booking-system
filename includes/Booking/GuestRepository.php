@@ -68,8 +68,8 @@ class GuestRepository {
 		$guest_id = (int) $wpdb->insert_id;
 
 		/**
-		 * Fires after a guest record is created (not on find-only). Pro's
-		 * custom guest-field storage hooks in here.
+		 * Fires after a guest record is created (not on find-only) - the hook
+		 * for storing any custom guest fields.
 		 *
 		 * @param int  $guest_id
 		 * @param bool $is_new

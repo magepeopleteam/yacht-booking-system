@@ -32,8 +32,8 @@ class Menu {
 		add_action( 'load-' . $hook, array( __CLASS__, 'on_load' ) );
 
 		/**
-		 * Fires once the top-level page is registered (spec section 7) so
-		 * Pro can hook its own `admin_menu` registration after Free's.
+		 * Fires once the top-level page is registered, so add-ons can hook
+		 * their own `admin_menu` registration after this one.
 		 */
 		do_action( 'ybs_admin_menu_registered', $hook );
 	}
@@ -98,8 +98,8 @@ class Menu {
 		);
 
 		/**
-		 * Lets Pro register extra nav entries in the rail. The matching
-		 * React component is supplied separately by Pro's own script calling
+		 * Lets add-ons register extra nav entries in the rail. The matching
+		 * React component is supplied separately by the add-on's script calling
 		 * `window.ybsAdmin.registerRoute( id, Component )`.
 		 */
 		$extra_routes = apply_filters( 'ybs_admin_react_routes', array() );

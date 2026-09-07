@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * The one scheduled job Free needs: GDPR retention. Scheduled at activation
+ * The one scheduled job the plugin needs: GDPR retention. Scheduled at activation
  * (Install\Migrator::activate) and cleared at deactivation - this class only
  * owns what runs when the hook fires.
  */

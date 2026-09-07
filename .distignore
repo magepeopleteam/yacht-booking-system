@@ -1,6 +1,13 @@
-# Everything here is development tooling or source that must not ship in the
-# distributed plugin zip. The built bundles under assets/build/ DO ship, and so
-# does vendor/ (it holds the Composer autoloader the plugin hard-requires).
+# Only genuinely non-source artefacts are excluded here.
+#
+# Guideline 4 requires public access to the source of any compiled asset and
+# to the build tools that produce it, so the JSX/CSS sources under
+# assets/*/src, package.json, package-lock.json and webpack.config.js all
+# SHIP alongside the bundles in assets/build/. composer.json ships for the
+# same reason: vendor/ holds the generated autoloader.
+#
+# node_modules is the one build input left out - it is reinstallable from
+# package-lock.json and would add tens of megabytes.
 
 .git
 .gitignore
@@ -9,16 +16,6 @@
 Thumbs.db
 
 node_modules
-package.json
-package-lock.json
-webpack.config.js
 
-# composer.json/lock DO ship: vendor/ is distributed, and Plugin Check
-# (rightly) wants the manifest that generated the autoloader to ship with it.
-
-assets/admin/src
-assets/frontend/src
-
-*.md
 *.log
 *.zip

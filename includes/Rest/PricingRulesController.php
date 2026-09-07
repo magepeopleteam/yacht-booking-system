@@ -11,10 +11,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Free's UI only ever sends `off_day`/basic weekday-weekend/date-range rules
- * through here (spec 4.6/4.4.6), but the endpoint itself is generic over the
- * full `rule_type`/`adjustment_type` set the table supports, so Pro's
- * seasonal/peak rule screens (spec 4.7) need no new route.
+ * The bundled UI sends `off_day`/weekday-weekend/date-range rules through
+ * here, but the endpoint is generic over the full
+ * `rule_type`/`adjustment_type` set the table supports, so extra rule kinds
+ * need no new route.
  */
 class PricingRulesController extends Controller {
 

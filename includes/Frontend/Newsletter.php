@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * A simple email capture (spec 4.5) - stores to its own table and exposes a
- * filter so a future ESP integration (Pro or a site's own code) can react
+ * filter so an ESP integration or a site's own code can react
  * without touching this class.
  */
 class Newsletter {

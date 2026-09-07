@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * One choke-point every caller (frontend search, booking submission, the
  * admin calendar) goes through - `ybs_yacht_available_capacity` is
- * filterable so off-day/buffer/min-notice checks (and, later, Pro rules)
+ * filterable so off-day/buffer/min-notice checks (and any custom rules)
  * plug in via `add_filter` instead of being scattered across call sites.
  */
 class AvailabilityService {

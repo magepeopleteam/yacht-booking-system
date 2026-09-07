@@ -9,9 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Versioned schema installer. All tables are created up front at activation,
- * even the ones Free's own UI never touches (email templates/logs, and the
- * columns on `bookings` that only Pro reads) - so Pro never has to run a
- * migration of its own against a site that installed Free first.
+ * including the ones the bundled UI does not surface yet (email templates and
+ * logs), so the schema is stable for any add-on that reads it.
  */
 final class Migrator {
 

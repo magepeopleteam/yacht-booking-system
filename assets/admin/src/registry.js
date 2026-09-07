@@ -1,9 +1,9 @@
 /**
- * Extension registry for the `ybs_admin_react_routes` PHP filter. Pro's PHP
- * side adds nav entries (id/label/icon) via that filter; Pro's own enqueued
+ * Extension registry for the `ybs_admin_react_routes` PHP filter. An add-on's
+ * PHP side adds nav entries (id/label/icon) via that filter; its own enqueued
  * JS then calls `window.ybsAdmin.registerRoute( id, renderFn )` to supply the
- * component for that entry. Free never needs to know Pro's component code -
- * only that a slot with this id might get filled in.
+ * component for that entry. This app only needs to know that a slot with
+ * that id might get filled in.
  */
 const routes = {};
 

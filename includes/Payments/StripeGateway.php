@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Stripe Checkout Sessions via raw REST calls (wp_remote_post) rather than
- * the `stripe-php` SDK, so Free carries zero Composer runtime dependencies.
+ * the `stripe-php` SDK, so the plugin carries zero Composer runtime dependencies.
  * The webhook signature is verified by hand (HMAC-SHA256 over
  * "{timestamp}.{payload}"), which is all `stripe-php`'s verifier does anyway.
  */

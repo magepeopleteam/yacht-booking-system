@@ -6,10 +6,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * `wp_ybs_pricing_rules`. Free's own UI only creates `off_day` (block) and
- * basic weekday/weekend/date-range rules; the table and every other
- * `rule_type`/`adjustment_type` combination already work end-to-end so Pro's
- * seasonal/peak rule types (spec 4.7) need no schema change, just more UI.
+ * `wp_ybs_pricing_rules`. The bundled UI creates `off_day` (block) and
+ * weekday/weekend/date-range rules; every other `rule_type`/`adjustment_type`
+ * combination the table supports also works end-to-end, so extra rule kinds
+ * need no schema change.
  */
 /*
  * This class is the data layer for one of the plugin's own custom tables, so

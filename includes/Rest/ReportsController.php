@@ -10,8 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Counts only - no revenue here, per spec 4.4.1. Revenue/analytics is a Pro
- * screen extending this via its own `/reports/revenue` route.
+ * Dashboard summary: booking counts, revenue taken, and the size of the
+ * published fleet. Extend the payload with the `..._reports_summary` filter.
  */
 class ReportsController extends Controller {
 
@@ -30,8 +30,14 @@ class ReportsController extends Controller {
 	public static function summary() {
 		$counts = BookingRepository::counts_for_dashboard();
 
-		$counts['active_yachts'] = (int) wp_count_posts( Yacht::POST_TYPE )->publish;
+		$counts['active_yachts']   = (int) wp_count_posts( Yacht::POST_TYPE )->publish;
+		$counts['currency_symbol'] = \Ybs\Settings::get( 'currency_symbol', '$' );
 
-		return rest_ensure_response( $counts );
+		/**
+		 * Filters the dashboard summary payload.
+		 *
+		 * @param array $counts Summary values keyed by metric.
+		 */
+		return rest_ensure_response( apply_filters( 'ybs_reports_summary', $counts ) );
 	}
 }

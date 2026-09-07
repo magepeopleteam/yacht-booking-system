@@ -84,8 +84,8 @@ class BookingsController extends Controller {
 	}
 
 	/**
-	 * Free intentionally exposes only enough here for the list screen to
-	 * show a friendly upsell in place of a details page - see spec 4.4.3.
+	 * The complete booking record, including the price breakdown that makes
+	 * up the total.
 	 */
 	public static function show( WP_REST_Request $request ) {
 		$booking = BookingRepository::find( (int) $request['id'] );
@@ -94,14 +94,7 @@ class BookingsController extends Controller {
 			return new WP_Error( 'ybs_not_found', __( 'Booking not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
 		}
 
-		return rest_ensure_response(
-			array(
-				'id'               => (int) $booking['id'],
-				'status'           => $booking['status'],
-				'pro_required'     => ! ybs_is_pro_active(),
-				'upgrade_message'  => __( 'Upgrade to Pro to view full booking details.', 'magepeople-yacht-booking-system' ),
-			)
-		);
+		return rest_ensure_response( self::decorate_detail( $booking ) );
 	}
 
 	public static function create( WP_REST_Request $request ) {
@@ -300,6 +293,28 @@ class BookingsController extends Controller {
 			'payment_status' => $booking['payment_status'],
 			'woo_order_id'   => (int) $booking['woo_order_id'],
 			'woo_order_url'  => self::order_edit_url( (int) $booking['woo_order_id'] ),
+		);
+	}
+
+	/**
+	 * Everything decorate() returns plus the stored price breakdown, payment
+	 * reference and audit timestamps - the single-booking view.
+	 */
+	private static function decorate_detail( $booking ) {
+		return array_merge(
+			self::decorate( $booking ),
+			array(
+				'base_price'      => (float) $booking['base_price'],
+				'addons_total'    => (float) $booking['addons_total'],
+				'tax_total'       => (float) $booking['tax_total'],
+				'discount_total'  => (float) $booking['discount_total'],
+				'deposit_amount'  => (float) $booking['deposit_amount'],
+				'transaction_ref' => (string) $booking['transaction_ref'],
+				'notes'           => (string) $booking['notes'],
+				'created_at'      => $booking['created_at'],
+				'updated_at'      => $booking['updated_at'],
+				'created_formatted' => ybs_format_datetime( $booking['created_at'] ),
+			)
 		);
 	}
 }

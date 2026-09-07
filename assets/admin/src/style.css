@@ -2581,3 +2581,61 @@ select.ybs-badge:focus {
 	text-align: right;
 	overflow-wrap: anywhere;
 }
+
+/* ---------------------------------------------------------------------------
+   Booking details modal (Bookings list -> click a row)
+   --------------------------------------------------------------------------- */
+.ybs-modal-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding: 48px 16px;
+	overflow-y: auto;
+	background: rgba(15, 23, 42, 0.55);
+}
+
+.ybs-modal {
+	width: 100%;
+	max-width: 640px;
+	background: #fff;
+	border-radius: 10px;
+	box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+}
+
+.ybs-modal__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 16px 20px;
+	border-bottom: 1px solid #e2e8f0;
+}
+
+.ybs-modal__head h3 {
+	margin: 0;
+	font-size: 15px;
+}
+
+.ybs-modal__body {
+	padding: 4px 20px 20px;
+}
+
+.ybs-modal__body h4 {
+	margin: 20px 0 8px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #64748b;
+}
+
+/* Two-column key/value layout, reusing .ybs-table's borders. */
+.ybs-table--kv th {
+	width: 40%;
+	font-weight: 500;
+	color: #475569;
+	text-align: left;
+}

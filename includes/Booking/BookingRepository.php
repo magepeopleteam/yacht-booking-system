@@ -238,10 +238,23 @@ class BookingRepository {
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- no user input; $table is a prefixed identifier.
 		$cancelled_bookings = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE status = 'cancelled'" );
 
+		// Revenue counts only statuses that represent money actually taken.
+		$paid = "'" . implode( "','", array_map( 'esc_sql', array( 'processing', 'completed' ) ) ) . "'";
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a prefixed identifier and $paid an esc_sql'd literal whitelist.
+		$revenue_total = (float) $wpdb->get_var( "SELECT COALESCE(SUM(total_price),0) FROM {$table} WHERE status IN ({$paid})" );
+
+		$revenue_month = (float) $wpdb->get_var(
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- as above; the month is a placeholder.
+			$wpdb->prepare( "SELECT COALESCE(SUM(total_price),0) FROM {$table} WHERE status IN ({$paid}) AND DATE_FORMAT(start_datetime, '%%Y-%%m') = %s", current_time( 'Y-m' ) )
+		);
+
 		return array(
 			'today_bookings'     => $today_bookings,
 			'upcoming_bookings'  => $upcoming_bookings,
 			'cancelled_bookings' => $cancelled_bookings,
+			'revenue_total'      => round( $revenue_total, 2 ),
+			'revenue_this_month' => round( $revenue_month, 2 ),
 		);
 	}
 
