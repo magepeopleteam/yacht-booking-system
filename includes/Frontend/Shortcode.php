@@ -292,7 +292,6 @@ class Shortcode {
 
 		wp_enqueue_script( 'mageyabo-frontend' );
 		wp_enqueue_style( 'mageyabo-frontend' );
-		wp_enqueue_style( 'mageyabo-yl-font' );
 
 		$show_search = 'yes' === $atts['search'] || '1' === (string) $atts['search'];
 		$classes     = get_terms( array( 'taxonomy' => 'mageyabo_yacht_class', 'hide_empty' => false ) );

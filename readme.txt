@@ -81,19 +81,27 @@ The departure-point map uses OpenStreetMap:
 == Source code and build process ==
 
 Nothing in this plugin is obfuscated, and no compiled file ships without its
-source.
+source. All source code is included within the plugin.
 
-The files in `assets/build/` are generated bundles. Their complete,
-human-readable sources ship inside the plugin next to them:
+= JavaScript and CSS source files =
 
-* `assets/build/admin.js` — built from `assets/admin/src/` (entry: `assets/admin/src/index.js`)
-* `assets/build/frontend.js` — built from `assets/frontend/src/` (entry: `assets/frontend/src/index.js`)
-* `assets/build/booking-block.js` — built from `assets/frontend/src/block/index.js`
-* `assets/build/style-admin.css` — built from `assets/admin/src/style.css`
-* `assets/build/style-frontend.css` — built from `assets/frontend/src/style.css`
+Every compiled asset in `assets/build/` has its human-readable, unminified
+source bundled inside the plugin:
 
-The build tools ship too: `package.json`, `package-lock.json` and
-`webpack.config.js`. To regenerate every bundle from source:
+* `assets/build/admin.js` — source: all `.js` files under `assets/admin/src/`, entry point `assets/admin/src/index.js`
+* `assets/build/style-admin.css` — source: `assets/admin/src/style.css`
+* `assets/build/frontend.js` — source: all `.js` files under `assets/frontend/src/`, entry point `assets/frontend/src/index.js`
+* `assets/build/style-frontend.css` — source: `assets/frontend/src/style.css`
+* `assets/build/booking-block.js` — source: `assets/frontend/src/block/`, entry point `assets/frontend/src/block/index.js`
+
+The webpack manifest files (`assets/build/*.asset.php`) are auto-generated
+by `@wordpress/scripts` and list the dependency and version maps for each
+bundle.
+
+= Build tools =
+
+`package.json`, `package-lock.json` and `webpack.config.js` ship with the
+plugin. To regenerate every bundle from source:
 
 `npm install`
 `npm run build`
@@ -102,16 +110,25 @@ That runs `wp-scripts build` (@wordpress/scripts, webpack) using the entry
 points declared in `webpack.config.js`, writing output to `assets/build/`.
 Use `npm run start` for a watching development build.
 
-PHP classes are autoloaded by Composer from `includes/` (PSR-4). The
-autoloader in `vendor/` is generated from the shipped `composer.json` with:
+= PHP source =
+
+PHP classes are autoloaded by Composer from `includes/` (PSR-4 namespace
+`MageYaBo\`). The autoloader in `vendor/` is generated from the shipped
+`composer.json` with:
 
 `composer dump-autoload`
 
+= Third-party libraries =
+
+Leaflet (BSD-2-Clause) and Plus Jakarta Sans (SIL Open Font License 1.1)
+are bundled unmodified in `assets/frontend/vendor/leaflet/` and
+`assets/frontend/fonts/` respectively. Each carries its own upstream
+license file.
+
+= Public repository =
+
 Development happens in the open at
 https://github.com/magepeopleteam/yacht-booking-system
-
-Third-party libraries are unmodified and carry their own upstream headers and
-licenses — see == Credits == below.
 
 == Credits ==
 

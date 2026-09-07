@@ -210,7 +210,7 @@ class YachtsController extends Controller {
 
 		if ( $request->get_param( 'guests' ) ) {
 			$meta_query[] = array(
-				'key'     => 'capacity',
+				'key'     => 'mageyabo_capacity',
 				'value'   => (int) $request->get_param( 'guests' ),
 				'compare' => '>=',
 				'type'    => 'NUMERIC',

@@ -41,6 +41,15 @@ class Newsletter {
 			return new \WP_Error( 'mageyabo_invalid_email', __( 'Please provide a valid email address.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
+		// Rate-limit: one attempt per email per minute.
+		$rate_key = 'mageyabo_nl_' . md5( $email );
+
+		if ( get_transient( $rate_key ) ) {
+			return new \WP_Error( 'mageyabo_rate_limited', __( 'Please wait a moment before subscribing again.', 'magepeople-yacht-booking-system' ), array( 'status' => 429 ) );
+		}
+
+		set_transient( $rate_key, 1, MINUTE_IN_SECONDS );
+
 		$table = $wpdb->prefix . 'mageyabo_newsletter_subscribers';
 
 		// Direct insert into the plugin's own subscribers table; nothing to

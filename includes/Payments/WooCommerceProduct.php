@@ -188,17 +188,16 @@ class WooCommerceProduct {
 	 */
 	public static function hide_from_admin_list( $query ) {
 		if ( is_admin() && $query->is_main_query() && isset( $query->query_vars['post_type'] ) && 'product' === $query->query_vars['post_type'] ) {
-			$query->set(
-				'tax_query',
-				array(
-					array(
-						'taxonomy' => 'product_visibility',
-						'field'    => 'name',
-						'terms'    => 'exclude-from-catalog',
-						'operator' => 'NOT IN',
-					),
-				)
+			$tax_query = (array) $query->get( 'tax_query' );
+
+			$tax_query[] = array(
+				'taxonomy' => 'product_visibility',
+				'field'    => 'name',
+				'terms'    => 'exclude-from-catalog',
+				'operator' => 'NOT IN',
 			);
+
+			$query->set( 'tax_query', $tax_query );
 		}
 	}
 

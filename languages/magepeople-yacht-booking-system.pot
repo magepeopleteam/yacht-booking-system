@@ -406,7 +406,7 @@ msgstr ""
 #: assets/admin/src/routes/Guests.js:43
 #: includes/Frontend/Shortcode.php:173
 #: includes/Frontend/Shortcode.php:240
-#: includes/Frontend/Shortcode.php:330
+#: includes/Frontend/Shortcode.php:329
 #: includes/Frontend/Shortcode.php:50
 #: includes/Payments/WooCommerceGateway.php:236
 #: includes/Payments/WooCommerceGateway.php:276
@@ -585,7 +585,7 @@ msgstr ""
 #: assets/admin/src/routes/Calendar.js:6
 #: assets/admin/src/routes/Guests.js:7
 #: includes/Frontend/Shortcode.php:148
-#: includes/Frontend/Shortcode.php:616
+#: includes/Frontend/Shortcode.php:615
 #: includes/Payments/WooCommerceGateway.php:517
 msgid "Hourly"
 msgstr ""
@@ -602,7 +602,7 @@ msgstr ""
 #: assets/admin/src/routes/Calendar.js:8
 #: assets/admin/src/routes/Guests.js:9
 #: includes/Frontend/Shortcode.php:150
-#: includes/Frontend/Shortcode.php:618
+#: includes/Frontend/Shortcode.php:617
 #: includes/Payments/WooCommerceGateway.php:519
 msgid "Morning Slot"
 msgstr ""
@@ -617,7 +617,7 @@ msgstr ""
 #: assets/admin/src/routes/Bookings.js:20
 #: assets/admin/src/routes/Calendar.js:10
 #: assets/admin/src/routes/Guests.js:11
-#: includes/Frontend/Shortcode.php:620
+#: includes/Frontend/Shortcode.php:619
 #: includes/Payments/WooCommerceGateway.php:521
 msgid "Full Day"
 msgstr ""
@@ -852,7 +852,7 @@ msgid "Label"
 msgstr ""
 
 #: assets/admin/src/routes/Settings.js:50
-#: includes/Frontend/Shortcode.php:324
+#: includes/Frontend/Shortcode.php:323
 msgid "Dates"
 msgstr ""
 
@@ -1169,7 +1169,7 @@ msgid "Search for the marina or pier, or drop the pin manually."
 msgstr ""
 
 #: assets/admin/src/routes/YachtWizard.js:331
-#: includes/Frontend/Shortcode.php:574
+#: includes/Frontend/Shortcode.php:573
 msgid "Frequently Asked Questions"
 msgstr ""
 
@@ -1403,7 +1403,7 @@ msgid " (shared)"
 msgstr ""
 
 #: assets/admin/src/routes/YachtWizard.js:601
-#: includes/Frontend/Shortcode.php:537
+#: includes/Frontend/Shortcode.php:536
 #: templates/single-yacht.php:184
 msgid "Location"
 msgstr ""
@@ -1473,7 +1473,7 @@ msgid "Search yachts by name…"
 msgstr ""
 
 #: assets/admin/src/routes/YachtsList.js:180
-#: includes/Frontend/Shortcode.php:356
+#: includes/Frontend/Shortcode.php:355
 msgid "All"
 msgstr ""
 
@@ -1488,13 +1488,13 @@ msgstr ""
 
 #: assets/admin/src/routes/YachtsList.js:198
 #: assets/admin/src/routes/YachtsList.js:199
-#: includes/Frontend/Shortcode.php:370
+#: includes/Frontend/Shortcode.php:369
 msgid "List view"
 msgstr ""
 
 #: assets/admin/src/routes/YachtsList.js:207
 #: assets/admin/src/routes/YachtsList.js:208
-#: includes/Frontend/Shortcode.php:367
+#: includes/Frontend/Shortcode.php:366
 msgid "Grid view"
 msgstr ""
 
@@ -1517,8 +1517,8 @@ msgstr ""
 #. translators: %s: formatted lowest price.
 #: assets/admin/src/routes/YachtsList.js:280
 #: assets/admin/src/routes/YachtsList.js:381
-#: includes/Frontend/Shortcode.php:562
-#: includes/Frontend/Shortcode.php:591
+#: includes/Frontend/Shortcode.php:561
+#: includes/Frontend/Shortcode.php:590
 msgid "From %s"
 msgstr ""
 
@@ -1630,15 +1630,19 @@ msgstr ""
 msgid "Please provide a valid email address."
 msgstr ""
 
-#: includes/Frontend/Newsletter.php:73
+#: includes/Frontend/Newsletter.php:48
+msgid "Please wait a moment before subscribing again."
+msgstr ""
+
+#: includes/Frontend/Newsletter.php:82
 msgid "Stay in the loop"
 msgstr ""
 
-#: includes/Frontend/Newsletter.php:74
+#: includes/Frontend/Newsletter.php:83
 msgid "Your email address"
 msgstr ""
 
-#: includes/Frontend/Newsletter.php:89
+#: includes/Frontend/Newsletter.php:98
 msgid "Subscribe"
 msgstr ""
 
@@ -1725,56 +1729,56 @@ msgid "Something went wrong. Please try again."
 msgstr ""
 
 #. translators: %s: currency symbol.
-#: includes/Frontend/Shortcode.php:306
+#: includes/Frontend/Shortcode.php:305
 msgid "Under %s1,000 per hour"
 msgstr ""
 
 #. translators: %1$s: currency symbol.
-#: includes/Frontend/Shortcode.php:308
+#: includes/Frontend/Shortcode.php:307
 msgid "%1$s1,000 to %1$s2,500 per hour"
 msgstr ""
 
 #. translators: %1$s: currency symbol.
-#: includes/Frontend/Shortcode.php:310
+#: includes/Frontend/Shortcode.php:309
 msgid "%1$s2,500 to %1$s5,000 per hour"
 msgstr ""
 
 #. translators: %1$s: currency symbol.
-#: includes/Frontend/Shortcode.php:312
+#: includes/Frontend/Shortcode.php:311
 msgid "%1$s5,000 to %1$s10,000 per hour"
 msgstr ""
 
 #. translators: %s: currency symbol.
-#: includes/Frontend/Shortcode.php:314
+#: includes/Frontend/Shortcode.php:313
 msgid "%s10,000+ per hour"
 msgstr ""
 
 #. translators: %d: maximum number of guests.
-#: includes/Frontend/Shortcode.php:465
+#: includes/Frontend/Shortcode.php:464
 msgid "%d guests max"
 msgstr ""
 
 #. translators: %s: yacht length in metres.
-#: includes/Frontend/Shortcode.php:468
+#: includes/Frontend/Shortcode.php:467
 #: templates/single-yacht.php:157
 msgid "%s m"
 msgstr ""
 
 #. translators: %s: yacht name.
-#: includes/Frontend/Shortcode.php:488
+#: includes/Frontend/Shortcode.php:487
 msgid "The %s Experience"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:617
+#: includes/Frontend/Shortcode.php:616
 msgid "Half Day"
 msgstr ""
 
 #: includes/Frontend/Shortcode.php:151
-#: includes/Frontend/Shortcode.php:619
+#: includes/Frontend/Shortcode.php:618
 msgid "Evening / Sunset Slot"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:621
+#: includes/Frontend/Shortcode.php:620
 msgid "Multi-Day (per night)"
 msgstr ""
 
@@ -1847,73 +1851,73 @@ msgstr ""
 msgid "Search Yachts"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:325
+#: includes/Frontend/Shortcode.php:324
 msgid "(sets season rates)"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:338
+#: includes/Frontend/Shortcode.php:337
 msgid "Price"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:340
+#: includes/Frontend/Shortcode.php:339
 msgid "Any price"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:349
+#: includes/Frontend/Shortcode.php:348
 msgid "Search"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:377
+#: includes/Frontend/Shortcode.php:376
 msgid "Load More Yachts"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:494
+#: includes/Frontend/Shortcode.php:493
 msgid "Included in every charter"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:505
+#: includes/Frontend/Shortcode.php:504
 #: templates/single-yacht.php:299
 msgid "Occasions this yacht fits best"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:516
+#: includes/Frontend/Shortcode.php:515
 #: templates/single-yacht.php:211
 msgid "Charter Rates"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:547
+#: includes/Frontend/Shortcode.php:546
 msgid "Similar Yachts"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:332
+#: includes/Frontend/Shortcode.php:331
 msgid "Fewer guests"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:334
+#: includes/Frontend/Shortcode.php:333
 msgid "More guests"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:347
+#: includes/Frontend/Shortcode.php:346
 msgid "Search the fleet"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:355
+#: includes/Frontend/Shortcode.php:354
 msgid "Filter yachts by class"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:366
+#: includes/Frontend/Shortcode.php:365
 msgid "Switch view"
 msgstr ""
 
 #. translators: %d: number of cabins.
-#: includes/Frontend/Shortcode.php:471
+#: includes/Frontend/Shortcode.php:470
 msgid "%d cabin"
 msgid_plural "%d cabins"
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of crew.
-#: includes/Frontend/Shortcode.php:474
+#: includes/Frontend/Shortcode.php:473
 msgid "%d crew"
 msgid_plural "%d crew"
 msgstr[0] ""
