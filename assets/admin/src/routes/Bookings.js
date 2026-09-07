@@ -31,17 +31,10 @@ function typeLabel(booking) {
 	return `${type} · ${__('Full Charter', 'magepeople-yacht-booking-system')} (${sprintf(__('%d guests', 'magepeople-yacht-booking-system'), booking.guest_count)})`;
 }
 
-function money(booking, amount) {
-	return `${booking.currency || ''}${Number(amount || 0).toFixed(2)}`;
-}
-
 export default function Bookings() {
 	const [items, setItems] = useState(null);
 	const [error, setError] = useState('');
 	const [statusFilter, setStatusFilter] = useState('');
-	const [detailFor, setDetailFor] = useState(null);
-	const [detail, setDetail] = useState(null);
-	const [detailError, setDetailError] = useState('');
 	const [deleting, setDeleting] = useState(null);
 
 	const load = () => {
@@ -51,21 +44,6 @@ export default function Bookings() {
 	};
 
 	useEffect(load, [statusFilter]);
-
-	const openDetail = (id) => {
-		setDetailFor(id);
-		setDetail(null);
-		setDetailError('');
-		api.get(`/bookings/${id}`)
-			.then(setDetail)
-			.catch((err) => setDetailError(err.message));
-	};
-
-	const closeDetail = () => {
-		setDetailFor(null);
-		setDetail(null);
-		setDetailError('');
-	};
 
 	const changeStatus = (id, status) => {
 		api.post(`/bookings/${id}/status`, { status }).then(load);
@@ -125,7 +103,7 @@ export default function Bookings() {
 					</thead>
 					<tbody>
 						{items.map((booking) => (
-							<tr key={booking.id} onClick={() => openDetail(booking.id)} style={{ cursor: 'pointer' }}>
+							<tr key={booking.id}>
 								<td>{booking.yacht_name}</td>
 								<td>{booking.guest_name}<br /><small>{booking.guest_email}</small></td>
 								<td>{typeLabel(booking)}</td>
@@ -133,7 +111,7 @@ export default function Bookings() {
 								<td>{booking.end_formatted || booking.end_datetime || '—'}</td>
 								<td>{booking.duration || '—'}</td>
 								<td>{booking.currency}{Number(booking.total_price).toFixed(2)}</td>
-								<td onClick={(e) => e.stopPropagation()}>
+								<td>
 									{booking.woo_order_id ? (
 										<a href={booking.woo_order_url} target="_blank" rel="noreferrer">
 											{__('Order #', 'magepeople-yacht-booking-system') + booking.woo_order_id}
@@ -142,7 +120,7 @@ export default function Bookings() {
 										<span>—</span>
 									)}
 								</td>
-								<td onClick={(e) => e.stopPropagation()}>
+								<td>
 									<select
 										className={'ybs-badge status-' + booking.status}
 										value={booking.status}
@@ -151,7 +129,7 @@ export default function Bookings() {
 										{STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
 									</select>
 								</td>
-								<td onClick={(e) => e.stopPropagation()}>
+								<td>
 									<button
 										type="button"
 										className="ybs-btn is-danger"
@@ -167,85 +145,6 @@ export default function Bookings() {
 				</table>
 			)}
 
-			{detailFor && (
-				<div className="ybs-modal-backdrop" onClick={closeDetail}>
-					<div className="ybs-modal" onClick={(e) => e.stopPropagation()}>
-						<div className="ybs-modal__head">
-							<h3>
-								{/* translators: %d: booking id. */}
-								{sprintf(__('Booking #%d', 'magepeople-yacht-booking-system'), detailFor)}
-							</h3>
-							<button type="button" className="ybs-btn" onClick={closeDetail}>
-								{__('Close', 'magepeople-yacht-booking-system')}
-							</button>
-						</div>
-
-						{detailError && <div className="ybs-notice is-error">{detailError}</div>}
-						{!detail && !detailError && <div className="ybs-loading">{__('Loading…', 'magepeople-yacht-booking-system')}</div>}
-
-						{detail && (
-							<div className="ybs-modal__body">
-								<h4>{__('Charter', 'magepeople-yacht-booking-system')}</h4>
-								<table className="ybs-table ybs-table--kv">
-									<tbody>
-										<tr><th>{__('Yacht', 'magepeople-yacht-booking-system')}</th><td>{detail.yacht_name || '—'}</td></tr>
-										<tr><th>{__('Type', 'magepeople-yacht-booking-system')}</th><td>{typeLabel(detail)}</td></tr>
-										<tr><th>{__('Starts', 'magepeople-yacht-booking-system')}</th><td>{detail.start_formatted || detail.start_datetime}</td></tr>
-										<tr><th>{__('Ends', 'magepeople-yacht-booking-system')}</th><td>{detail.end_formatted || detail.end_datetime || '—'}</td></tr>
-										<tr><th>{__('Duration', 'magepeople-yacht-booking-system')}</th><td>{detail.duration || '—'}</td></tr>
-										<tr><th>{__('Guests', 'magepeople-yacht-booking-system')}</th><td>{detail.guest_count}</td></tr>
-									</tbody>
-								</table>
-
-								<h4>{__('Guest', 'magepeople-yacht-booking-system')}</h4>
-								<table className="ybs-table ybs-table--kv">
-									<tbody>
-										<tr><th>{__('Name', 'magepeople-yacht-booking-system')}</th><td>{detail.guest_name || '—'}</td></tr>
-										<tr><th>{__('Email', 'magepeople-yacht-booking-system')}</th><td>{detail.guest_email ? <a href={'mailto:' + detail.guest_email}>{detail.guest_email}</a> : '—'}</td></tr>
-										<tr><th>{__('Phone', 'magepeople-yacht-booking-system')}</th><td>{detail.guest_phone || '—'}</td></tr>
-									</tbody>
-								</table>
-
-								<h4>{__('Price breakdown', 'magepeople-yacht-booking-system')}</h4>
-								<table className="ybs-table ybs-table--kv">
-									<tbody>
-										<tr><th>{__('Base price', 'magepeople-yacht-booking-system')}</th><td>{money(detail, detail.base_price)}</td></tr>
-										{detail.addons_total > 0 && <tr><th>{__('Add-ons', 'magepeople-yacht-booking-system')}</th><td>{money(detail, detail.addons_total)}</td></tr>}
-										{detail.discount_total > 0 && <tr><th>{__('Discount', 'magepeople-yacht-booking-system')}</th><td>−{money(detail, detail.discount_total)}</td></tr>}
-										{detail.tax_total > 0 && <tr><th>{__('Tax', 'magepeople-yacht-booking-system')}</th><td>{money(detail, detail.tax_total)}</td></tr>}
-										{detail.deposit_amount > 0 && <tr><th>{__('Deposit', 'magepeople-yacht-booking-system')}</th><td>{money(detail, detail.deposit_amount)}</td></tr>}
-										<tr><th>{__('Total', 'magepeople-yacht-booking-system')}</th><td><strong>{money(detail, detail.total_price)}</strong></td></tr>
-									</tbody>
-								</table>
-
-								<h4>{__('Payment', 'magepeople-yacht-booking-system')}</h4>
-								<table className="ybs-table ybs-table--kv">
-									<tbody>
-										<tr><th>{__('Status', 'magepeople-yacht-booking-system')}</th><td><span className={'ybs-badge status-' + detail.status}>{detail.status}</span></td></tr>
-										<tr><th>{__('Method', 'magepeople-yacht-booking-system')}</th><td>{detail.payment_method || '—'}</td></tr>
-										<tr><th>{__('Payment state', 'magepeople-yacht-booking-system')}</th><td>{detail.payment_status || '—'}</td></tr>
-										<tr><th>{__('Transaction', 'magepeople-yacht-booking-system')}</th><td>{detail.transaction_ref || '—'}</td></tr>
-										{detail.woo_order_id > 0 && (
-											<tr>
-												<th>{__('Order', 'magepeople-yacht-booking-system')}</th>
-												<td><a href={detail.woo_order_url} target="_blank" rel="noreferrer">{'#' + detail.woo_order_id}</a></td>
-											</tr>
-										)}
-										<tr><th>{__('Booked on', 'magepeople-yacht-booking-system')}</th><td>{detail.created_formatted || detail.created_at || '—'}</td></tr>
-									</tbody>
-								</table>
-
-								{detail.notes && (
-									<>
-										<h4>{__('Notes', 'magepeople-yacht-booking-system')}</h4>
-										<p className="ybs-hint">{detail.notes}</p>
-									</>
-								)}
-							</div>
-						)}
-					</div>
-				</div>
-			)}
 		</div>
 	);
 }

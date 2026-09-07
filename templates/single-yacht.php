@@ -1,6 +1,6 @@
 <?php
 /**
- * Single yacht details page - premium template shipped with Yacht Booking
+ * Single yacht details page - the template shipped with Yacht Booking
  * System. Copy this file to `yourtheme/magepeople-yacht-booking-system/single-yacht.php`
  * to customize it; the plugin copy is used only when no theme override exists.
  *

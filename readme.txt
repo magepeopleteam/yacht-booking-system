@@ -53,7 +53,7 @@ Sell the whole yacht as a private charter, or sell it by the seat for shared tri
 * `[mageyabo_yacht_list search="yes"]` — searchable, filterable fleet listing with grid and list views
 * `[mageyabo_booking_form]` — booking form with live price calculation
 * `[mageyabo_yacht_search]` — yacht search with date, guest, class, occasion and price filters
-* A premium single-yacht details page template, overridable from your theme
+* A full single-yacht details page template, overridable from your theme
 * Gutenberg block for the booking form
 
 = Confirmation emails =

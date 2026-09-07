@@ -38,16 +38,6 @@ class BookingsController extends Controller {
 
 		register_rest_route(
 			self::NAMESPACE_,
-			'/bookings/(?P<id>\d+)',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( __CLASS__, 'show' ),
-				'permission_callback' => array( __CLASS__, 'can_manage_bookings' ),
-			)
-		);
-
-		register_rest_route(
-			self::NAMESPACE_,
 			'/bookings/(?P<id>\d+)/status',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -82,20 +72,6 @@ class BookingsController extends Controller {
 		$result['items'] = array_map( array( __CLASS__, 'decorate' ), $result['items'] );
 
 		return rest_ensure_response( $result );
-	}
-
-	/**
-	 * The complete booking record, including the price breakdown that makes
-	 * up the total.
-	 */
-	public static function show( WP_REST_Request $request ) {
-		$booking = BookingRepository::find( (int) $request['id'] );
-
-		if ( ! $booking ) {
-			return new WP_Error( 'mageyabo_not_found', __( 'Booking not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
-		}
-
-		return rest_ensure_response( self::decorate_detail( $booking ) );
 	}
 
 	public static function create( WP_REST_Request $request ) {
@@ -297,25 +273,4 @@ class BookingsController extends Controller {
 		);
 	}
 
-	/**
-	 * Everything decorate() returns plus the stored price breakdown, payment
-	 * reference and audit timestamps - the single-booking view.
-	 */
-	private static function decorate_detail( $booking ) {
-		return array_merge(
-			self::decorate( $booking ),
-			array(
-				'base_price'      => (float) $booking['base_price'],
-				'addons_total'    => (float) $booking['addons_total'],
-				'tax_total'       => (float) $booking['tax_total'],
-				'discount_total'  => (float) $booking['discount_total'],
-				'deposit_amount'  => (float) $booking['deposit_amount'],
-				'transaction_ref' => (string) $booking['transaction_ref'],
-				'notes'           => (string) $booking['notes'],
-				'created_at'      => $booking['created_at'],
-				'updated_at'      => $booking['updated_at'],
-				'created_formatted' => mageyabo_format_datetime( $booking['created_at'] ),
-			)
-		);
-	}
 }
