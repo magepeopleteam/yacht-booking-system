@@ -7,18 +7,18 @@ namespace Composer\Autoload;
 class ComposerStaticInitfa89797d641d885598f00b24eb55428e
 {
     public static $files = array (
-        'dce636fd57d2d00fa0aa0fa62edd111c' => __DIR__ . '/../..' . '/includes/functions.php',
+        '4a242da067cf0e8cf7600000efa3a6d0' => __DIR__ . '/../..' . '/includes/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
-        'Y' => 
+        'M' => 
         array (
-            'Ybs\\' => 4,
+            'MageYaBo\\' => 9,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Ybs\\' => 
+        'MageYaBo\\' => 
         array (
             0 => __DIR__ . '/../..' . '/includes',
         ),
@@ -26,39 +26,39 @@ class ComposerStaticInitfa89797d641d885598f00b24eb55428e
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'Ybs\\Admin\\Menu' => __DIR__ . '/../..' . '/includes/Admin/Menu.php',
-        'Ybs\\Booking\\AvailabilityService' => __DIR__ . '/../..' . '/includes/Booking/AvailabilityService.php',
-        'Ybs\\Booking\\BookingRepository' => __DIR__ . '/../..' . '/includes/Booking/BookingRepository.php',
-        'Ybs\\Booking\\GuestRepository' => __DIR__ . '/../..' . '/includes/Booking/GuestRepository.php',
-        'Ybs\\Booking\\PricingEngine' => __DIR__ . '/../..' . '/includes/Booking/PricingEngine.php',
-        'Ybs\\Booking\\PricingRuleRepository' => __DIR__ . '/../..' . '/includes/Booking/PricingRuleRepository.php',
-        'Ybs\\Capabilities' => __DIR__ . '/../..' . '/includes/Capabilities.php',
-        'Ybs\\Cron\\Maintenance' => __DIR__ . '/../..' . '/includes/Cron/Maintenance.php',
-        'Ybs\\Frontend\\Block' => __DIR__ . '/../..' . '/includes/Frontend/Block.php',
-        'Ybs\\Frontend\\Newsletter' => __DIR__ . '/../..' . '/includes/Frontend/Newsletter.php',
-        'Ybs\\Frontend\\Shortcode' => __DIR__ . '/../..' . '/includes/Frontend/Shortcode.php',
-        'Ybs\\Frontend\\Templates' => __DIR__ . '/../..' . '/includes/Frontend/Templates.php',
-        'Ybs\\Install\\Migrator' => __DIR__ . '/../..' . '/includes/Install/Migrator.php',
-        'Ybs\\Notifications\\BookingEmailer' => __DIR__ . '/../..' . '/includes/Notifications/BookingEmailer.php',
-        'Ybs\\Payments\\Gateways' => __DIR__ . '/../..' . '/includes/Payments/Gateways.php',
-        'Ybs\\Payments\\OfflineGateway' => __DIR__ . '/../..' . '/includes/Payments/OfflineGateway.php',
-        'Ybs\\Payments\\PayPalGateway' => __DIR__ . '/../..' . '/includes/Payments/PayPalGateway.php',
-        'Ybs\\Payments\\StripeGateway' => __DIR__ . '/../..' . '/includes/Payments/StripeGateway.php',
-        'Ybs\\Payments\\WooCommerceGateway' => __DIR__ . '/../..' . '/includes/Payments/WooCommerceGateway.php',
-        'Ybs\\Payments\\WooCommerceProduct' => __DIR__ . '/../..' . '/includes/Payments/WooCommerceProduct.php',
-        'Ybs\\Plugin' => __DIR__ . '/../..' . '/includes/Plugin.php',
-        'Ybs\\PostTypes\\Yacht' => __DIR__ . '/../..' . '/includes/PostTypes/Yacht.php',
-        'Ybs\\Rest\\BookingsController' => __DIR__ . '/../..' . '/includes/Rest/BookingsController.php',
-        'Ybs\\Rest\\Controller' => __DIR__ . '/../..' . '/includes/Rest/Controller.php',
-        'Ybs\\Rest\\GuestsController' => __DIR__ . '/../..' . '/includes/Rest/GuestsController.php',
-        'Ybs\\Rest\\PricingRulesController' => __DIR__ . '/../..' . '/includes/Rest/PricingRulesController.php',
-        'Ybs\\Rest\\ReportsController' => __DIR__ . '/../..' . '/includes/Rest/ReportsController.php',
-        'Ybs\\Rest\\SettingsController' => __DIR__ . '/../..' . '/includes/Rest/SettingsController.php',
-        'Ybs\\Rest\\YachtsController' => __DIR__ . '/../..' . '/includes/Rest/YachtsController.php',
-        'Ybs\\Settings' => __DIR__ . '/../..' . '/includes/Settings.php',
-        'Ybs\\Taxonomies\\AbstractTaxonomy' => __DIR__ . '/../..' . '/includes/Taxonomies/AbstractTaxonomy.php',
-        'Ybs\\Taxonomies\\YachtClass' => __DIR__ . '/../..' . '/includes/Taxonomies/YachtClass.php',
-        'Ybs\\Taxonomies\\YachtOccasion' => __DIR__ . '/../..' . '/includes/Taxonomies/YachtOccasion.php',
+        'MageYaBo\\Admin\\Menu' => __DIR__ . '/../..' . '/includes/Admin/Menu.php',
+        'MageYaBo\\Booking\\AvailabilityService' => __DIR__ . '/../..' . '/includes/Booking/AvailabilityService.php',
+        'MageYaBo\\Booking\\BookingRepository' => __DIR__ . '/../..' . '/includes/Booking/BookingRepository.php',
+        'MageYaBo\\Booking\\GuestRepository' => __DIR__ . '/../..' . '/includes/Booking/GuestRepository.php',
+        'MageYaBo\\Booking\\PricingEngine' => __DIR__ . '/../..' . '/includes/Booking/PricingEngine.php',
+        'MageYaBo\\Booking\\PricingRuleRepository' => __DIR__ . '/../..' . '/includes/Booking/PricingRuleRepository.php',
+        'MageYaBo\\Capabilities' => __DIR__ . '/../..' . '/includes/Capabilities.php',
+        'MageYaBo\\Cron\\Maintenance' => __DIR__ . '/../..' . '/includes/Cron/Maintenance.php',
+        'MageYaBo\\Frontend\\Block' => __DIR__ . '/../..' . '/includes/Frontend/Block.php',
+        'MageYaBo\\Frontend\\Newsletter' => __DIR__ . '/../..' . '/includes/Frontend/Newsletter.php',
+        'MageYaBo\\Frontend\\Shortcode' => __DIR__ . '/../..' . '/includes/Frontend/Shortcode.php',
+        'MageYaBo\\Frontend\\Templates' => __DIR__ . '/../..' . '/includes/Frontend/Templates.php',
+        'MageYaBo\\Install\\Migrator' => __DIR__ . '/../..' . '/includes/Install/Migrator.php',
+        'MageYaBo\\Notifications\\BookingEmailer' => __DIR__ . '/../..' . '/includes/Notifications/BookingEmailer.php',
+        'MageYaBo\\Payments\\Gateways' => __DIR__ . '/../..' . '/includes/Payments/Gateways.php',
+        'MageYaBo\\Payments\\OfflineGateway' => __DIR__ . '/../..' . '/includes/Payments/OfflineGateway.php',
+        'MageYaBo\\Payments\\PayPalGateway' => __DIR__ . '/../..' . '/includes/Payments/PayPalGateway.php',
+        'MageYaBo\\Payments\\StripeGateway' => __DIR__ . '/../..' . '/includes/Payments/StripeGateway.php',
+        'MageYaBo\\Payments\\WooCommerceGateway' => __DIR__ . '/../..' . '/includes/Payments/WooCommerceGateway.php',
+        'MageYaBo\\Payments\\WooCommerceProduct' => __DIR__ . '/../..' . '/includes/Payments/WooCommerceProduct.php',
+        'MageYaBo\\Plugin' => __DIR__ . '/../..' . '/includes/Plugin.php',
+        'MageYaBo\\PostTypes\\Yacht' => __DIR__ . '/../..' . '/includes/PostTypes/Yacht.php',
+        'MageYaBo\\Rest\\BookingsController' => __DIR__ . '/../..' . '/includes/Rest/BookingsController.php',
+        'MageYaBo\\Rest\\Controller' => __DIR__ . '/../..' . '/includes/Rest/Controller.php',
+        'MageYaBo\\Rest\\GuestsController' => __DIR__ . '/../..' . '/includes/Rest/GuestsController.php',
+        'MageYaBo\\Rest\\PricingRulesController' => __DIR__ . '/../..' . '/includes/Rest/PricingRulesController.php',
+        'MageYaBo\\Rest\\ReportsController' => __DIR__ . '/../..' . '/includes/Rest/ReportsController.php',
+        'MageYaBo\\Rest\\SettingsController' => __DIR__ . '/../..' . '/includes/Rest/SettingsController.php',
+        'MageYaBo\\Rest\\YachtsController' => __DIR__ . '/../..' . '/includes/Rest/YachtsController.php',
+        'MageYaBo\\Settings' => __DIR__ . '/../..' . '/includes/Settings.php',
+        'MageYaBo\\Taxonomies\\AbstractTaxonomy' => __DIR__ . '/../..' . '/includes/Taxonomies/AbstractTaxonomy.php',
+        'MageYaBo\\Taxonomies\\YachtClass' => __DIR__ . '/../..' . '/includes/Taxonomies/YachtClass.php',
+        'MageYaBo\\Taxonomies\\YachtOccasion' => __DIR__ . '/../..' . '/includes/Taxonomies/YachtOccasion.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

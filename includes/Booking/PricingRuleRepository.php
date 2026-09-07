@@ -1,12 +1,12 @@
 <?php
-namespace Ybs\Booking;
+namespace MageYaBo\Booking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * `wp_ybs_pricing_rules`. The bundled UI creates `off_day` (block) and
+ * `wp_mageyabo_pricing_rules`. The bundled UI creates `off_day` (block) and
  * weekday/weekend/date-range rules; every other `rule_type`/`adjustment_type`
  * combination the table supports also works end-to-end, so extra rule kinds
  * need no schema change.
@@ -22,7 +22,7 @@ class PricingRuleRepository {
 
 	public static function table() {
 		global $wpdb;
-		return $wpdb->prefix . 'ybs_pricing_rules';
+		return $wpdb->prefix . 'mageyabo_pricing_rules';
 	}
 
 	public static function list( $yacht_id = null ) {

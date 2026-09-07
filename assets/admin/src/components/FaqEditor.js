@@ -70,7 +70,7 @@ export default function FaqEditor({ items, onChange }) {
 						</div>
 						<div className="ybs-faq-item__body">
 							<ClassicEditor
-								id={`ybs_faq_answer_${uid}`}
+								id={`mageyabo_faq_answer_${uid}`}
 								value={item.answer || ''}
 								onChange={(html) => update(uid, 'answer', html)}
 								compact

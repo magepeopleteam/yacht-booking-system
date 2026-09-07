@@ -1,5 +1,5 @@
 <?php
-namespace Ybs\Booking;
+namespace MageYaBo\Booking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Resolves a yacht's base rate for a booking type, applies the single
  * best-matching pricing rule (specificity, then priority - same resolution
  * order as the sibling shuttle plugin's passenger price calculator), then
- * lets `ybs_booking_price_components`
+ * lets `mageyabo_booking_price_components`
  * layer add-ons/deposits on top before tax.
  */
 class PricingEngine {
@@ -45,7 +45,7 @@ class PricingEngine {
 			$base *= max( 1, (int) $guest_count );
 		}
 
-		$off_days = (array) get_post_meta( $yacht_id, 'off_days', true );
+		$off_days = (array) get_post_meta( $yacht_id, 'mageyabo_off_days', true );
 		$rule     = PricingRuleRepository::best_match( $yacht_id, $start_datetime );
 
 		$adjustment_total = 0.0;
@@ -62,7 +62,7 @@ class PricingEngine {
 		}
 
 		if ( $blocked ) {
-			return new \WP_Error( 'ybs_date_blocked', __( 'This date is not available for booking.', 'magepeople-yacht-booking-system' ) );
+			return new \WP_Error( 'mageyabo_date_blocked', __( 'This date is not available for booking.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		$components = array(
@@ -79,13 +79,13 @@ class PricingEngine {
 		 * @param array $context
 		 */
 		$components = apply_filters(
-			'ybs_booking_price_components',
+			'mageyabo_booking_price_components',
 			$components,
 			compact( 'yacht_id', 'booking_type', 'start_datetime', 'end_datetime', 'guest_count' )
 		);
 
 		$subtotal  = max( 0, $components['base_price'] + $components['adjustment_total'] + $components['addons_total'] - $components['discount_total'] );
-		$tax_rate  = (float) \Ybs\Settings::get( 'tax_rate', 0 );
+		$tax_rate  = (float) \MageYaBo\Settings::get( 'tax_rate', 0 );
 		$tax_total = round( $subtotal * ( $tax_rate / 100 ), 2 );
 
 		return array(
@@ -102,7 +102,7 @@ class PricingEngine {
 	private static function base_rate( $yacht_id, $booking_type, $start_datetime, $end_datetime, $booking_mode = 'full' ) {
 		$hours  = max( 0, ( strtotime( $end_datetime ) - strtotime( $start_datetime ) ) / HOUR_IN_SECONDS );
 		$days   = max( 1, (int) ceil( $hours / 24 ) );
-		$prefix = 'shared' === $booking_mode ? 'base_price_shared_' : 'base_price_';
+		$prefix = 'shared' === $booking_mode ? 'mageyabo_base_price_shared_' : 'mageyabo_base_price_';
 
 		switch ( $booking_type ) {
 			case 'hourly':
@@ -130,14 +130,14 @@ class PricingEngine {
 				break;
 
 			default:
-				return new \WP_Error( 'ybs_invalid_booking_type', __( 'Unknown booking type.', 'magepeople-yacht-booking-system' ) );
+				return new \WP_Error( 'mageyabo_invalid_booking_type', __( 'Unknown booking type.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		// A blank rate means the admin deliberately left this booking type
 		// disabled for this yacht (per the wizard's own "leave blank to
 		// disable" hint) - quoting $0 for it would be worse than an error.
 		if ( $total <= 0 ) {
-			return new \WP_Error( 'ybs_booking_type_unavailable', __( 'This booking type is not available for this yacht.', 'magepeople-yacht-booking-system' ) );
+			return new \WP_Error( 'mageyabo_booking_type_unavailable', __( 'This booking type is not available for this yacht.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		return $total;
@@ -151,7 +151,7 @@ class PricingEngine {
 		$rate = (float) get_post_meta( $yacht_id, $prefix . $key, true );
 
 		if ( 0 >= $rate && 'shared' === $booking_mode ) {
-			$rate = (float) get_post_meta( $yacht_id, 'base_price_' . $key, true );
+			$rate = (float) get_post_meta( $yacht_id, 'mageyabo_base_price_' . $key, true );
 		}
 
 		return $rate;

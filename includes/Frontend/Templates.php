@@ -1,7 +1,7 @@
 <?php
-namespace Ybs\Frontend;
+namespace MageYaBo\Frontend;
 
-use Ybs\PostTypes\Yacht;
+use MageYaBo\PostTypes\Yacht;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -26,8 +26,8 @@ class Templates {
 	}
 
 	public static function register_assets() {
-		wp_register_style( 'ybs-single', YBS_PLUGIN_URL . 'assets/frontend/yacht-single.css', array( 'ybs-frontend' ), YBS_VERSION );
-		wp_register_script( 'ybs-single', YBS_PLUGIN_URL . 'assets/frontend/yacht-single.js', array(), YBS_VERSION, true );
+		wp_register_style( 'mageyabo-single', MAGEYABO_PLUGIN_URL . 'assets/frontend/yacht-single.css', array( 'mageyabo-frontend' ), MAGEYABO_VERSION );
+		wp_register_script( 'mageyabo-single', MAGEYABO_PLUGIN_URL . 'assets/frontend/yacht-single.js', array(), MAGEYABO_VERSION, true );
 	}
 
 	/**
@@ -42,7 +42,7 @@ class Templates {
 		$override = locate_template( array( self::THEME_DIR . '/single-yacht.php' ) );
 
 		if ( ! $override ) {
-			$override = YBS_PLUGIN_DIR . 'templates/single-yacht.php';
+			$override = MAGEYABO_PLUGIN_DIR . 'templates/single-yacht.php';
 		}
 
 		if ( ! file_exists( $override ) ) {
@@ -55,10 +55,10 @@ class Templates {
 			remove_filter( 'the_content', array( Shortcode::class, 'append_to_single_yacht' ), 10 );
 		}
 
-		wp_enqueue_style( 'ybs-frontend' );
-		wp_enqueue_script( 'ybs-frontend' );
-		wp_enqueue_style( 'ybs-single' );
-		wp_enqueue_script( 'ybs-single' );
+		wp_enqueue_style( 'mageyabo-frontend' );
+		wp_enqueue_script( 'mageyabo-frontend' );
+		wp_enqueue_style( 'mageyabo-single' );
+		wp_enqueue_script( 'mageyabo-single' );
 
 		return $override;
 	}

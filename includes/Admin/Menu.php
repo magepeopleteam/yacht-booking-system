@@ -1,7 +1,7 @@
 <?php
-namespace Ybs\Admin;
+namespace MageYaBo\Admin;
 
-use Ybs\Capabilities;
+use MageYaBo\Capabilities;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -35,7 +35,7 @@ class Menu {
 		 * Fires once the top-level page is registered, so add-ons can hook
 		 * their own `admin_menu` registration after this one.
 		 */
-		do_action( 'ybs_admin_menu_registered', $hook );
+		do_action( 'mageyabo_admin_menu_registered', $hook );
 	}
 
 	public static function on_load() {
@@ -48,7 +48,7 @@ class Menu {
 	}
 
 	public static function enqueue() {
-		$asset_file = YBS_PLUGIN_DIR . 'assets/build/admin.asset.php';
+		$asset_file = MAGEYABO_PLUGIN_DIR . 'assets/build/admin.asset.php';
 
 		if ( ! file_exists( $asset_file ) ) {
 			add_action( 'admin_notices', array( __CLASS__, 'missing_build_notice' ) );
@@ -60,8 +60,8 @@ class Menu {
 		wp_enqueue_style( 'wp-components' );
 		wp_enqueue_style( 'dashicons' );
 
-		wp_enqueue_style( 'ybs-leaflet', YBS_PLUGIN_URL . 'assets/frontend/vendor/leaflet/leaflet.css', array(), '1.9.4' );
-		wp_enqueue_script( 'ybs-leaflet', YBS_PLUGIN_URL . 'assets/frontend/vendor/leaflet/leaflet.js', array(), '1.9.4', true );
+		wp_enqueue_style( 'mageyabo-leaflet', MAGEYABO_PLUGIN_URL . 'assets/frontend/vendor/leaflet/leaflet.css', array(), '1.9.4' );
+		wp_enqueue_script( 'mageyabo-leaflet', MAGEYABO_PLUGIN_URL . 'assets/frontend/vendor/leaflet/leaflet.js', array(), '1.9.4', true );
 
 		// The classic (TinyMCE) editor for the Description field, and the
 		// media library modal for the featured image / gallery pickers.
@@ -69,20 +69,20 @@ class Menu {
 		wp_enqueue_editor();
 
 		wp_enqueue_script(
-			'ybs-admin',
-			YBS_PLUGIN_URL . 'assets/build/admin.js',
-			array_merge( $asset['dependencies'], array( 'ybs-leaflet', 'media-editor', 'wp-editor' ) ),
+			'mageyabo-admin',
+			MAGEYABO_PLUGIN_URL . 'assets/build/admin.js',
+			array_merge( $asset['dependencies'], array( 'mageyabo-leaflet', 'media-editor', 'wp-editor' ) ),
 			$asset['version'],
 			true
 		);
 
 		// Without this the admin app's @wordpress/i18n strings stay English no
 		// matter what translations are installed.
-		wp_set_script_translations( 'ybs-admin', 'magepeople-yacht-booking-system', YBS_PLUGIN_DIR . 'languages' );
+		wp_set_script_translations( 'mageyabo-admin', 'magepeople-yacht-booking-system', MAGEYABO_PLUGIN_DIR . 'languages' );
 
 		wp_enqueue_style(
-			'ybs-admin',
-			YBS_PLUGIN_URL . 'assets/build/style-admin.css',
+			'mageyabo-admin',
+			MAGEYABO_PLUGIN_URL . 'assets/build/style-admin.css',
 			array( 'wp-components' ),
 			$asset['version']
 		);
@@ -100,17 +100,17 @@ class Menu {
 		/**
 		 * Lets add-ons register extra nav entries in the rail. The matching
 		 * React component is supplied separately by the add-on's script calling
-		 * `window.ybsAdmin.registerRoute( id, Component )`.
+		 * `window.mageyaboAdmin.registerRoute( id, Component )`.
 		 */
-		$extra_routes = apply_filters( 'ybs_admin_react_routes', array() );
+		$extra_routes = apply_filters( 'mageyabo_admin_react_routes', array() );
 
 		wp_localize_script(
-			'ybs-admin',
-			'ybsAdminConfig',
+			'mageyabo-admin',
+			'mageyaboAdminConfig',
 			array(
 				'adminUrl'    => admin_url(),
 				'extraRoutes' => array_values( $extra_routes ),
-				'currency'    => \Ybs\Settings::get( 'currency_symbol', '$' ),
+				'currency'    => \MageYaBo\Settings::get( 'currency_symbol', '$' ),
 				'adminEmail'  => get_option( 'admin_email' ),
 			)
 		);

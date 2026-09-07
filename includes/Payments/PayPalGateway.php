@@ -1,8 +1,8 @@
 <?php
-namespace Ybs\Payments;
+namespace MageYaBo\Payments;
 
-use Ybs\Booking\BookingRepository;
-use Ybs\Settings;
+use MageYaBo\Booking\BookingRepository;
+use MageYaBo\Settings;
 use WP_REST_Server;
 use WP_REST_Request;
 
@@ -20,8 +20,8 @@ class PayPalGateway {
 	const ID = 'paypal';
 
 	public static function register() {
-		add_filter( 'ybs_payment_gateways', array( __CLASS__, 'declare_self' ) );
-		add_filter( 'ybs_payment_start', array( __CLASS__, 'start' ), 10, 3 );
+		add_filter( 'mageyabo_payment_gateways', array( __CLASS__, 'declare_self' ) );
+		add_filter( 'mageyabo_payment_start', array( __CLASS__, 'start' ), 10, 3 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_ipn_route' ) );
 	}
 
@@ -42,7 +42,7 @@ class PayPalGateway {
 		$booking = BookingRepository::find( $booking_id );
 
 		if ( ! $booking ) {
-			return new \WP_Error( 'ybs_booking_missing', __( 'Booking could not be found.', 'magepeople-yacht-booking-system' ) );
+			return new \WP_Error( 'mageyabo_booking_missing', __( 'Booking could not be found.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		$sandbox = 'sandbox' === Settings::get( 'paypal_mode', 'sandbox' );
@@ -56,9 +56,9 @@ class PayPalGateway {
 			'currency_code' => $booking['currency'],
 			'custom'        => $booking_id,
 			'no_shipping'   => 1,
-			'notify_url'    => rest_url( 'ybs/v1/payments/paypal/ipn' ),
-			'return'        => add_query_arg( array( 'ybs_booking' => $booking_id, 'ybs_payment' => 'success' ), home_url( '/' ) ),
-			'cancel_return' => add_query_arg( array( 'ybs_booking' => $booking_id, 'ybs_payment' => 'cancelled' ), home_url( '/' ) ),
+			'notify_url'    => rest_url( 'mageyabo/v1/payments/paypal/ipn' ),
+			'return'        => add_query_arg( array( 'mageyabo_booking' => $booking_id, 'mageyabo_payment' => 'success' ), home_url( '/' ) ),
+			'cancel_return' => add_query_arg( array( 'mageyabo_booking' => $booking_id, 'mageyabo_payment' => 'cancelled' ), home_url( '/' ) ),
 		);
 
 		return array( 'redirect' => $base . '?' . http_build_query( $args ) );
@@ -66,7 +66,7 @@ class PayPalGateway {
 
 	public static function register_ipn_route() {
 		register_rest_route(
-			'ybs/v1',
+			'mageyabo/v1',
 			'/payments/paypal/ipn',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -83,7 +83,7 @@ class PayPalGateway {
 		$payload = wp_unslash( $request->get_body_params() );
 
 		if ( empty( $payload ) ) {
-			return new \WP_Error( 'ybs_ipn_empty', 'Empty IPN payload.', array( 'status' => 400 ) );
+			return new \WP_Error( 'mageyabo_ipn_empty', 'Empty IPN payload.', array( 'status' => 400 ) );
 		}
 
 		$sandbox = 'sandbox' === Settings::get( 'paypal_mode', 'sandbox' );
@@ -100,7 +100,7 @@ class PayPalGateway {
 		);
 
 		if ( is_wp_error( $response ) || 'VERIFIED' !== trim( wp_remote_retrieve_body( $response ) ) ) {
-			return new \WP_Error( 'ybs_ipn_unverified', 'Could not verify IPN with PayPal.', array( 'status' => 400 ) );
+			return new \WP_Error( 'mageyabo_ipn_unverified', 'Could not verify IPN with PayPal.', array( 'status' => 400 ) );
 		}
 
 		$booking_id = (int) ( $payload['custom'] ?? 0 );
@@ -108,7 +108,7 @@ class PayPalGateway {
 		$booking    = $booking_id ? BookingRepository::find( $booking_id ) : null;
 
 		if ( ! $booking ) {
-			return new \WP_Error( 'ybs_ipn_unknown_booking', 'IPN references an unknown booking.', array( 'status' => 400 ) );
+			return new \WP_Error( 'mageyabo_ipn_unknown_booking', 'IPN references an unknown booking.', array( 'status' => 400 ) );
 		}
 
 		// A VERIFIED response only proves the IPN really came from PayPal - it
@@ -123,15 +123,15 @@ class PayPalGateway {
 		$txn_id    = sanitize_text_field( $payload['txn_id'] ?? '' );
 
 		if ( '' === $expected || 0 !== strcasecmp( $receiver, $expected ) ) {
-			return new \WP_Error( 'ybs_ipn_receiver_mismatch', 'IPN receiver does not match the configured PayPal account.', array( 'status' => 400 ) );
+			return new \WP_Error( 'mageyabo_ipn_receiver_mismatch', 'IPN receiver does not match the configured PayPal account.', array( 'status' => 400 ) );
 		}
 
 		if ( 0 !== strcasecmp( $currency, (string) $booking['currency'] ) ) {
-			return new \WP_Error( 'ybs_ipn_currency_mismatch', 'IPN currency does not match the booking.', array( 'status' => 400 ) );
+			return new \WP_Error( 'mageyabo_ipn_currency_mismatch', 'IPN currency does not match the booking.', array( 'status' => 400 ) );
 		}
 
 		if ( abs( $gross - (float) $booking['total_price'] ) > 0.01 ) {
-			return new \WP_Error( 'ybs_ipn_amount_mismatch', 'IPN amount does not match the booking total.', array( 'status' => 400 ) );
+			return new \WP_Error( 'mageyabo_ipn_amount_mismatch', 'IPN amount does not match the booking total.', array( 'status' => 400 ) );
 		}
 
 		// Replay guard: a transaction id already recorded against this booking

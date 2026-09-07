@@ -1,7 +1,7 @@
 <?php
-namespace Ybs\Rest;
+namespace MageYaBo\Rest;
 
-use Ybs\Booking\GuestRepository;
+use MageYaBo\Booking\GuestRepository;
 use WP_REST_Server;
 use WP_REST_Request;
 
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Read-only: guest records are written by the booking flow, so this screen
  * lists them rather than editing them. Extra routes can be registered via the
- * `ybs_rest_namespace_routes` filter rather than this controller growing them.
+ * `mageyabo_rest_namespace_routes` filter rather than this controller growing them.
  */
 class GuestsController extends Controller {
 
@@ -50,7 +50,7 @@ class GuestsController extends Controller {
 					'yacht_name'     => $row['yacht_name'],
 					'start_datetime' => $row['start_datetime'],
 					'end_datetime'   => $row['end_datetime'],
-					'start_formatted' => ybs_format_datetime( $row['start_datetime'] ),
+					'start_formatted' => mageyabo_format_datetime( $row['start_datetime'] ),
 					'booking_type'   => $row['booking_type'],
 					'booking_mode'   => $row['booking_mode'],
 					'guest_count'    => (int) $row['guest_count'],
@@ -63,9 +63,9 @@ class GuestsController extends Controller {
 
 				/**
 				 * Lets add-ons attach extra per-row data matching the columns they
-				 * added via `ybs_guest_list_columns`.
+				 * added via `mageyabo_guest_list_columns`.
 				 */
-				return apply_filters( 'ybs_guest_list_row', $item, $row );
+				return apply_filters( 'mageyabo_guest_list_row', $item, $row );
 			},
 			$result['items']
 		);
@@ -74,7 +74,7 @@ class GuestsController extends Controller {
 		 * Lets add-ons append their own columns.
 		 */
 		$result['columns'] = apply_filters(
-			'ybs_guest_list_columns',
+			'mageyabo_guest_list_columns',
 			array(
 				array( 'key' => 'name', 'label' => __( 'Name', 'magepeople-yacht-booking-system' ) ),
 				array( 'key' => 'email', 'label' => __( 'Email', 'magepeople-yacht-booking-system' ) ),

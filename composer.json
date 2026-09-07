@@ -8,7 +8,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Ybs\\": "includes/"
+			"MageYaBo\\": "includes/"
 		},
 		"files": [
 			"includes/functions.php"

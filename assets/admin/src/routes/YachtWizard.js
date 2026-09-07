@@ -126,8 +126,8 @@ export default function YachtWizard({ yachtId }) {
 
 	useEffect(() => {
 		Promise.all([
-			apiFetchTerms('yacht_class'),
-			apiFetchTerms('yacht_occasion'),
+			apiFetchTerms('mageyabo_yacht_class'),
+			apiFetchTerms('mageyabo_yacht_occasion'),
 		]).then(([classes, occasions]) => setTaxonomies({ classes, occasions }));
 
 		if (yachtId) {
@@ -293,7 +293,7 @@ function StepBasicInfo({ form, set, errors }) {
 
 				<Field label={__('Description', 'magepeople-yacht-booking-system')}>
 					<ClassicEditor
-						id="ybs_yacht_description"
+						id="mageyabo_yacht_description"
 						value={form.description}
 						onChange={(html) => set('description', html)}
 					/>
@@ -362,7 +362,7 @@ function Step1Sidebar({ form, set, taxonomies, setTaxonomies }) {
 					taxonomy="yacht_class"
 					terms={taxonomies.classes}
 					selected={form.yacht_class}
-					onChange={(ids) => set('yacht_class', ids)}
+					onChange={(ids) => set('mageyabo_yacht_class', ids)}
 					onTermsChange={(classes) => setTaxonomies((prev) => ({ ...prev, classes }))}
 				/>
 			</Card>
@@ -373,7 +373,7 @@ function Step1Sidebar({ form, set, taxonomies, setTaxonomies }) {
 					taxonomy="yacht_occasion"
 					terms={taxonomies.occasions}
 					selected={form.yacht_occasion}
-					onChange={(ids) => set('yacht_occasion', ids)}
+					onChange={(ids) => set('mageyabo_yacht_occasion', ids)}
 					onTermsChange={(occasions) => setTaxonomies((prev) => ({ ...prev, occasions }))}
 				/>
 			</Card>
@@ -556,7 +556,7 @@ function StepPricing({ form, set }) {
 	);
 }
 
-const YACHT_EMAIL_EDITOR_ID = 'ybs_yacht_confirmation_email_body';
+const YACHT_EMAIL_EDITOR_ID = 'mageyabo_yacht_confirmation_email_body';
 
 function StepReview({ form, set }) {
 	const [showTestModal, setShowTestModal] = useState(false);

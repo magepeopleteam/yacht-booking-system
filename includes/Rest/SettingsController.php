@@ -1,8 +1,8 @@
 <?php
-namespace Ybs\Rest;
+namespace MageYaBo\Rest;
 
-use Ybs\Notifications\BookingEmailer;
-use Ybs\Settings;
+use MageYaBo\Notifications\BookingEmailer;
+use MageYaBo\Settings;
 use WP_REST_Server;
 use WP_REST_Request;
 use WP_Error;
@@ -109,7 +109,7 @@ class SettingsController extends Controller {
 		$to = sanitize_email( (string) $request->get_param( 'to' ) );
 
 		if ( ! is_email( $to ) ) {
-			return new WP_Error( 'ybs_invalid_email', __( 'Please enter a valid email address.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+			return new WP_Error( 'mageyabo_invalid_email', __( 'Please enter a valid email address.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		// Restricted to addresses that already belong to this site, so the
@@ -119,7 +119,7 @@ class SettingsController extends Controller {
 
 		if ( ! in_array( strtolower( $to ), array_map( 'strtolower', $allowed ), true ) ) {
 			return new WP_Error(
-				'ybs_email_not_allowed',
+				'mageyabo_email_not_allowed',
 				__( 'Test emails can only be sent to your own account address or the site admin address.', 'magepeople-yacht-booking-system' ),
 				array( 'status' => 403 )
 			);
@@ -159,7 +159,7 @@ class SettingsController extends Controller {
 		$sent = wp_mail( $to, $subject, wpautop( $body ), $headers );
 
 		if ( ! $sent ) {
-			return new WP_Error( 'ybs_test_email_failed', __( 'Failed to send test email. Check your mail configuration.', 'magepeople-yacht-booking-system' ), array( 'status' => 500 ) );
+			return new WP_Error( 'mageyabo_test_email_failed', __( 'Failed to send test email. Check your mail configuration.', 'magepeople-yacht-booking-system' ), array( 'status' => 500 ) );
 		}
 
 		return rest_ensure_response(
@@ -189,7 +189,7 @@ class SettingsController extends Controller {
 
 		if ( ! file_exists( WP_PLUGIN_DIR . '/' . $plugin_file ) ) {
 			if ( ! current_user_can( 'install_plugins' ) ) {
-				return new WP_Error( 'ybs_cannot_install', __( 'You do not have permission to install plugins.', 'magepeople-yacht-booking-system' ), array( 'status' => 403 ) );
+				return new WP_Error( 'mageyabo_cannot_install', __( 'You do not have permission to install plugins.', 'magepeople-yacht-booking-system' ), array( 'status' => 403 ) );
 			}
 
 			require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -207,7 +207,7 @@ class SettingsController extends Controller {
 			);
 
 			if ( is_wp_error( $api ) ) {
-				return new WP_Error( 'ybs_wc_lookup_failed', $api->get_error_message() );
+				return new WP_Error( 'mageyabo_wc_lookup_failed', $api->get_error_message() );
 			}
 
 			$upgrader = new \Plugin_Upgrader( new \Automatic_Upgrader_Skin() );
@@ -218,18 +218,18 @@ class SettingsController extends Controller {
 			}
 
 			if ( ! $result ) {
-				return new WP_Error( 'ybs_wc_install_failed', __( 'Could not download or extract WooCommerce.', 'magepeople-yacht-booking-system' ) );
+				return new WP_Error( 'mageyabo_wc_install_failed', __( 'Could not download or extract WooCommerce.', 'magepeople-yacht-booking-system' ) );
 			}
 		}
 
 		if ( ! current_user_can( 'activate_plugins' ) ) {
-			return new WP_Error( 'ybs_cannot_activate', __( 'You do not have permission to activate plugins.', 'magepeople-yacht-booking-system' ), array( 'status' => 403 ) );
+			return new WP_Error( 'mageyabo_cannot_activate', __( 'You do not have permission to activate plugins.', 'magepeople-yacht-booking-system' ), array( 'status' => 403 ) );
 		}
 
 		$activated = self::activate_without_loading( $plugin_file );
 
 		if ( is_wp_error( $activated ) ) {
-			return new WP_Error( 'ybs_cannot_activate', __( 'WooCommerce could not be activated.', 'magepeople-yacht-booking-system' ), array( 'status' => 500 ) );
+			return new WP_Error( 'mageyabo_cannot_activate', __( 'WooCommerce could not be activated.', 'magepeople-yacht-booking-system' ), array( 'status' => 500 ) );
 		}
 
 		return self::finish_woocommerce_setup( true );
@@ -274,7 +274,13 @@ class SettingsController extends Controller {
 		$active_plugins[] = $plugin_file;
 		update_option( 'active_plugins', $active_plugins );
 
+		// These two are WordPress core's own activation hooks, fired here so a
+		// plugin activated through this endpoint behaves exactly as it would
+		// from the Plugins screen. They are core hook names on purpose and
+		// must not carry this plugin's prefix.
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook, intentionally.
 		do_action( "activate_{$plugin_file}", false );
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook, intentionally.
 		do_action( 'activated_plugin', $plugin_file, false );
 	}
 
@@ -310,7 +316,7 @@ class SettingsController extends Controller {
 	 */
 	public static function list_woocommerce_gateways() {
 		if ( ! class_exists( 'WooCommerce' ) || ! function_exists( 'WC' ) ) {
-			return new WP_Error( 'ybs_woocommerce_inactive', __( 'WooCommerce is not active.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+			return new WP_Error( 'mageyabo_woocommerce_inactive', __( 'WooCommerce is not active.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		$gateways = array();
@@ -340,14 +346,14 @@ class SettingsController extends Controller {
 
 	public static function toggle_woocommerce_gateway( WP_REST_Request $request ) {
 		if ( ! class_exists( 'WooCommerce' ) || ! function_exists( 'WC' ) ) {
-			return new WP_Error( 'ybs_woocommerce_inactive', __( 'WooCommerce is not active.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+			return new WP_Error( 'mageyabo_woocommerce_inactive', __( 'WooCommerce is not active.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		$gateway_id = sanitize_key( $request['id'] );
 		$gateways   = WC()->payment_gateways()->payment_gateways();
 
 		if ( ! isset( $gateways[ $gateway_id ] ) ) {
-			return new WP_Error( 'ybs_unknown_gateway', __( 'Unknown WooCommerce payment gateway.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
+			return new WP_Error( 'mageyabo_unknown_gateway', __( 'Unknown WooCommerce payment gateway.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
 		}
 
 		self::set_gateway_enabled( $gateway_id, (bool) $request->get_param( 'enabled' ) );

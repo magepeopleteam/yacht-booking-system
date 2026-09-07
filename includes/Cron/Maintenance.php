@@ -1,8 +1,8 @@
 <?php
-namespace Ybs\Cron;
+namespace MageYaBo\Cron;
 
-use Ybs\Booking\GuestRepository;
-use Ybs\Settings;
+use MageYaBo\Booking\GuestRepository;
+use MageYaBo\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Maintenance {
 
 	public static function register() {
-		add_action( 'ybs_daily_maintenance', array( __CLASS__, 'run' ) );
+		add_action( 'mageyabo_daily_maintenance', array( __CLASS__, 'run' ) );
 	}
 
 	public static function run() {

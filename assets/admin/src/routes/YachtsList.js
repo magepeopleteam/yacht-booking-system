@@ -4,7 +4,7 @@ import { api } from '../api/client';
 import { navigate } from '../router';
 import { toast } from '../components/Toast';
 
-const VIEW_STORAGE_KEY = 'ybs_yachts_view';
+const VIEW_STORAGE_KEY = 'mageyabo_yachts_view';
 
 function getStoredView() {
 	try {

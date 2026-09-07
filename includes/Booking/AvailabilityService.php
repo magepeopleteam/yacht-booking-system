@@ -1,5 +1,5 @@
 <?php
-namespace Ybs\Booking;
+namespace MageYaBo\Booking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -7,17 +7,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * One choke-point every caller (frontend search, booking submission, the
- * admin calendar) goes through - `ybs_yacht_available_capacity` is
+ * admin calendar) goes through - `mageyabo_yacht_available_capacity` is
  * filterable so off-day/buffer/min-notice checks (and any custom rules)
  * plug in via `add_filter` instead of being scattered across call sites.
  */
 class AvailabilityService {
 
 	public static function register() {
-		add_filter( 'ybs_yacht_available_capacity', array( __CLASS__, 'apply_off_day_block' ), 10, 2 );
-		add_filter( 'ybs_yacht_available_capacity', array( __CLASS__, 'apply_min_notice' ), 10, 2 );
-		add_filter( 'ybs_yacht_available_capacity', array( __CLASS__, 'apply_duration_limits' ), 10, 2 );
-		add_filter( 'ybs_yacht_available_capacity', array( __CLASS__, 'apply_buffer_time' ), 10, 2 );
+		add_filter( 'mageyabo_yacht_available_capacity', array( __CLASS__, 'apply_off_day_block' ), 10, 2 );
+		add_filter( 'mageyabo_yacht_available_capacity', array( __CLASS__, 'apply_min_notice' ), 10, 2 );
+		add_filter( 'mageyabo_yacht_available_capacity', array( __CLASS__, 'apply_duration_limits' ), 10, 2 );
+		add_filter( 'mageyabo_yacht_available_capacity', array( __CLASS__, 'apply_buffer_time' ), 10, 2 );
 	}
 
 	/**
@@ -45,13 +45,13 @@ class AvailabilityService {
 		 * here via the filters registered in self::register(). Each filter
 		 * receives (and must return) the same $result shape.
 		 */
-		$result = apply_filters( 'ybs_yacht_available_capacity', $result, $context );
+		$result = apply_filters( 'mageyabo_yacht_available_capacity', $result, $context );
 
 		if ( ! $result['available'] ) {
 			return $result;
 		}
 
-		$capacity  = (int) get_post_meta( $yacht_id, 'capacity', true );
+		$capacity  = (int) get_post_meta( $yacht_id, 'mageyabo_capacity', true );
 		$overlaps  = BookingRepository::overlapping( $yacht_id, $start_datetime, $end_datetime, $exclude_booking_id );
 
 		if ( 'shared' === $booking_mode ) {
@@ -103,7 +103,7 @@ class AvailabilityService {
 		}
 
 		$date      = substr( $context['start_datetime'], 0, 10 );
-		$off_days  = (array) get_post_meta( $context['yacht_id'], 'off_days', true );
+		$off_days  = (array) get_post_meta( $context['yacht_id'], 'mageyabo_off_days', true );
 
 		if ( in_array( $date, $off_days, true ) ) {
 			$result['available'] = false;
@@ -127,7 +127,7 @@ class AvailabilityService {
 			return $result;
 		}
 
-		$min_notice_hours = (int) get_post_meta( $context['yacht_id'], 'min_notice_hours', true );
+		$min_notice_hours = (int) get_post_meta( $context['yacht_id'], 'mageyabo_min_notice_hours', true );
 
 		if ( $min_notice_hours > 0 ) {
 			$earliest = time() + ( $min_notice_hours * HOUR_IN_SECONDS );
@@ -147,8 +147,8 @@ class AvailabilityService {
 		}
 
 		$minutes     = ( strtotime( $context['end_datetime'] ) - strtotime( $context['start_datetime'] ) ) / MINUTE_IN_SECONDS;
-		$min_duration = (int) get_post_meta( $context['yacht_id'], 'min_duration', true );
-		$max_duration = (int) get_post_meta( $context['yacht_id'], 'max_duration', true );
+		$min_duration = (int) get_post_meta( $context['yacht_id'], 'mageyabo_min_duration', true );
+		$max_duration = (int) get_post_meta( $context['yacht_id'], 'mageyabo_max_duration', true );
 
 		if ( $min_duration && $minutes < $min_duration ) {
 			$result['available'] = false;
@@ -166,7 +166,7 @@ class AvailabilityService {
 			return $result;
 		}
 
-		$buffer_minutes = (int) get_post_meta( $context['yacht_id'], 'buffer_minutes', true );
+		$buffer_minutes = (int) get_post_meta( $context['yacht_id'], 'mageyabo_buffer_minutes', true );
 
 		if ( $buffer_minutes <= 0 ) {
 			return $result;

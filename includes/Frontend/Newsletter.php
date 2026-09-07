@@ -1,5 +1,5 @@
 <?php
-namespace Ybs\Frontend;
+namespace MageYaBo\Frontend;
 
 use WP_REST_Server;
 use WP_REST_Request;
@@ -16,13 +16,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Newsletter {
 
 	public static function register() {
-		add_shortcode( 'ybs_newsletter', array( __CLASS__, 'render' ) );
+		add_shortcode( 'mageyabo_newsletter', array( __CLASS__, 'render' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
 	}
 
 	public static function register_routes() {
 		register_rest_route(
-			'ybs/v1',
+			'mageyabo/v1',
 			'/newsletter/subscribe',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -38,10 +38,10 @@ class Newsletter {
 		$email = sanitize_email( $request->get_param( 'email' ) );
 
 		if ( ! $email || ! is_email( $email ) ) {
-			return new \WP_Error( 'ybs_invalid_email', __( 'Please provide a valid email address.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+			return new \WP_Error( 'mageyabo_invalid_email', __( 'Please provide a valid email address.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
-		$table = $wpdb->prefix . 'ybs_newsletter_subscribers';
+		$table = $wpdb->prefix . 'mageyabo_newsletter_subscribers';
 
 		// Direct insert into the plugin's own subscribers table; nothing to
 		// cache on a write, and $table is a prefixed identifier.
@@ -62,7 +62,7 @@ class Newsletter {
 		 *
 		 * @param string $email
 		 */
-		do_action( 'ybs_newsletter_subscribed', $email );
+		do_action( 'mageyabo_newsletter_subscribed', $email );
 
 		return rest_ensure_response( array( 'subscribed' => true ) );
 	}
@@ -74,11 +74,11 @@ class Newsletter {
 				'placeholder' => __( 'Your email address', 'magepeople-yacht-booking-system' ),
 			),
 			$atts,
-			'ybs_newsletter'
+			'mageyabo_newsletter'
 		);
 
-		wp_enqueue_script( 'ybs-frontend' );
-		wp_enqueue_style( 'ybs-frontend' );
+		wp_enqueue_script( 'mageyabo-frontend' );
+		wp_enqueue_style( 'mageyabo-frontend' );
 
 		ob_start();
 		?>

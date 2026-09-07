@@ -1,8 +1,8 @@
 <?php
-namespace Ybs\Rest;
+namespace MageYaBo\Rest;
 
-use Ybs\Booking\AvailabilityService;
-use Ybs\PostTypes\Yacht;
+use MageYaBo\Booking\AvailabilityService;
+use MageYaBo\PostTypes\Yacht;
 use WP_REST_Server;
 use WP_REST_Request;
 use WP_Error;
@@ -112,19 +112,19 @@ class YachtsController extends Controller {
 		$start        = sanitize_text_field( $request->get_param( 'start_datetime' ) );
 		$end          = sanitize_text_field( $request->get_param( 'end_datetime' ) );
 		$guest_count  = max( 1, (int) $request->get_param( 'guest_count' ) ?: 1 );
-		$booking_mode = sanitize_key( $request->get_param( 'booking_mode' ) ) ?: ( get_post_meta( $yacht_id, 'booking_mode', true ) ?: 'full' );
+		$booking_mode = sanitize_key( $request->get_param( 'booking_mode' ) ) ?: ( get_post_meta( $yacht_id, 'mageyabo_booking_mode', true ) ?: 'full' );
 
 		if ( ! $start || ! $end ) {
-			return new WP_Error( 'ybs_invalid_dates', __( 'Please choose a date and time.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+			return new WP_Error( 'mageyabo_invalid_dates', __( 'Please choose a date and time.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		$availability = AvailabilityService::check( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode );
 
 		if ( ! $availability['available'] ) {
-			return new WP_Error( 'ybs_not_available', $availability['reason'], array( 'status' => 409 ) );
+			return new WP_Error( 'mageyabo_not_available', $availability['reason'], array( 'status' => 409 ) );
 		}
 
-		$pricing = \Ybs\Booking\PricingEngine::calculate( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode );
+		$pricing = \MageYaBo\Booking\PricingEngine::calculate( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode );
 
 		if ( is_wp_error( $pricing ) ) {
 			return $pricing;
@@ -134,7 +134,7 @@ class YachtsController extends Controller {
 			array(
 				'pricing'      => $pricing,
 				'availability' => $availability,
-				'currency'     => \Ybs\Settings::get( 'currency_symbol', '$' ),
+				'currency'     => \MageYaBo\Settings::get( 'currency_symbol', '$' ),
 			)
 		);
 	}
@@ -153,10 +153,10 @@ class YachtsController extends Controller {
 		// return false, and gmdate('t', false) then reports 31 - running a
 		// month's worth of availability checks on an unauthenticated route.
 		if ( ! preg_match( '/^\d{4}-\d{2}$/', $month ) ) {
-			return new WP_Error( 'ybs_invalid_month', __( 'Please provide a month as YYYY-MM.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+			return new WP_Error( 'mageyabo_invalid_month', __( 'Please provide a month as YYYY-MM.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
-		$booking_mode = get_post_meta( $yacht_id, 'booking_mode', true ) ?: 'full';
+		$booking_mode = get_post_meta( $yacht_id, 'mageyabo_booking_mode', true ) ?: 'full';
 
 		$timestamp  = strtotime( $month . '-01' );
 		$days_count = (int) gmdate( 't', $timestamp );
@@ -173,7 +173,7 @@ class YachtsController extends Controller {
 	}
 
 	public static function index( WP_REST_Request $request ) {
-		$can_manage = \Ybs\Capabilities::can( 'settings' );
+		$can_manage = \MageYaBo\Capabilities::can( 'settings' );
 
 		$args = array(
 			'post_type'      => Yacht::POST_TYPE,
@@ -188,7 +188,7 @@ class YachtsController extends Controller {
 
 		if ( $request->get_param( 'class' ) ) {
 			$tax_query[] = array(
-				'taxonomy' => 'yacht_class',
+				'taxonomy' => 'mageyabo_yacht_class',
 				'field'    => 'slug',
 				'terms'    => sanitize_title( $request->get_param( 'class' ) ),
 			);
@@ -196,7 +196,7 @@ class YachtsController extends Controller {
 
 		if ( $request->get_param( 'occasion' ) ) {
 			$tax_query[] = array(
-				'taxonomy' => 'yacht_occasion',
+				'taxonomy' => 'mageyabo_yacht_occasion',
 				'field'    => 'slug',
 				'terms'    => sanitize_title( $request->get_param( 'occasion' ) ),
 			);
@@ -262,7 +262,7 @@ class YachtsController extends Controller {
 				'items'        => $items,
 				'total'        => (int) $query->found_posts,
 				'pages'        => (int) $query->max_num_pages,
-				'dummy_seeded' => (bool) get_option( 'ybs_dummy_seeded' ),
+				'dummy_seeded' => (bool) get_option( 'mageyabo_dummy_seeded' ),
 			)
 		);
 	}
@@ -282,11 +282,11 @@ class YachtsController extends Controller {
 		$post = get_post( $yacht_id );
 
 		if ( ! $post || Yacht::POST_TYPE !== $post->post_type ) {
-			return new WP_Error( 'ybs_not_found', __( 'Yacht not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
+			return new WP_Error( 'mageyabo_not_found', __( 'Yacht not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
 		}
 
-		if ( 'publish' !== $post->post_status && ! \Ybs\Capabilities::can( 'settings' ) ) {
-			return new WP_Error( 'ybs_not_found', __( 'Yacht not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
+		if ( 'publish' !== $post->post_status && ! \MageYaBo\Capabilities::can( 'settings' ) ) {
+			return new WP_Error( 'mageyabo_not_found', __( 'Yacht not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
 		}
 
 		return $post;
@@ -331,7 +331,7 @@ class YachtsController extends Controller {
 		$post = get_post( (int) $request['id'] );
 
 		if ( ! $post || Yacht::POST_TYPE !== $post->post_type ) {
-			return new WP_Error( 'ybs_not_found', __( 'Yacht not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
+			return new WP_Error( 'mageyabo_not_found', __( 'Yacht not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
 		}
 
 		$data   = $request->get_json_params();
@@ -368,7 +368,7 @@ class YachtsController extends Controller {
 		$post = get_post( (int) $request['id'] );
 
 		if ( ! $post || Yacht::POST_TYPE !== $post->post_type ) {
-			return new WP_Error( 'ybs_not_found', __( 'Yacht not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
+			return new WP_Error( 'mageyabo_not_found', __( 'Yacht not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
 		}
 
 		wp_delete_post( $post->ID, true );
@@ -378,13 +378,13 @@ class YachtsController extends Controller {
 
 	/**
 	 * One-time sample-fleet seeder so a fresh install has something to look
-	 * at immediately. The `ybs_dummy_seeded` option makes this permanently
+	 * at immediately. The `mageyabo_dummy_seeded` option makes this permanently
 	 * unavailable once it has run - both the guard below and the admin UI's
 	 * button (hidden once `dummy_seeded` comes back true) rely on it.
 	 */
 	public static function dummy_import() {
-		if ( get_option( 'ybs_dummy_seeded' ) ) {
-			return new WP_Error( 'ybs_already_seeded', __( 'Sample yachts have already been imported.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+		if ( get_option( 'mageyabo_dummy_seeded' ) ) {
+			return new WP_Error( 'mageyabo_already_seeded', __( 'Sample yachts have already been imported.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		$imported = 0;
@@ -406,16 +406,16 @@ class YachtsController extends Controller {
 
 			self::save_meta( $post_id, $sample['meta'] );
 
-			$class_term = get_term_by( 'name', $sample['class'], 'yacht_class' );
+			$class_term = get_term_by( 'name', $sample['class'], 'mageyabo_yacht_class' );
 
 			if ( $class_term ) {
-				wp_set_object_terms( $post_id, array( $class_term->term_id ), 'yacht_class' );
+				wp_set_object_terms( $post_id, array( $class_term->term_id ), 'mageyabo_yacht_class' );
 			}
 
 			$occasion_ids = array();
 
 			foreach ( $sample['occasions'] as $occasion_name ) {
-				$term = get_term_by( 'name', $occasion_name, 'yacht_occasion' );
+				$term = get_term_by( 'name', $occasion_name, 'mageyabo_yacht_occasion' );
 
 				if ( $term ) {
 					$occasion_ids[] = $term->term_id;
@@ -423,13 +423,13 @@ class YachtsController extends Controller {
 			}
 
 			if ( $occasion_ids ) {
-				wp_set_object_terms( $post_id, $occasion_ids, 'yacht_occasion' );
+				wp_set_object_terms( $post_id, $occasion_ids, 'mageyabo_yacht_occasion' );
 			}
 
 			$imported++;
 		}
 
-		update_option( 'ybs_dummy_seeded', 1 );
+		update_option( 'mageyabo_dummy_seeded', 1 );
 
 		return rest_ensure_response(
 			array(
@@ -616,12 +616,12 @@ class YachtsController extends Controller {
 		$date = sanitize_text_field( $request->get_param( 'date' ) ?: current_time( 'Y-m-d' ) );
 
 		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) {
-			return new WP_Error( 'ybs_invalid_date', __( 'Please provide a date as YYYY-MM-DD.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+			return new WP_Error( 'mageyabo_invalid_date', __( 'Please provide a date as YYYY-MM-DD.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		$slots        = Yacht::time_windows( $yacht_id );
 		$results      = array();
-		$booking_mode = get_post_meta( $yacht_id, 'booking_mode', true ) ?: 'full';
+		$booking_mode = get_post_meta( $yacht_id, 'mageyabo_booking_mode', true ) ?: 'full';
 
 		foreach ( $slots as $type => $window ) {
 			$start = $date . ' ' . $window[0] . ':00';
@@ -682,12 +682,13 @@ class YachtsController extends Controller {
 	}
 
 	private static function save_meta( $post_id, array $data ) {
-		foreach ( \Ybs\PostTypes\Yacht::META_KEYS as $key ) {
+		foreach ( \MageYaBo\PostTypes\Yacht::META_KEYS as $key ) {
 			if ( ! array_key_exists( $key, $data ) ) {
 				continue;
 			}
 
-			$value = $data[ $key ];
+			$value     = $data[ $key ];
+			$meta_key  = \MageYaBo\PostTypes\Yacht::meta_key( $key );
 
 			if ( 'gallery' === $key ) {
 				$ids = array_map(
@@ -697,15 +698,15 @@ class YachtsController extends Controller {
 					is_array( $value ) ? $value : array()
 				);
 
-				update_post_meta( $post_id, $key, array_values( array_filter( $ids ) ) );
+				update_post_meta( $post_id, $meta_key, array_values( array_filter( $ids ) ) );
 			} elseif ( in_array( $key, array( 'faq', 'included_items', 'off_days' ), true ) ) {
-				update_post_meta( $post_id, $key, self::sanitize_meta_rows( $key, $value ) );
+				update_post_meta( $post_id, $meta_key, self::sanitize_meta_rows( $key, $value ) );
 			} elseif ( 'confirmation_email_body' === $key ) {
 				// Rich text from the wizard's classic editor - sanitize_text_field()
 				// would strip it down to plain text.
-				update_post_meta( $post_id, $key, wp_kses_post( (string) $value ) );
+				update_post_meta( $post_id, $meta_key, wp_kses_post( (string) $value ) );
 			} else {
-				update_post_meta( $post_id, $key, sanitize_text_field( (string) $value ) );
+				update_post_meta( $post_id, $meta_key, sanitize_text_field( (string) $value ) );
 			}
 		}
 	}
@@ -725,17 +726,17 @@ class YachtsController extends Controller {
 	}
 
 	private static function save_taxonomies( $post_id, array $data ) {
-		if ( isset( $data['yacht_class'] ) ) {
-			wp_set_object_terms( $post_id, array_map( 'intval', (array) $data['yacht_class'] ), 'yacht_class' );
+		if ( isset( $data['mageyabo_yacht_class'] ) ) {
+			wp_set_object_terms( $post_id, array_map( 'intval', (array) $data['mageyabo_yacht_class'] ), 'mageyabo_yacht_class' );
 		}
 
-		if ( isset( $data['yacht_occasion'] ) ) {
-			wp_set_object_terms( $post_id, array_map( 'intval', (array) $data['yacht_occasion'] ), 'yacht_occasion' );
+		if ( isset( $data['mageyabo_yacht_occasion'] ) ) {
+			wp_set_object_terms( $post_id, array_map( 'intval', (array) $data['mageyabo_yacht_occasion'] ), 'mageyabo_yacht_occasion' );
 		}
 	}
 
 	private static function summarize( $post ) {
-		$gallery_ids = get_post_meta( $post->ID, 'gallery', true );
+		$gallery_ids = get_post_meta( $post->ID, 'mageyabo_gallery', true );
 		$gallery_ids = is_array( $gallery_ids ) ? array_filter( array_map( 'intval', $gallery_ids ) ) : array();
 		$thumb_id    = get_post_thumbnail_id( $post->ID );
 
@@ -753,15 +754,15 @@ class YachtsController extends Controller {
 			'thumbnail'   => get_the_post_thumbnail_url( $post, 'medium' ),
 			'photos'      => $photos,
 			'photo_count' => count( $photos ),
-			'capacity'    => (int) get_post_meta( $post->ID, 'capacity', true ),
-			'length'      => get_post_meta( $post->ID, 'length', true ),
-			'cabins'      => (int) get_post_meta( $post->ID, 'cabins', true ),
-			'classes'     => wp_get_post_terms( $post->ID, 'yacht_class', array( 'fields' => 'names' ) ),
-			'occasions'   => wp_get_post_terms( $post->ID, 'yacht_occasion', array( 'fields' => 'names' ) ),
+			'capacity'    => (int) get_post_meta( $post->ID, 'mageyabo_capacity', true ),
+			'length'      => get_post_meta( $post->ID, 'mageyabo_length', true ),
+			'cabins'      => (int) get_post_meta( $post->ID, 'mageyabo_cabins', true ),
+			'classes'     => wp_get_post_terms( $post->ID, 'mageyabo_yacht_class', array( 'fields' => 'names' ) ),
+			'occasions'   => wp_get_post_terms( $post->ID, 'mageyabo_yacht_occasion', array( 'fields' => 'names' ) ),
 			'location'    => array(
-				'name' => get_post_meta( $post->ID, 'location_name', true ),
-				'lat'  => get_post_meta( $post->ID, 'location_lat', true ),
-				'lng'  => get_post_meta( $post->ID, 'location_lng', true ),
+				'name' => get_post_meta( $post->ID, 'mageyabo_location_name', true ),
+				'lat'  => get_post_meta( $post->ID, 'mageyabo_location_lat', true ),
+				'lng'  => get_post_meta( $post->ID, 'mageyabo_location_lng', true ),
 			),
 			'from_price' => self::from_price( $post->ID ),
 			'status'     => $post->post_status,
@@ -774,8 +775,8 @@ class YachtsController extends Controller {
 		$data = self::summarize( $post );
 		$data['description'] = $post->post_content;
 
-		foreach ( \Ybs\PostTypes\Yacht::META_KEYS as $key ) {
-			$value = get_post_meta( $post->ID, $key, true );
+		foreach ( \MageYaBo\PostTypes\Yacht::META_KEYS as $key ) {
+			$value = get_post_meta( $post->ID, \MageYaBo\PostTypes\Yacht::meta_key( $key ), true );
 			$data[ $key ] = in_array( $key, array( 'gallery', 'faq', 'included_items', 'off_days' ), true )
 				? ( is_array( $value ) ? $value : array() )
 				: $value;
@@ -784,8 +785,8 @@ class YachtsController extends Controller {
 		// Cast explicitly: wp_get_post_terms() can hand back numeric strings,
 		// which would silently fail to match the JS side's real numbers
 		// (e.g. `["3"].includes(3)` is false) and make selections look empty.
-		$data['yacht_class']    = array_map( 'intval', wp_get_post_terms( $post->ID, 'yacht_class', array( 'fields' => 'ids' ) ) );
-		$data['yacht_occasion'] = array_map( 'intval', wp_get_post_terms( $post->ID, 'yacht_occasion', array( 'fields' => 'ids' ) ) );
+		$data['mageyabo_yacht_class']    = array_map( 'intval', wp_get_post_terms( $post->ID, 'mageyabo_yacht_class', array( 'fields' => 'ids' ) ) );
+		$data['mageyabo_yacht_occasion'] = array_map( 'intval', wp_get_post_terms( $post->ID, 'mageyabo_yacht_occasion', array( 'fields' => 'ids' ) ) );
 
 		$thumbnail_id             = get_post_thumbnail_id( $post->ID );
 		$data['featured_media']   = $thumbnail_id ? (int) $thumbnail_id : 0;
@@ -810,7 +811,7 @@ class YachtsController extends Controller {
 		$prices = array_filter(
 			array_map(
 				static fn( $key ) => (float) get_post_meta( $yacht_id, $key, true ),
-				array( 'base_price_hourly', 'base_price_halfday', 'base_price_morning_slot', 'base_price_evening_slot', 'base_price_daily' )
+				array( 'mageyabo_base_price_hourly', 'mageyabo_base_price_halfday', 'mageyabo_base_price_morning_slot', 'mageyabo_base_price_evening_slot', 'mageyabo_base_price_daily' )
 			)
 		);
 

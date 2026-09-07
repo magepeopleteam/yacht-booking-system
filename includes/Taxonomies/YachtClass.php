@@ -1,5 +1,5 @@
 <?php
-namespace Ybs\Taxonomies;
+namespace MageYaBo\Taxonomies;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class YachtClass extends AbstractTaxonomy {
 
 	public static function slug(): string {
-		return 'yacht_class';
+		return 'mageyabo_yacht_class';
 	}
 
 	public static function labels(): array {

@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 
-const NAMESPACE = '/ybs/v1';
+const NAMESPACE = '/mageyabo/v1';
 
 function withQuery( path, params ) {
 	if ( ! params || ! Object.keys( params ).length ) {

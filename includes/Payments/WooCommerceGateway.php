@@ -1,11 +1,11 @@
 <?php
-namespace Ybs\Payments;
+namespace MageYaBo\Payments;
 
-use Ybs\Booking\AvailabilityService;
-use Ybs\Booking\BookingRepository;
-use Ybs\Booking\GuestRepository;
-use Ybs\Booking\PricingEngine;
-use Ybs\Settings;
+use MageYaBo\Booking\AvailabilityService;
+use MageYaBo\Booking\BookingRepository;
+use MageYaBo\Booking\GuestRepository;
+use MageYaBo\Booking\PricingEngine;
+use MageYaBo\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -27,8 +27,8 @@ class WooCommerceGateway {
 	private static $staged = array();
 
 	public static function register() {
-		add_filter( 'ybs_payment_gateways', array( __CLASS__, 'declare_self' ) );
-		add_filter( 'ybs_payment_start', array( __CLASS__, 'start' ), 10, 3 );
+		add_filter( 'mageyabo_payment_gateways', array( __CLASS__, 'declare_self' ) );
+		add_filter( 'mageyabo_payment_start', array( __CLASS__, 'start' ), 10, 3 );
 
 		// NOTE: this plugin loads before WooCommerce, so class_exists()
 		// checks cannot gate hook registration here - the WooCommerce hooks
@@ -46,7 +46,7 @@ class WooCommerceGateway {
 
 		// Reverse direction: a status change made from the bookings admin
 		// list is pushed back onto the linked WooCommerce order.
-		add_action( 'ybs_after_booking_status_changed', array( __CLASS__, 'push_status_to_order' ), 10, 2 );
+		add_action( 'mageyabo_after_booking_status_changed', array( __CLASS__, 'push_status_to_order' ), 10, 2 );
 	}
 
 	public static function is_active() {
@@ -73,19 +73,19 @@ class WooCommerceGateway {
 		}
 
 		if ( ! self::is_active() || ! function_exists( 'WC' ) ) {
-			return new \WP_Error( 'ybs_woocommerce_inactive', __( 'WooCommerce is not active.', 'magepeople-yacht-booking-system' ) );
+			return new \WP_Error( 'mageyabo_woocommerce_inactive', __( 'WooCommerce is not active.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		$booking = BookingRepository::find( $booking_id );
 
 		if ( ! $booking ) {
-			return new \WP_Error( 'ybs_booking_missing', __( 'Booking could not be found.', 'magepeople-yacht-booking-system' ) );
+			return new \WP_Error( 'mageyabo_booking_missing', __( 'Booking could not be found.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		$product_id = WooCommerceProduct::get_product_id( (int) $booking['yacht_id'] );
 
 		if ( ! $product_id ) {
-			return new \WP_Error( 'ybs_woocommerce_product_error', __( 'Could not prepare the WooCommerce product for this yacht.', 'magepeople-yacht-booking-system' ) );
+			return new \WP_Error( 'mageyabo_woocommerce_product_error', __( 'Could not prepare the WooCommerce product for this yacht.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		WC()->cart->add_to_cart(
@@ -94,8 +94,8 @@ class WooCommerceGateway {
 			0,
 			array(),
 			array(
-				'ybs_booking_id'    => $booking_id,
-				'ybs_booking_price' => (float) $booking['total_price'],
+				'mageyabo_booking_id'    => $booking_id,
+				'mageyabo_booking_price' => (float) $booking['total_price'],
 			)
 		);
 
@@ -138,7 +138,7 @@ class WooCommerceGateway {
 				);
 
 				if ( ! $availability['available'] ) {
-					return new \WP_Error( 'ybs_not_available', $availability['reason'] ?: __( 'This slot is not available.', 'magepeople-yacht-booking-system' ) );
+					return new \WP_Error( 'mageyabo_not_available', $availability['reason'] ?: __( 'This slot is not available.', 'magepeople-yacht-booking-system' ) );
 				}
 
 				$pricing = PricingEngine::calculate(
@@ -183,7 +183,7 @@ class WooCommerceGateway {
 		$data = self::$staged[ $product_id ];
 
 		$total = (float) apply_filters(
-			'ybs_before_booking_total_calculated',
+			'mageyabo_before_booking_total_calculated',
 			(float) $data['pricing']['total'],
 			array(
 				'yacht_id'     => $data['yacht_id'],
@@ -196,8 +196,8 @@ class WooCommerceGateway {
 
 		$data['pricing']['total'] = $total;
 
-		$cart_item_data['ybs_booking']      = $data;
-		$cart_item_data['ybs_booking_price'] = $total;
+		$cart_item_data['mageyabo_booking']      = $data;
+		$cart_item_data['mageyabo_booking_price'] = $total;
 		$cart_item_data['unique_key']        = md5( microtime() . wp_json_encode( $data ) );
 
 		unset( self::$staged[ $product_id ] );
@@ -211,22 +211,22 @@ class WooCommerceGateway {
 		}
 
 		foreach ( $cart->get_cart() as $cart_item ) {
-			if ( isset( $cart_item['ybs_booking_price'] ) ) {
-				$cart_item['data']->set_price( (float) $cart_item['ybs_booking_price'] );
+			if ( isset( $cart_item['mageyabo_booking_price'] ) ) {
+				$cart_item['data']->set_price( (float) $cart_item['mageyabo_booking_price'] );
 			}
 		}
 	}
 
 	public static function show_booking_in_cart( $item_data, $cart_item ) {
-		if ( empty( $cart_item['ybs_booking'] ) ) {
+		if ( empty( $cart_item['mageyabo_booking'] ) ) {
 			return $item_data;
 		}
 
-		$data = $cart_item['ybs_booking'];
+		$data = $cart_item['mageyabo_booking'];
 
 		$item_data[] = array(
 			'name'  => __( 'Charter Start', 'magepeople-yacht-booking-system' ),
-			'value' => ybs_format_datetime( $data['start_datetime'] ),
+			'value' => mageyabo_format_datetime( $data['start_datetime'] ),
 		);
 		$item_data[] = array(
 			'name'  => __( 'Booking Type', 'magepeople-yacht-booking-system' ),
@@ -250,7 +250,7 @@ class WooCommerceGateway {
 		}
 
 		foreach ( WC()->cart->get_cart() as $cart_item ) {
-			if ( ! empty( $cart_item['ybs_booking'] ) ) {
+			if ( ! empty( $cart_item['mageyabo_booking'] ) ) {
 				return wc_get_checkout_url();
 			}
 		}
@@ -259,23 +259,23 @@ class WooCommerceGateway {
 	}
 
 	public static function store_booking_on_line_item( $item, $cart_item_key, $values, $order ) {
-		if ( ! empty( $values['ybs_booking_id'] ) ) {
-			$item->add_meta_data( '_ybs_booking_id', $values['ybs_booking_id'], true );
+		if ( ! empty( $values['mageyabo_booking_id'] ) ) {
+			$item->add_meta_data( '_mageyabo_booking_id', $values['mageyabo_booking_id'], true );
 			return;
 		}
 
-		if ( ! empty( $values['ybs_booking'] ) ) {
-			$data = $values['ybs_booking'];
+		if ( ! empty( $values['mageyabo_booking'] ) ) {
+			$data = $values['mageyabo_booking'];
 
 			// Visible line-item meta (no underscore prefix) so the booking
 			// details show on the thank-you page, order view and emails -
 			// the underscore-prefixed copy below is the machine-readable one.
-			$item->add_meta_data( __( 'Charter Start', 'magepeople-yacht-booking-system' ), ybs_format_datetime( $data['start_datetime'] ), true );
+			$item->add_meta_data( __( 'Charter Start', 'magepeople-yacht-booking-system' ), mageyabo_format_datetime( $data['start_datetime'] ), true );
 			$item->add_meta_data( __( 'Booking Type', 'magepeople-yacht-booking-system' ), self::type_label( $data['booking_type'], $data['booking_mode'] ), true );
 			/* translators: %d: number of guests */
 			$item->add_meta_data( __( 'Guests', 'magepeople-yacht-booking-system' ), sprintf( __( '%d guests', 'magepeople-yacht-booking-system' ), (int) $data['guest_count'] ), true );
 
-			$item->add_meta_data( '_ybs_booking_data', $values['ybs_booking'], true );
+			$item->add_meta_data( '_mageyabo_booking_data', $values['mageyabo_booking'], true );
 		}
 	}
 
@@ -300,14 +300,14 @@ class WooCommerceGateway {
 			return;
 		}
 
-		if ( $order->get_meta( '_ybs_bookings_created' ) ) {
+		if ( $order->get_meta( '_mageyabo_bookings_created' ) ) {
 			return;
 		}
 
 		$created = array();
 
 		foreach ( $order->get_items() as $item ) {
-			$existing_id = (int) $item->get_meta( '_ybs_booking_id' );
+			$existing_id = (int) $item->get_meta( '_mageyabo_booking_id' );
 
 			if ( $existing_id ) {
 				BookingRepository::update_payment( $existing_id, 'unpaid', array( 'woo_order_id' => $order->get_id() ) );
@@ -315,7 +315,7 @@ class WooCommerceGateway {
 				continue;
 			}
 
-			$data = $item->get_meta( '_ybs_booking_data' );
+			$data = $item->get_meta( '_mageyabo_booking_data' );
 
 			if ( ! is_array( $data ) || empty( $data['yacht_id'] ) ) {
 				continue;
@@ -361,15 +361,15 @@ class WooCommerceGateway {
 
 			BookingRepository::update_payment( $booking_id, 'unpaid', array( 'woo_order_id' => $order->get_id() ) );
 
-			$item->add_meta_data( '_ybs_booking_id', $booking_id, true );
+			$item->add_meta_data( '_mageyabo_booking_id', $booking_id, true );
 			$item->save();
 
 			$created[] = $booking_id;
 		}
 
 		if ( $created ) {
-			$order->update_meta_data( '_ybs_booking_ids', $created );
-			$order->update_meta_data( '_ybs_bookings_created', current_time( 'mysql' ) );
+			$order->update_meta_data( '_mageyabo_booking_ids', $created );
+			$order->update_meta_data( '_mageyabo_bookings_created', current_time( 'mysql' ) );
 			$order->save();
 		}
 	}
@@ -453,24 +453,24 @@ class WooCommerceGateway {
 		$yacht = get_post( $yacht_id );
 
 		if ( ! $yacht || 'publish' !== $yacht->post_status ) {
-			return new \WP_Error( 'ybs_invalid_yacht', __( 'Please choose a valid yacht.', 'magepeople-yacht-booking-system' ) );
+			return new \WP_Error( 'mageyabo_invalid_yacht', __( 'Please choose a valid yacht.', 'magepeople-yacht-booking-system' ) );
 		}
 
-		$booking_type = sanitize_key( $post['ybs_booking_type'] ?? '' );
-		$start        = sanitize_text_field( $post['ybs_start_datetime'] ?? '' );
-		$end          = sanitize_text_field( $post['ybs_end_datetime'] ?? '' );
-		$guest_count  = max( 1, (int) ( $post['ybs_guest_count'] ?? 1 ) );
+		$booking_type = sanitize_key( $post['mageyabo_booking_type'] ?? '' );
+		$start        = sanitize_text_field( $post['mageyabo_start_datetime'] ?? '' );
+		$end          = sanitize_text_field( $post['mageyabo_end_datetime'] ?? '' );
+		$guest_count  = max( 1, (int) ( $post['mageyabo_guest_count'] ?? 1 ) );
 
 		if ( ! $booking_type || ! $start || ! $end ) {
-			return new \WP_Error( 'ybs_invalid_dates', __( 'Please choose a valid date and time.', 'magepeople-yacht-booking-system' ) );
+			return new \WP_Error( 'mageyabo_invalid_dates', __( 'Please choose a valid date and time.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		// The mode picks which price table applies, so it can never be taken
 		// from the request as-is: a full-charter-only yacht would otherwise be
 		// bookable at a single shared seat's rate.
-		$yacht_mode    = get_post_meta( $yacht_id, 'booking_mode', true ) ?: 'full';
+		$yacht_mode    = get_post_meta( $yacht_id, 'mageyabo_booking_mode', true ) ?: 'full';
 		$allowed_modes = 'both' === $yacht_mode ? array( 'full', 'shared' ) : array( $yacht_mode );
-		$booking_mode  = sanitize_key( $post['ybs_booking_mode'] ?? $allowed_modes[0] );
+		$booking_mode  = sanitize_key( $post['mageyabo_booking_mode'] ?? $allowed_modes[0] );
 
 		if ( ! in_array( $booking_mode, $allowed_modes, true ) ) {
 			$booking_mode = $allowed_modes[0];
@@ -483,7 +483,7 @@ class WooCommerceGateway {
 		$end_ts   = strtotime( $end );
 
 		if ( ! $start_ts || ! $end_ts || $end_ts <= $start_ts ) {
-			return new \WP_Error( 'ybs_invalid_dates', __( 'Please choose a valid date and time.', 'magepeople-yacht-booking-system' ) );
+			return new \WP_Error( 'mageyabo_invalid_dates', __( 'Please choose a valid date and time.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		$start = gmdate( 'Y-m-d H:i:s', $start_ts );
@@ -495,9 +495,9 @@ class WooCommerceGateway {
 		// order's billing name/email/phone when the cart item has none.
 		$guest = array_filter(
 			array(
-				'name'  => sanitize_text_field( $post['ybs_name'] ?? '' ),
-				'email' => sanitize_email( $post['ybs_email'] ?? '' ),
-				'phone' => sanitize_text_field( $post['ybs_phone'] ?? '' ),
+				'name'  => sanitize_text_field( $post['mageyabo_name'] ?? '' ),
+				'email' => sanitize_email( $post['mageyabo_email'] ?? '' ),
+				'phone' => sanitize_text_field( $post['mageyabo_phone'] ?? '' ),
 			)
 		);
 

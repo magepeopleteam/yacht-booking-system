@@ -1,7 +1,7 @@
 <?php
-namespace Ybs\Rest;
+namespace MageYaBo\Rest;
 
-use Ybs\Capabilities;
+use MageYaBo\Capabilities;
 use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 abstract class Controller {
 
-	const NAMESPACE_ = 'ybs/v1';
+	const NAMESPACE_ = 'mageyabo/v1';
 
 	/**
 	 * Every gated route uses this rather than trusting the React UI to hide
@@ -22,7 +22,7 @@ abstract class Controller {
 		}
 
 		return new WP_Error(
-			'ybs_forbidden',
+			'mageyabo_forbidden',
 			__( 'You do not have permission to do this.', 'magepeople-yacht-booking-system' ),
 			array( 'status' => rest_authorization_required_code() )
 		);

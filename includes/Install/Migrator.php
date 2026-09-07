@@ -1,7 +1,7 @@
 <?php
-namespace Ybs\Install;
+namespace MageYaBo\Install;
 
-use Ybs\Capabilities;
+use MageYaBo\Capabilities;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -14,33 +14,33 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Migrator {
 
-	const VERSION_OPTION = 'ybs_db_version';
-	const LOCK_OPTION    = 'ybs_db_migrating';
+	const VERSION_OPTION = 'mageyabo_db_version';
+	const LOCK_OPTION    = 'mageyabo_db_migrating';
 
 	public static function activate() {
 		self::install();
 		Capabilities::install();
 
-		if ( ! wp_next_scheduled( 'ybs_daily_maintenance' ) ) {
-			wp_schedule_event( time(), 'daily', 'ybs_daily_maintenance' );
+		if ( ! wp_next_scheduled( 'mageyabo_daily_maintenance' ) ) {
+			wp_schedule_event( time(), 'daily', 'mageyabo_daily_maintenance' );
 		}
 
 		// CPT/taxonomies are registered on `init`, which has not fired yet
 		// during an activation hook - defer the rewrite flush to the next
 		// normal page load instead of flushing against an empty rewrite set.
-		update_option( 'ybs_flush_rewrite_rules', 1 );
+		update_option( 'mageyabo_flush_rewrite_rules', 1 );
 	}
 
 	public static function deactivate() {
-		wp_clear_scheduled_hook( 'ybs_daily_maintenance' );
+		wp_clear_scheduled_hook( 'mageyabo_daily_maintenance' );
 	}
 
 	/**
 	 * Hooked to `admin_init` (priority 5) on every request; cheap no-op once
-	 * the stored version matches YBS_DB_VERSION.
+	 * the stored version matches MAGEYABO_DB_VERSION.
 	 */
 	public static function maybe_upgrade() {
-		if ( get_option( self::VERSION_OPTION ) === YBS_DB_VERSION ) {
+		if ( get_option( self::VERSION_OPTION ) === MAGEYABO_DB_VERSION ) {
 			return;
 		}
 
@@ -68,7 +68,7 @@ final class Migrator {
 
 		$sql = array();
 
-		$sql[] = "CREATE TABLE {$prefix}ybs_guests (
+		$sql[] = "CREATE TABLE {$prefix}mageyabo_guests (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(191) NOT NULL DEFAULT '',
 			email VARCHAR(191) NOT NULL DEFAULT '',
@@ -81,7 +81,7 @@ final class Migrator {
 			KEY email (email)
 		) {$charset_collate};";
 
-		$sql[] = "CREATE TABLE {$prefix}ybs_bookings (
+		$sql[] = "CREATE TABLE {$prefix}mageyabo_bookings (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			yacht_id BIGINT UNSIGNED NOT NULL,
 			guest_id BIGINT UNSIGNED NOT NULL,
@@ -116,7 +116,7 @@ final class Migrator {
 			KEY start_datetime (start_datetime)
 		) {$charset_collate};";
 
-		$sql[] = "CREATE TABLE {$prefix}ybs_pricing_rules (
+		$sql[] = "CREATE TABLE {$prefix}mageyabo_pricing_rules (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			yacht_id BIGINT UNSIGNED NULL DEFAULT NULL,
 			rule_type VARCHAR(20) NOT NULL DEFAULT 'off_day',
@@ -135,7 +135,7 @@ final class Migrator {
 			KEY rule_type (rule_type)
 		) {$charset_collate};";
 
-		$sql[] = "CREATE TABLE {$prefix}ybs_addons (
+		$sql[] = "CREATE TABLE {$prefix}mageyabo_addons (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			name VARCHAR(191) NOT NULL DEFAULT '',
 			description LONGTEXT NULL,
@@ -146,7 +146,7 @@ final class Migrator {
 			PRIMARY KEY  (id)
 		) {$charset_collate};";
 
-		$sql[] = "CREATE TABLE {$prefix}ybs_yacht_addons (
+		$sql[] = "CREATE TABLE {$prefix}mageyabo_yacht_addons (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			yacht_id BIGINT UNSIGNED NOT NULL,
 			addon_id BIGINT UNSIGNED NOT NULL,
@@ -154,7 +154,7 @@ final class Migrator {
 			UNIQUE KEY yacht_addon (yacht_id, addon_id)
 		) {$charset_collate};";
 
-		$sql[] = "CREATE TABLE {$prefix}ybs_booking_addons (
+		$sql[] = "CREATE TABLE {$prefix}mageyabo_booking_addons (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			booking_id BIGINT UNSIGNED NOT NULL,
 			addon_id BIGINT UNSIGNED NOT NULL,
@@ -164,7 +164,7 @@ final class Migrator {
 			KEY booking_id (booking_id)
 		) {$charset_collate};";
 
-		$sql[] = "CREATE TABLE {$prefix}ybs_email_templates (
+		$sql[] = "CREATE TABLE {$prefix}mageyabo_email_templates (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			template_type VARCHAR(30) NOT NULL DEFAULT '',
 			subject VARCHAR(191) NOT NULL DEFAULT '',
@@ -174,7 +174,7 @@ final class Migrator {
 			PRIMARY KEY  (id)
 		) {$charset_collate};";
 
-		$sql[] = "CREATE TABLE {$prefix}ybs_email_logs (
+		$sql[] = "CREATE TABLE {$prefix}mageyabo_email_logs (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			booking_id BIGINT UNSIGNED NULL DEFAULT NULL,
 			guest_id BIGINT UNSIGNED NULL DEFAULT NULL,
@@ -186,7 +186,7 @@ final class Migrator {
 			PRIMARY KEY  (id)
 		) {$charset_collate};";
 
-		$sql[] = "CREATE TABLE {$prefix}ybs_newsletter_subscribers (
+		$sql[] = "CREATE TABLE {$prefix}mageyabo_newsletter_subscribers (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			email VARCHAR(191) NOT NULL DEFAULT '',
 			subscribed_at DATETIME NOT NULL,
@@ -200,7 +200,7 @@ final class Migrator {
 
 		self::migrate_statuses();
 
-		update_option( self::VERSION_OPTION, YBS_DB_VERSION );
+		update_option( self::VERSION_OPTION, MAGEYABO_DB_VERSION );
 	}
 
 	/**
@@ -215,7 +215,7 @@ final class Migrator {
 			return;
 		}
 
-		$table = $wpdb->prefix . 'ybs_bookings';
+		$table = $wpdb->prefix . 'mageyabo_bookings';
 
 		// One-time status rename on the plugin's own table. No user input in
 		// either statement; $table is a prefixed identifier, which prepare()

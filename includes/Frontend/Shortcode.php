@@ -1,8 +1,8 @@
 <?php
-namespace Ybs\Frontend;
+namespace MageYaBo\Frontend;
 
-use Ybs\PostTypes\Yacht;
-use Ybs\Settings;
+use MageYaBo\PostTypes\Yacht;
+use MageYaBo\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,31 +16,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Shortcode {
 
 	public static function register() {
-		add_shortcode( 'ybs_booking_form', array( __CLASS__, 'render_booking_form' ) );
-		add_shortcode( 'ybs_yacht_search', array( __CLASS__, 'render_search' ) );
-		add_shortcode( 'yacht-list', array( __CLASS__, 'render_yacht_list' ) );
+		add_shortcode( 'mageyabo_booking_form', array( __CLASS__, 'render_booking_form' ) );
+		add_shortcode( 'mageyabo_yacht_search', array( __CLASS__, 'render_search' ) );
+		add_shortcode( 'mageyabo_yacht_list', array( __CLASS__, 'render_yacht_list' ) );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'register_assets' ) );
 		add_filter( 'the_content', array( __CLASS__, 'append_to_single_yacht' ) );
 	}
 
 	public static function register_assets() {
-		$asset_file = YBS_PLUGIN_DIR . 'assets/build/frontend.asset.php';
-		$asset      = file_exists( $asset_file ) ? require $asset_file : array( 'dependencies' => array(), 'version' => YBS_VERSION );
+		$asset_file = MAGEYABO_PLUGIN_DIR . 'assets/build/frontend.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array( 'dependencies' => array(), 'version' => MAGEYABO_VERSION );
 
-		wp_register_style( 'ybs-leaflet', YBS_PLUGIN_URL . 'assets/frontend/vendor/leaflet/leaflet.css', array(), '1.9.4' );
-		wp_register_script( 'ybs-leaflet', YBS_PLUGIN_URL . 'assets/frontend/vendor/leaflet/leaflet.js', array(), '1.9.4', true );
+		wp_register_style( 'mageyabo-leaflet', MAGEYABO_PLUGIN_URL . 'assets/frontend/vendor/leaflet/leaflet.css', array(), '1.9.4' );
+		wp_register_script( 'mageyabo-leaflet', MAGEYABO_PLUGIN_URL . 'assets/frontend/vendor/leaflet/leaflet.js', array(), '1.9.4', true );
 
-		wp_register_script( 'ybs-frontend', YBS_PLUGIN_URL . 'assets/build/frontend.js', array_merge( $asset['dependencies'], array( 'ybs-leaflet' ) ), $asset['version'], true );
-		wp_register_style( 'ybs-frontend', YBS_PLUGIN_URL . 'assets/build/style-frontend.css', array( 'ybs-leaflet', 'dashicons' ), $asset['version'] );
+		wp_register_script( 'mageyabo-frontend', MAGEYABO_PLUGIN_URL . 'assets/build/frontend.js', array_merge( $asset['dependencies'], array( 'mageyabo-leaflet' ) ), $asset['version'], true );
+		wp_register_style( 'mageyabo-frontend', MAGEYABO_PLUGIN_URL . 'assets/build/style-frontend.css', array( 'mageyabo-leaflet', 'dashicons' ), $asset['version'] );
 
 		wp_localize_script(
-			'ybs-frontend',
-			'ybsFrontendConfig',
+			'mageyabo-frontend',
+			'mageyaboFrontendConfig',
 			array(
-				'restRoot' => esc_url_raw( rest_url( 'ybs/v1/' ) ),
+				'restRoot' => esc_url_raw( rest_url( 'mageyabo/v1/' ) ),
 				'nonce'    => wp_create_nonce( 'wp_rest' ),
 				'currency' => Settings::get( 'currency_symbol', '$' ),
-				'gateways' => \Ybs\Payments\Gateways::available(),
+				'gateways' => \MageYaBo\Payments\Gateways::available(),
 				'i18n'     => array(
 					'selectYacht'   => __( 'Select a yacht', 'magepeople-yacht-booking-system' ),
 					'loading'       => __( 'Loading…', 'magepeople-yacht-booking-system' ),
@@ -69,14 +69,14 @@ class Shortcode {
 	}
 
 	public static function render_booking_form( $atts ) {
-		$atts = shortcode_atts( array( 'yacht_id' => 0 ), $atts, 'ybs_booking_form' );
+		$atts = shortcode_atts( array( 'yacht_id' => 0 ), $atts, 'mageyabo_booking_form' );
 
-		wp_enqueue_script( 'ybs-frontend' );
-		wp_enqueue_style( 'ybs-frontend' );
+		wp_enqueue_script( 'mageyabo-frontend' );
+		wp_enqueue_style( 'mageyabo-frontend' );
 
 		$yacht_id  = (int) $atts['yacht_id'];
-		$yacht_mode = $yacht_id ? ( get_post_meta( $yacht_id, 'booking_mode', true ) ?: 'full' ) : '';
-		$capacity  = $yacht_id ? (int) get_post_meta( $yacht_id, 'capacity', true ) : 0;
+		$yacht_mode = $yacht_id ? ( get_post_meta( $yacht_id, 'mageyabo_booking_mode', true ) ?: 'full' ) : '';
+		$capacity  = $yacht_id ? (int) get_post_meta( $yacht_id, 'mageyabo_capacity', true ) : 0;
 		$yachts    = $yacht_id ? array() : get_posts(
 			array(
 				'post_type'      => Yacht::POST_TYPE,
@@ -90,8 +90,8 @@ class Shortcode {
 		// hidden linked product instead of the REST booking endpoint.
 		$wc_product_id = 0;
 
-		if ( $yacht_id && \Ybs\Payments\WooCommerceGateway::is_active() ) {
-			$wc_product_id = (int) \Ybs\Payments\WooCommerceProduct::get_product_id( $yacht_id );
+		if ( $yacht_id && \MageYaBo\Payments\WooCommerceGateway::is_active() ) {
+			$wc_product_id = (int) \MageYaBo\Payments\WooCommerceProduct::get_product_id( $yacht_id );
 		}
 
 		ob_start();
@@ -109,12 +109,12 @@ class Shortcode {
 				data-capacity="<?php echo esc_attr( $capacity ); ?>"
 				<?php echo $yacht_mode ? 'data-ybs-mode="' . esc_attr( $yacht_mode ) . '"' : ''; ?>
 			>
-				<input type="hidden" name="ybs_yacht_id" value="<?php echo esc_attr( $yacht_id ); ?>" />
-				<input type="hidden" name="ybs_booking_type" value="hourly" />
-				<input type="hidden" name="ybs_booking_mode" value="<?php echo esc_attr( 'both' === $yacht_mode ? 'full' : $yacht_mode ); ?>" />
-				<input type="hidden" name="ybs_start_datetime" value="" />
-				<input type="hidden" name="ybs_end_datetime" value="" />
-				<input type="hidden" name="ybs_guest_count" value="1" />
+				<input type="hidden" name="mageyabo_yacht_id" value="<?php echo esc_attr( $yacht_id ); ?>" />
+				<input type="hidden" name="mageyabo_booking_type" value="hourly" />
+				<input type="hidden" name="mageyabo_booking_mode" value="<?php echo esc_attr( 'both' === $yacht_mode ? 'full' : $yacht_mode ); ?>" />
+				<input type="hidden" name="mageyabo_start_datetime" value="" />
+				<input type="hidden" name="mageyabo_end_datetime" value="" />
+				<input type="hidden" name="mageyabo_guest_count" value="1" />
 		<?php else : ?>
 			<div class="ybs-booking-form" data-ybs-booking-form data-yacht-id="<?php echo esc_attr( $yacht_id ); ?>" data-capacity="<?php echo esc_attr( $capacity ); ?>"<?php echo $yacht_mode ? ' data-ybs-mode="' . esc_attr( $yacht_mode ) . '"' : ''; ?>>
 		<?php endif; ?>
@@ -135,7 +135,7 @@ class Shortcode {
 					<select class="ybs-bf-yacht">
 						<option value=""><?php esc_html_e( 'Select a yacht', 'magepeople-yacht-booking-system' ); ?></option>
 						<?php foreach ( $yachts as $yacht ) : ?>
-							<option value="<?php echo esc_attr( $yacht->ID ); ?>" data-capacity="<?php echo esc_attr( (int) get_post_meta( $yacht->ID, 'capacity', true ) ); ?>"><?php echo esc_html( $yacht->post_title ); ?></option>
+							<option value="<?php echo esc_attr( $yacht->ID ); ?>" data-capacity="<?php echo esc_attr( (int) get_post_meta( $yacht->ID, 'mageyabo_capacity', true ) ); ?>"><?php echo esc_html( $yacht->post_title ); ?></option>
 						<?php endforeach; ?>
 					</select>
 				</div>
@@ -181,15 +181,15 @@ class Shortcode {
 				<div class="ybs-field-row">
 					<div class="ybs-field">
 						<label><?php esc_html_e( 'Full Name', 'magepeople-yacht-booking-system' ); ?></label>
-						<input type="text" name="ybs_name" class="ybs-bf-name" required />
+						<input type="text" name="mageyabo_name" class="ybs-bf-name" required />
 					</div>
 					<div class="ybs-field">
 						<label><?php esc_html_e( 'Email', 'magepeople-yacht-booking-system' ); ?></label>
-						<input type="email" name="ybs_email" class="ybs-bf-email" required />
+						<input type="email" name="mageyabo_email" class="ybs-bf-email" required />
 					</div>
 					<div class="ybs-field">
 						<label><?php esc_html_e( 'Phone', 'magepeople-yacht-booking-system' ); ?></label>
-						<input type="text" name="ybs_phone" class="ybs-bf-phone" required />
+						<input type="text" name="mageyabo_phone" class="ybs-bf-phone" required />
 					</div>
 				</div>
 
@@ -200,7 +200,7 @@ class Shortcode {
 
 				<div class="ybs-field">
 					<label>
-						<input type="checkbox" class="ybs-bf-terms" name="ybs_terms" value="1" required />
+						<input type="checkbox" class="ybs-bf-terms" name="mageyabo_terms" value="1" required />
 						<?php esc_html_e( 'I accept the terms and conditions.', 'magepeople-yacht-booking-system' ); ?>
 					</label>
 				</div>
@@ -222,11 +222,11 @@ class Shortcode {
 	}
 
 	public static function render_search( $atts ) {
-		wp_enqueue_script( 'ybs-frontend' );
-		wp_enqueue_style( 'ybs-frontend' );
+		wp_enqueue_script( 'mageyabo-frontend' );
+		wp_enqueue_style( 'mageyabo-frontend' );
 
-		$classes   = get_terms( array( 'taxonomy' => 'yacht_class', 'hide_empty' => false ) );
-		$occasions = get_terms( array( 'taxonomy' => 'yacht_occasion', 'hide_empty' => false ) );
+		$classes   = get_terms( array( 'taxonomy' => 'mageyabo_yacht_class', 'hide_empty' => false ) );
+		$occasions = get_terms( array( 'taxonomy' => 'mageyabo_yacht_occasion', 'hide_empty' => false ) );
 
 		ob_start();
 		?>
@@ -275,7 +275,7 @@ class Shortcode {
 	}
 
 	/**
-	 * `[yacht-list search="yes"]` - a fleet search/listing page styled after
+	 * `[mageyabo_yacht_list search="yes"]` - a fleet search/listing page styled after
 	 * the class-pill filter bar + photo-count-badged card grid pattern seen
 	 * on dubaiyachtbooking.com's fleet page. `search="no"` renders just the
 	 * grid (e.g. for a "Similar Yachts" style embed without the filter bar).
@@ -287,15 +287,15 @@ class Shortcode {
 				'per_page' => 9,
 			),
 			$atts,
-			'yacht-list'
+			'mageyabo_yacht_list'
 		);
 
-		wp_enqueue_script( 'ybs-frontend' );
-		wp_enqueue_style( 'ybs-frontend' );
-		wp_enqueue_style( 'ybs-yl-font' );
+		wp_enqueue_script( 'mageyabo-frontend' );
+		wp_enqueue_style( 'mageyabo-frontend' );
+		wp_enqueue_style( 'mageyabo-yl-font' );
 
 		$show_search = 'yes' === $atts['search'] || '1' === (string) $atts['search'];
-		$classes     = get_terms( array( 'taxonomy' => 'yacht_class', 'hide_empty' => false ) );
+		$classes     = get_terms( array( 'taxonomy' => 'mageyabo_yacht_class', 'hide_empty' => false ) );
 		$currency    = Settings::get( 'currency_symbol', '$' );
 
 		// value = "min-max" ("" max means no ceiling) - parsed by yacht-list.js
@@ -398,23 +398,23 @@ class Shortcode {
 		$yacht_id = get_the_ID();
 		$currency = Settings::get( 'currency_symbol', '$' );
 
-		$capacity      = (int) get_post_meta( $yacht_id, 'capacity', true );
-		$cabins        = (int) get_post_meta( $yacht_id, 'cabins', true );
-		$crew          = (int) get_post_meta( $yacht_id, 'crew_size', true );
-		$length        = get_post_meta( $yacht_id, 'length', true );
-		$build_year    = get_post_meta( $yacht_id, 'build_year', true );
-		$location_name = get_post_meta( $yacht_id, 'location_name', true );
-		$lat           = get_post_meta( $yacht_id, 'location_lat', true );
-		$lng           = get_post_meta( $yacht_id, 'location_lng', true );
-		$included      = get_post_meta( $yacht_id, 'included_items', true );
-		$faq           = get_post_meta( $yacht_id, 'faq', true );
-		$gallery_ids   = get_post_meta( $yacht_id, 'gallery', true );
-		$classes       = wp_get_post_terms( $yacht_id, 'yacht_class' );
-		$occasions     = wp_get_post_terms( $yacht_id, 'yacht_occasion' );
+		$capacity      = (int) get_post_meta( $yacht_id, 'mageyabo_capacity', true );
+		$cabins        = (int) get_post_meta( $yacht_id, 'mageyabo_cabins', true );
+		$crew          = (int) get_post_meta( $yacht_id, 'mageyabo_crew_size', true );
+		$length        = get_post_meta( $yacht_id, 'mageyabo_length', true );
+		$build_year    = get_post_meta( $yacht_id, 'mageyabo_build_year', true );
+		$location_name = get_post_meta( $yacht_id, 'mageyabo_location_name', true );
+		$lat           = get_post_meta( $yacht_id, 'mageyabo_location_lat', true );
+		$lng           = get_post_meta( $yacht_id, 'mageyabo_location_lng', true );
+		$included      = get_post_meta( $yacht_id, 'mageyabo_included_items', true );
+		$faq           = get_post_meta( $yacht_id, 'mageyabo_faq', true );
+		$gallery_ids   = get_post_meta( $yacht_id, 'mageyabo_gallery', true );
+		$classes       = wp_get_post_terms( $yacht_id, 'mageyabo_yacht_class' );
+		$occasions     = wp_get_post_terms( $yacht_id, 'mageyabo_yacht_occasion' );
 		$rates         = self::yacht_rates( $yacht_id );
 
-		wp_enqueue_script( 'ybs-frontend' );
-		wp_enqueue_style( 'ybs-frontend' );
+		wp_enqueue_script( 'mageyabo-frontend' );
+		wp_enqueue_style( 'mageyabo-frontend' );
 
 		$gallery_ids = is_array( $gallery_ids ) ? array_filter( array_map( 'intval', $gallery_ids ) ) : array();
 		$thumb_id    = get_post_thumbnail_id( $yacht_id );
@@ -609,7 +609,7 @@ class Shortcode {
 	 * have fixed windows; hourly and multi-day don't) - shared by the charter
 	 * rates table, the sidebar summary, and "similar yachts" price tags.
 	 */
-	private static function yacht_rates( $yacht_id, $meta_prefix = 'base_price_' ) {
+	private static function yacht_rates( $yacht_id, $meta_prefix = 'mageyabo_base_price_' ) {
 		$windows = Yacht::time_windows( $yacht_id );
 
 		$defs = array(
@@ -660,7 +660,7 @@ class Shortcode {
 				'posts_per_page' => 5,
 				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 					array(
-						'taxonomy' => 'yacht_class',
+						'taxonomy' => 'mageyabo_yacht_class',
 						'field'    => 'term_id',
 						'terms'    => $class_ids,
 					),

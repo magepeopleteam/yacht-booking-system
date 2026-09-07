@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
 /**
- * Kept in sync by hand with `Ybs\Notifications\BookingEmailer::build_tags()` -
+ * Kept in sync by hand with `MageYaBo\Notifications\BookingEmailer::build_tags()` -
  * every tag here must have a matching replacement on the PHP side.
  */
 export const EMAIL_TAGS = [

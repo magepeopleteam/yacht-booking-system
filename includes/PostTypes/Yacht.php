@@ -1,7 +1,7 @@
 <?php
-namespace Ybs\PostTypes;
+namespace MageYaBo\PostTypes;
 
-use Ybs\Capabilities;
+use MageYaBo\Capabilities;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -14,10 +14,18 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Yacht {
 
-	const POST_TYPE = 'yacht';
+	const POST_TYPE = 'mageyabo_yacht';
 
 	/**
-	 * Every postmeta key the wizard's four steps read/write, per spec section 3.
+	 * Storage prefix for every postmeta key this plugin owns, so the keys
+	 * cannot collide with another plugin's meta on the same post.
+	 */
+	const META_PREFIX = 'mageyabo_';
+
+	/**
+	 * The logical names of every postmeta field the wizard's four steps
+	 * read/write. These are the keys used in the REST payload; the values are
+	 * stored under META_PREFIX . $key - see meta_key().
 	 */
 	const META_KEYS = array(
 		'capacity',
@@ -64,6 +72,15 @@ class Yacht {
 		'cta_disabled',
 	);
 
+	/**
+	 * Maps a logical field name to the prefixed key it is stored under.
+	 *
+	 * @param string $logical One of META_KEYS.
+	 */
+	public static function meta_key( $logical ) {
+		return self::META_PREFIX . $logical;
+	}
+
 	public static function register() {
 		register_post_type(
 			self::POST_TYPE,
@@ -87,7 +104,7 @@ class Yacht {
 				'rewrite'       => array( 'slug' => 'yachts' ),
 				'supports'      => array( 'title', 'editor', 'thumbnail', 'excerpt' ),
 				'menu_icon'     => 'dashicons-palmtree',
-				'capability_type' => array( 'yacht', 'yachts' ),
+				'capability_type' => array( 'mageyabo_yacht', 'mageyabo_yachts' ),
 				'map_meta_cap'  => true,
 			)
 		);
@@ -114,7 +131,7 @@ class Yacht {
 
 			register_post_meta(
 				self::POST_TYPE,
-				$key,
+				self::meta_key( $key ),
 				array(
 					'single'        => true,
 					'show_in_rest'  => $show_in_rest,
@@ -147,10 +164,10 @@ class Yacht {
 		);
 
 		$meta_keys = array(
-			'half_day'     => array( 'halfday_start_time', 'halfday_end_time' ),
-			'morning_slot' => array( 'morning_slot_start', 'morning_slot_end' ),
-			'evening_slot' => array( 'evening_slot_start', 'evening_slot_end' ),
-			'daily'        => array( 'daily_start_time', 'daily_end_time' ),
+			'half_day'     => array( 'mageyabo_halfday_start_time', 'mageyabo_halfday_end_time' ),
+			'morning_slot' => array( 'mageyabo_morning_slot_start', 'mageyabo_morning_slot_end' ),
+			'evening_slot' => array( 'mageyabo_evening_slot_start', 'mageyabo_evening_slot_end' ),
+			'daily'        => array( 'mageyabo_daily_start_time', 'mageyabo_daily_end_time' ),
 		);
 
 		$windows = array();

@@ -1,7 +1,7 @@
 <?php
-namespace Ybs\Rest;
+namespace MageYaBo\Rest;
 
-use Ybs\Booking\PricingRuleRepository;
+use MageYaBo\Booking\PricingRuleRepository;
 use WP_REST_Server;
 use WP_REST_Request;
 use WP_Error;
@@ -68,7 +68,7 @@ class PricingRulesController extends Controller {
 		$id = (int) $request['id'];
 
 		if ( ! PricingRuleRepository::find( $id ) ) {
-			return new WP_Error( 'ybs_not_found', __( 'Pricing rule not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
+			return new WP_Error( 'mageyabo_not_found', __( 'Pricing rule not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
 		}
 
 		PricingRuleRepository::update( $id, (array) $request->get_json_params() );

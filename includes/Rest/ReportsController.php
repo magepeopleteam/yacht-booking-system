@@ -1,8 +1,8 @@
 <?php
-namespace Ybs\Rest;
+namespace MageYaBo\Rest;
 
-use Ybs\Booking\BookingRepository;
-use Ybs\PostTypes\Yacht;
+use MageYaBo\Booking\BookingRepository;
+use MageYaBo\PostTypes\Yacht;
 use WP_REST_Server;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -31,13 +31,13 @@ class ReportsController extends Controller {
 		$counts = BookingRepository::counts_for_dashboard();
 
 		$counts['active_yachts']   = (int) wp_count_posts( Yacht::POST_TYPE )->publish;
-		$counts['currency_symbol'] = \Ybs\Settings::get( 'currency_symbol', '$' );
+		$counts['currency_symbol'] = \MageYaBo\Settings::get( 'currency_symbol', '$' );
 
 		/**
 		 * Filters the dashboard summary payload.
 		 *
 		 * @param array $counts Summary values keyed by metric.
 		 */
-		return rest_ensure_response( apply_filters( 'ybs_reports_summary', $counts ) );
+		return rest_ensure_response( apply_filters( 'mageyabo_reports_summary', $counts ) );
 	}
 }

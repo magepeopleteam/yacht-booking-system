@@ -28,7 +28,7 @@ export function initNewsletter() {
 
 		form.addEventListener( 'submit', async ( event ) => {
 			event.preventDefault();
-			const config = window.ybsFrontendConfig;
+			const config = window.mageyaboFrontendConfig;
 			const email = form.querySelector( '.ybs-newsletter__input' ).value;
 
 			try {

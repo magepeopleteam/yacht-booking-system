@@ -12,7 +12,7 @@ import { toast } from './Toast';
  * their current in-memory subject/body/sender fields.
  */
 export default function TestEmailModal({ subject, body, fromName, fromEmail, onRequestClose }) {
-	const [to, setTo] = useState(window.ybsAdminConfig?.adminEmail || '');
+	const [to, setTo] = useState(window.mageyaboAdminConfig?.adminEmail || '');
 	const [sending, setSending] = useState(false);
 
 	const send = () => {

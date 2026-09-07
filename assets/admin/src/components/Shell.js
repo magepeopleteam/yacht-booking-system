@@ -13,7 +13,7 @@ const BUILTIN_NAV = [
 ];
 
 function extraNav() {
-	const config = window.ybsAdminConfig || {};
+	const config = window.mageyaboAdminConfig || {};
 	return Array.isArray(config.extraRoutes) ? config.extraRoutes : [];
 }
 
@@ -53,7 +53,7 @@ export default function Shell({ active, children }) {
 					))}
 				</ul>
 
-				<a className="ybs-shell-rail__back" href={window.ybsAdminConfig?.adminUrl || '#'}>
+				<a className="ybs-shell-rail__back" href={window.mageyaboAdminConfig?.adminUrl || '#'}>
 					<span className="dashicons dashicons-arrow-left-alt2" />
 					{__('Back to WordPress', 'magepeople-yacht-booking-system')}
 				</a>

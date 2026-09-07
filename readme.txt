@@ -50,9 +50,9 @@ Sell the whole yacht as a private charter, or sell it by the seat for shared tri
 
 = Frontend =
 
-* `[yacht-list search="yes"]` — searchable, filterable fleet listing with grid and list views
-* `[ybs_booking_form]` — booking form with live price calculation
-* `[ybs_yacht_search]` — yacht search with date, guest, class, occasion and price filters
+* `[mageyabo_yacht_list search="yes"]` — searchable, filterable fleet listing with grid and list views
+* `[mageyabo_booking_form]` — booking form with live price calculation
+* `[mageyabo_yacht_search]` — yacht search with date, guest, class, occasion and price filters
 * A premium single-yacht details page template, overridable from your theme
 * Gutenberg block for the booking form
 
@@ -123,7 +123,7 @@ This plugin bundles [Leaflet](https://leafletjs.com/) (BSD-2-Clause) for its map
 2. Activate the plugin through the **Plugins** menu in WordPress.
 3. Go to **Yacht Booking → Settings** and set your currency, tax rate and payment method.
 4. Go to **Yacht Booking → Yachts → Add New Yacht** and add your first yacht.
-5. Put `[yacht-list search="yes"]` on a page to show your fleet.
+5. Put `[mageyabo_yacht_list search="yes"]` on a page to show your fleet.
 
 == Frequently Asked Questions ==
 

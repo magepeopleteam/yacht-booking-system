@@ -1,25 +1,25 @@
 <?php
-namespace Ybs;
+namespace MageYaBo;
 
-use Ybs\Admin\Menu;
-use Ybs\Booking\AvailabilityService;
-use Ybs\Cron\Maintenance;
-use Ybs\Frontend\Block;
-use Ybs\Frontend\Newsletter;
-use Ybs\Frontend\Shortcode;
-use Ybs\Frontend\Templates;
-use Ybs\Install\Migrator;
-use Ybs\Notifications\BookingEmailer;
-use Ybs\Payments\Gateways;
-use Ybs\PostTypes\Yacht;
-use Ybs\Rest\BookingsController;
-use Ybs\Rest\GuestsController;
-use Ybs\Rest\PricingRulesController;
-use Ybs\Rest\ReportsController;
-use Ybs\Rest\SettingsController;
-use Ybs\Rest\YachtsController;
-use Ybs\Taxonomies\YachtClass;
-use Ybs\Taxonomies\YachtOccasion;
+use MageYaBo\Admin\Menu;
+use MageYaBo\Booking\AvailabilityService;
+use MageYaBo\Cron\Maintenance;
+use MageYaBo\Frontend\Block;
+use MageYaBo\Frontend\Newsletter;
+use MageYaBo\Frontend\Shortcode;
+use MageYaBo\Frontend\Templates;
+use MageYaBo\Install\Migrator;
+use MageYaBo\Notifications\BookingEmailer;
+use MageYaBo\Payments\Gateways;
+use MageYaBo\PostTypes\Yacht;
+use MageYaBo\Rest\BookingsController;
+use MageYaBo\Rest\GuestsController;
+use MageYaBo\Rest\PricingRulesController;
+use MageYaBo\Rest\ReportsController;
+use MageYaBo\Rest\SettingsController;
+use MageYaBo\Rest\YachtsController;
+use MageYaBo\Taxonomies\YachtClass;
+use MageYaBo\Taxonomies\YachtOccasion;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -68,11 +68,11 @@ final class Plugin {
 		add_action( 'rest_api_init', array( ReportsController::class, 'register_routes' ) );
 
 		/**
-		 * Add-ons and site code can register additional `ybs/v1` routes here -
+		 * Add-ons and site code can register additional `mageyabo/v1` routes here -
 		 * e.g. `/guests/{id}` edit/delete, `/tickets/{id}/pdf`.
 		 */
 		add_action( 'rest_api_init', function () {
-			do_action( 'ybs_rest_namespace_routes' );
+			do_action( 'mageyabo_rest_namespace_routes' );
 		}, 20 );
 
 		AvailabilityService::register();
@@ -86,9 +86,9 @@ final class Plugin {
 	}
 
 	public function maybe_flush_rewrite_rules(): void {
-		if ( get_option( 'ybs_flush_rewrite_rules' ) ) {
+		if ( get_option( 'mageyabo_flush_rewrite_rules' ) ) {
 			flush_rewrite_rules();
-			delete_option( 'ybs_flush_rewrite_rules' );
+			delete_option( 'mageyabo_flush_rewrite_rules' );
 		}
 	}
 }

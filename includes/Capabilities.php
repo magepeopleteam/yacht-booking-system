@@ -1,5 +1,5 @@
 <?php
-namespace Ybs;
+namespace MageYaBo;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -8,21 +8,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Central capability gate. Every REST route and admin screen checks through
  * here rather than hardcoding `manage_options`, so a site can reassign who
- * runs the booking desk without touching code (`ybs_admin_capability` /
- * `ybs_user_can` filters).
+ * runs the booking desk without touching code (`mageyabo_admin_capability` /
+ * `mageyabo_user_can` filters).
  */
 class Capabilities {
 
-	const CAP_BOOKINGS = 'manage_ybs_bookings';
-	const CAP_SETTINGS = 'manage_ybs_settings';
-	const CAP_PAYMENTS = 'manage_ybs_payments';
+	const CAP_BOOKINGS = 'manage_mageyabo_bookings';
+	const CAP_SETTINGS = 'manage_mageyabo_settings';
+	const CAP_PAYMENTS = 'manage_mageyabo_payments';
 
-	const ROLE_MANAGER = 'ybs_yacht_manager';
-	const ROLE_STAFF   = 'ybs_yacht_staff';
+	const ROLE_MANAGER = 'mageyabo_yacht_manager';
+	const ROLE_STAFF   = 'mageyabo_yacht_staff';
 
 	/**
-	 * The `yacht` post type declares `capability_type => array( 'yacht',
-	 * 'yachts' )` with `map_meta_cap`, so WordPress maps every yacht meta cap
+	 * The `mageyabo_yacht` post type declares `capability_type => array(
+	 * 'mageyabo_yacht', 'mageyabo_yachts' )` with `map_meta_cap`, so
+	 * WordPress maps every yacht meta cap
 	 * onto these names. They must be granted explicitly - otherwise nothing,
 	 * not even an administrator, can edit a yacht through any core code path.
 	 *
@@ -30,19 +31,19 @@ class Capabilities {
 	 */
 	public static function yacht_post_caps() {
 		return array(
-			'edit_yacht',
-			'read_yacht',
-			'delete_yacht',
-			'edit_yachts',
-			'edit_others_yachts',
-			'publish_yachts',
-			'read_private_yachts',
-			'delete_yachts',
-			'delete_private_yachts',
-			'delete_published_yachts',
-			'delete_others_yachts',
-			'edit_private_yachts',
-			'edit_published_yachts',
+			'edit_mageyabo_yacht',
+			'read_mageyabo_yacht',
+			'delete_mageyabo_yacht',
+			'edit_mageyabo_yachts',
+			'edit_others_mageyabo_yachts',
+			'publish_mageyabo_yachts',
+			'read_private_mageyabo_yachts',
+			'delete_mageyabo_yachts',
+			'delete_private_mageyabo_yachts',
+			'delete_published_mageyabo_yachts',
+			'delete_others_mageyabo_yachts',
+			'edit_private_mageyabo_yachts',
+			'edit_published_mageyabo_yachts',
 		);
 	}
 
@@ -50,7 +51,7 @@ class Capabilities {
 	 * The capability that always grants access, overridable per site.
 	 */
 	public static function admin_capability() {
-		return (string) apply_filters( 'ybs_admin_capability', 'manage_options' );
+		return (string) apply_filters( 'mageyabo_admin_capability', 'manage_options' );
 	}
 
 	/**
@@ -69,7 +70,7 @@ class Capabilities {
 			$capability = self::CAP_PAYMENTS;
 		}
 
-		return (bool) apply_filters( 'ybs_user_can', current_user_can( $capability ), $area );
+		return (bool) apply_filters( 'mageyabo_user_can', current_user_can( $capability ), $area );
 	}
 
 	/**

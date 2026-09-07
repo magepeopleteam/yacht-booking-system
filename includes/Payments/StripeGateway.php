@@ -1,8 +1,8 @@
 <?php
-namespace Ybs\Payments;
+namespace MageYaBo\Payments;
 
-use Ybs\Booking\BookingRepository;
-use Ybs\Settings;
+use MageYaBo\Booking\BookingRepository;
+use MageYaBo\Settings;
 use WP_REST_Server;
 use WP_REST_Request;
 
@@ -22,8 +22,8 @@ class StripeGateway {
 	const API_BASE = 'https://api.stripe.com/v1';
 
 	public static function register() {
-		add_filter( 'ybs_payment_gateways', array( __CLASS__, 'declare_self' ) );
-		add_filter( 'ybs_payment_start', array( __CLASS__, 'start' ), 10, 3 );
+		add_filter( 'mageyabo_payment_gateways', array( __CLASS__, 'declare_self' ) );
+		add_filter( 'mageyabo_payment_start', array( __CLASS__, 'start' ), 10, 3 );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_webhook_route' ) );
 	}
 
@@ -44,19 +44,19 @@ class StripeGateway {
 		$booking = BookingRepository::find( $booking_id );
 
 		if ( ! $booking ) {
-			return new \WP_Error( 'ybs_booking_missing', __( 'Booking could not be found.', 'magepeople-yacht-booking-system' ) );
+			return new \WP_Error( 'mageyabo_booking_missing', __( 'Booking could not be found.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		$secret_key = Settings::get( 'stripe_secret_key' );
 
 		if ( ! $secret_key ) {
-			return new \WP_Error( 'ybs_stripe_not_configured', __( 'Stripe is not configured.', 'magepeople-yacht-booking-system' ) );
+			return new \WP_Error( 'mageyabo_stripe_not_configured', __( 'Stripe is not configured.', 'magepeople-yacht-booking-system' ) );
 		}
 
 		$body = array(
 			'mode'                              => 'payment',
-			'success_url'                       => add_query_arg( array( 'ybs_booking' => $booking_id, 'ybs_payment' => 'success' ), home_url( '/' ) ),
-			'cancel_url'                        => add_query_arg( array( 'ybs_booking' => $booking_id, 'ybs_payment' => 'cancelled' ), home_url( '/' ) ),
+			'success_url'                       => add_query_arg( array( 'mageyabo_booking' => $booking_id, 'mageyabo_payment' => 'success' ), home_url( '/' ) ),
+			'cancel_url'                        => add_query_arg( array( 'mageyabo_booking' => $booking_id, 'mageyabo_payment' => 'cancelled' ), home_url( '/' ) ),
 			'line_items' => array(
 				array(
 					'quantity'   => 1,
@@ -86,14 +86,14 @@ class StripeGateway {
 		);
 
 		if ( is_wp_error( $response ) ) {
-			return new \WP_Error( 'ybs_stripe_error', $response->get_error_message() );
+			return new \WP_Error( 'mageyabo_stripe_error', $response->get_error_message() );
 		}
 
 		$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( empty( $data['url'] ) ) {
 			$message = $data['error']['message'] ?? __( 'Stripe did not return a checkout URL.', 'magepeople-yacht-booking-system' );
-			return new \WP_Error( 'ybs_stripe_error', $message );
+			return new \WP_Error( 'mageyabo_stripe_error', $message );
 		}
 
 		BookingRepository::update_payment( $booking_id, 'unpaid', array( 'transaction_ref' => sanitize_text_field( $data['id'] ) ) );
@@ -103,7 +103,7 @@ class StripeGateway {
 
 	public static function register_webhook_route() {
 		register_rest_route(
-			'ybs/v1',
+			'mageyabo/v1',
 			'/payments/stripe/webhook',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
@@ -119,7 +119,7 @@ class StripeGateway {
 		$secret    = Settings::get( 'stripe_webhook_secret' );
 
 		if ( ! $secret || ! $signature || ! self::verify_signature( $payload, $signature, $secret ) ) {
-			return new \WP_Error( 'ybs_stripe_invalid_signature', 'Invalid Stripe signature.', array( 'status' => 400 ) );
+			return new \WP_Error( 'mageyabo_stripe_invalid_signature', 'Invalid Stripe signature.', array( 'status' => 400 ) );
 		}
 
 		$event = json_decode( $payload, true );

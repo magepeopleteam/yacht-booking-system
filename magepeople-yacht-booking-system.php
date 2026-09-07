@@ -20,17 +20,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'YBS_VERSION', '1.0.0' );
-define( 'YBS_DB_VERSION', '2' );
-define( 'YBS_PLUGIN_FILE', __FILE__ );
-define( 'YBS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'YBS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'YBS_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+define( 'MAGEYABO_VERSION', '1.0.0' );
+define( 'MAGEYABO_DB_VERSION', '2' );
+define( 'MAGEYABO_PLUGIN_FILE', __FILE__ );
+define( 'MAGEYABO_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'MAGEYABO_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'MAGEYABO_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
-$ybs_autoload = YBS_PLUGIN_DIR . 'vendor/autoload.php';
+$mageyabo_autoload = MAGEYABO_PLUGIN_DIR . 'vendor/autoload.php';
 
-if ( file_exists( $ybs_autoload ) ) {
-	require_once $ybs_autoload;
+if ( file_exists( $mageyabo_autoload ) ) {
+	require_once $mageyabo_autoload;
 } else {
 	add_action(
 		'admin_notices',
@@ -43,7 +43,7 @@ if ( file_exists( $ybs_autoload ) ) {
 	return;
 }
 
-register_activation_hook( __FILE__, array( '\Ybs\Install\Migrator', 'activate' ) );
-register_deactivation_hook( __FILE__, array( '\Ybs\Install\Migrator', 'deactivate' ) );
+register_activation_hook( __FILE__, array( '\MageYaBo\Install\Migrator', 'activate' ) );
+register_deactivation_hook( __FILE__, array( '\MageYaBo\Install\Migrator', 'deactivate' ) );
 
-\Ybs\Plugin::instance()->boot();
+\MageYaBo\Plugin::instance()->boot();

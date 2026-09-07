@@ -3,7 +3,7 @@ function pad( n ) {
 }
 
 async function renderMonth( root, year, month ) {
-	const config = window.ybsFrontendConfig;
+	const config = window.mageyaboFrontendConfig;
 	const yachtId = root.dataset.yachtId;
 	const grid = root.querySelector( '.ybs-availability-calendar__grid' );
 	const label = root.querySelector( '.ybs-availability-calendar__label' );

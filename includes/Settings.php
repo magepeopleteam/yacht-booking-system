@@ -1,18 +1,18 @@
 <?php
-namespace Ybs;
+namespace MageYaBo;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * A single grouped option (`ybs_settings`) rather than one option per field -
+ * A single grouped option (`mageyabo_settings`) rather than one option per field -
  * cheap to read as a whole (Settings screen, price calc, gateway dispatch all
  * want the full set) while still being one `update_option()` call to save.
  */
 class Settings {
 
-	const OPTION = 'ybs_settings';
+	const OPTION = 'mageyabo_settings';
 
 	public static function defaults(): array {
 		return array(

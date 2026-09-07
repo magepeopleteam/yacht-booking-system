@@ -67,7 +67,7 @@ function toggleFields( form ) {
 
 function populatePaymentMethods( form ) {
 	const select = form.querySelector( '.ybs-bf-payment' );
-	const gateways = ( window.ybsFrontendConfig && window.ybsFrontendConfig.gateways ) || {};
+	const gateways = ( window.mageyaboFrontendConfig && window.mageyaboFrontendConfig.gateways ) || {};
 
 	select.innerHTML = '';
 
@@ -163,11 +163,11 @@ function updateHiddenFields( form ) {
 		}
 	};
 
-	set( 'ybs_booking_type', form.querySelector( '.ybs-bf-type' ).value );
-	set( 'ybs_booking_mode', currentMode( form ) );
-	set( 'ybs_guest_count', form.querySelector( '.ybs-bf-guests' ).value || 1 );
-	set( 'ybs_start_datetime', window_ ? window_.start : '' );
-	set( 'ybs_end_datetime', window_ ? window_.end : '' );
+	set( 'mageyabo_booking_type', form.querySelector( '.ybs-bf-type' ).value );
+	set( 'mageyabo_booking_mode', currentMode( form ) );
+	set( 'mageyabo_guest_count', form.querySelector( '.ybs-bf-guests' ).value || 1 );
+	set( 'mageyabo_start_datetime', window_ ? window_.start : '' );
+	set( 'mageyabo_end_datetime', window_ ? window_.end : '' );
 }
 
 function setSubmitEnabled( form, enabled ) {
@@ -201,7 +201,7 @@ async function refreshQuote( form ) {
 
 	const guests = form.querySelector( '.ybs-bf-guests' ).value || 1;
 	const type = form.querySelector( '.ybs-bf-type' ).value;
-	const config = window.ybsFrontendConfig;
+	const config = window.mageyaboFrontendConfig;
 
 	priceBox.hidden = false;
 	priceBox.textContent = config.i18n.loading;
@@ -254,7 +254,7 @@ async function refreshQuote( form ) {
 
 async function submitBooking( form ) {
 	const errorBox = form.querySelector( '.ybs-bf-error' );
-	const config = window.ybsFrontendConfig;
+	const config = window.mageyaboFrontendConfig;
 	errorBox.hidden = true;
 
 	const yachtId = currentYachtId( form );
@@ -395,7 +395,7 @@ export function initBookingForms() {
 					event.preventDefault();
 					errorBox.hidden = false;
 					errorBox.textContent =
-						( window.ybsFrontendConfig && window.ybsFrontendConfig.i18n.notAvailable ) || 'This slot is not available.';
+						( window.mageyaboFrontendConfig && window.mageyaboFrontendConfig.i18n.notAvailable ) || 'This slot is not available.';
 					return;
 				}
 

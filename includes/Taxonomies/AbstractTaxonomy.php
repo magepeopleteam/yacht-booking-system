@@ -1,7 +1,7 @@
 <?php
-namespace Ybs\Taxonomies;
+namespace MageYaBo\Taxonomies;
 
-use Ybs\PostTypes\Yacht;
+use MageYaBo\PostTypes\Yacht;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -14,6 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 abstract class AbstractTaxonomy {
 
 	abstract public static function slug(): string;
+
+	/**
+	 * Public URL segment for term archives. Kept human-readable and separate
+	 * from the registered taxonomy name, which carries the plugin prefix.
+	 */
+	public static function rewrite_slug(): string {
+		return str_replace( array( 'mageyabo_', '_' ), array( '', '-' ), static::slug() );
+	}
 
 	abstract public static function labels(): array;
 
@@ -33,13 +41,13 @@ abstract class AbstractTaxonomy {
 				'show_ui'           => true,
 				'show_admin_column' => true,
 				'show_in_rest'      => true,
-				'rewrite'           => array( 'slug' => static::slug() ),
+				'rewrite'           => array( 'slug' => static::rewrite_slug() ),
 			)
 		);
 	}
 
 	public static function maybe_seed_default_terms() {
-		$flag = 'ybs_' . static::slug() . '_terms_seeded';
+		$flag = 'mageyabo_' . static::slug() . '_terms_seeded';
 
 		if ( get_option( $flag ) ) {
 			return;

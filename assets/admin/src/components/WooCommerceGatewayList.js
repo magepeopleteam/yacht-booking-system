@@ -66,7 +66,7 @@ export default function WooCommerceGatewayList() {
 
 			<a
 				className="ybs-hint"
-				href={(window.ybsAdminConfig?.adminUrl || '/wp-admin/') + 'admin.php?page=wc-settings&tab=checkout'}
+				href={(window.mageyaboAdminConfig?.adminUrl || '/wp-admin/') + 'admin.php?page=wc-settings&tab=checkout'}
 				target="_blank"
 				rel="noreferrer"
 			>

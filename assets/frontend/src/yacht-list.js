@@ -5,7 +5,7 @@ function escapeHtml( str ) {
 }
 
 function renderCard( yacht, currency ) {
-	const config = window.ybsFrontendConfig;
+	const config = window.mageyaboFrontendConfig;
 
 	const media = yacht.thumbnail
 		? `<img src="${ yacht.thumbnail }" alt="${ escapeHtml( yacht.title ) }" loading="lazy" />`
@@ -54,7 +54,7 @@ function renderCard( yacht, currency ) {
 }
 
 async function runList( root, append ) {
-	const config = window.ybsFrontendConfig;
+	const config = window.mageyaboFrontendConfig;
 	const grid = root.querySelector( '.ybs-yl-grid' );
 	const summary = root.querySelector( '.ybs-yl-summary' );
 	const loadMore = root.querySelector( '.ybs-yl-loadmore' );

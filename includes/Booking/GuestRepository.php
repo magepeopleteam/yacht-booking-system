@@ -1,16 +1,16 @@
 <?php
-namespace Ybs\Booking;
+namespace MageYaBo\Booking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * `wp_ybs_guests`. A guest is found-or-created by email so returning
+ * `wp_mageyabo_guests`. A guest is found-or-created by email so returning
  * customers accumulate one profile rather than a duplicate row per booking.
  */
 /*
- * The data layer for `wp_ybs_guests`, one of the plugin's own tables, so every
+ * The data layer for `wp_mageyabo_guests`, one of the plugin's own tables, so every
  * call below is necessarily a direct query - core has no API for it. Guest
  * rows are not cached: they carry personal data that the retention job
  * anonymises in place, and a cached copy would outlive the erasure.
@@ -20,7 +20,7 @@ class GuestRepository {
 
 	private static function table() {
 		global $wpdb;
-		return $wpdb->prefix . 'ybs_guests';
+		return $wpdb->prefix . 'mageyabo_guests';
 	}
 
 	public static function find_or_create( array $data ) {
@@ -52,7 +52,7 @@ class GuestRepository {
 			$wpdb->update( self::table(), $fields, array( 'id' => $existing_id ) );
 
 			/** This action is documented below. */
-			do_action( 'ybs_after_guest_created', $existing_id, false );
+			do_action( 'mageyabo_after_guest_created', $existing_id, false );
 
 			return $existing_id;
 		}
@@ -74,7 +74,7 @@ class GuestRepository {
 		 * @param int  $guest_id
 		 * @param bool $is_new
 		 */
-		do_action( 'ybs_after_guest_created', $guest_id, true );
+		do_action( 'mageyabo_after_guest_created', $guest_id, true );
 
 		return $guest_id;
 	}
@@ -100,7 +100,7 @@ class GuestRepository {
 	public static function list_active( array $args = array() ) {
 		global $wpdb;
 
-		$bookings = $wpdb->prefix . 'ybs_bookings';
+		$bookings = $wpdb->prefix . 'mageyabo_bookings';
 		$guests   = self::table();
 
 		$page     = max( 1, (int) ( $args['page'] ?? 1 ) );
@@ -144,7 +144,7 @@ class GuestRepository {
 			return array();
 		}
 
-		$bookings     = $wpdb->prefix . 'ybs_bookings';
+		$bookings     = $wpdb->prefix . 'mageyabo_bookings';
 		$placeholders = implode( ',', array_fill( 0, count( $guest_ids ), '%d' ) );
 
 		$sql = "SELECT b.*, p.post_title AS yacht_name
@@ -169,7 +169,7 @@ class GuestRepository {
 		}
 
 		$guests   = self::table();
-		$bookings = $wpdb->prefix . 'ybs_bookings';
+		$bookings = $wpdb->prefix . 'mageyabo_bookings';
 		$cutoff   = gmdate( 'Y-m-d H:i:s', strtotime( "-{$months} months" ) );
 
 		// $guests/$bookings are prefixed identifiers, which prepare() cannot

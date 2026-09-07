@@ -14,7 +14,7 @@ function renderCard( yacht, currency ) {
 }
 
 async function runSearch( root ) {
-	const config = window.ybsFrontendConfig;
+	const config = window.mageyaboFrontendConfig;
 	const results = root.querySelector( '.ybs-search-results' );
 	results.innerHTML = `<div class="ybs-loading">${ config.i18n.loading }</div>`;
 

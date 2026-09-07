@@ -1,9 +1,9 @@
 <?php
-namespace Ybs\Notifications;
+namespace MageYaBo\Notifications;
 
-use Ybs\Booking\BookingRepository;
-use Ybs\Booking\GuestRepository;
-use Ybs\Settings;
+use MageYaBo\Booking\BookingRepository;
+use MageYaBo\Booking\GuestRepository;
+use MageYaBo\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,8 +24,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class BookingEmailer {
 
 	public static function register() {
-		add_action( 'ybs_after_booking_created', array( __CLASS__, 'on_booking_created' ), 10, 2 );
-		add_action( 'ybs_after_booking_status_changed', array( __CLASS__, 'on_status_changed' ), 10, 3 );
+		add_action( 'mageyabo_after_booking_created', array( __CLASS__, 'on_booking_created' ), 10, 2 );
+		add_action( 'mageyabo_after_booking_status_changed', array( __CLASS__, 'on_status_changed' ), 10, 3 );
 	}
 
 	public static function on_booking_created( $booking_id, $fields ) {
@@ -69,8 +69,8 @@ class BookingEmailer {
 
 		$yacht_id = (int) $booking['yacht_id'];
 
-		$yacht_subject = trim( (string) get_post_meta( $yacht_id, 'confirmation_email_subject', true ) );
-		$yacht_body    = trim( (string) get_post_meta( $yacht_id, 'confirmation_email_body', true ) );
+		$yacht_subject = trim( (string) get_post_meta( $yacht_id, 'mageyabo_confirmation_email_subject', true ) );
+		$yacht_body    = trim( (string) get_post_meta( $yacht_id, 'mageyabo_confirmation_email_body', true ) );
 
 		// A yacht-specific body is a deliberate full override - its own
 		// subject (or the global one, if the yacht left that blank) goes

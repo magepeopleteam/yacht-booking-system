@@ -1,7 +1,7 @@
 <?php
-namespace Ybs\Payments;
+namespace MageYaBo\Payments;
 
-use Ybs\Settings;
+use MageYaBo\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,8 +16,8 @@ class OfflineGateway {
 	const ID = 'offline';
 
 	public static function register() {
-		add_filter( 'ybs_payment_gateways', array( __CLASS__, 'declare_self' ) );
-		add_filter( 'ybs_payment_start', array( __CLASS__, 'start' ), 10, 3 );
+		add_filter( 'mageyabo_payment_gateways', array( __CLASS__, 'declare_self' ) );
+		add_filter( 'mageyabo_payment_start', array( __CLASS__, 'start' ), 10, 3 );
 	}
 
 	public static function declare_self( $gateways ) {

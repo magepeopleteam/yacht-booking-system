@@ -1,5 +1,5 @@
 <?php
-namespace Ybs\Frontend;
+namespace MageYaBo\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -17,7 +17,7 @@ class Block {
 			return;
 		}
 
-		$asset_file = YBS_PLUGIN_DIR . 'assets/build/booking-block.asset.php';
+		$asset_file = MAGEYABO_PLUGIN_DIR . 'assets/build/booking-block.asset.php';
 
 		if ( ! file_exists( $asset_file ) ) {
 			return;
@@ -26,19 +26,19 @@ class Block {
 		$asset = require $asset_file;
 
 		wp_register_script(
-			'ybs-booking-block-editor',
-			YBS_PLUGIN_URL . 'assets/build/booking-block.js',
+			'mageyabo-booking-block-editor',
+			MAGEYABO_PLUGIN_URL . 'assets/build/booking-block.js',
 			$asset['dependencies'],
 			$asset['version'],
 			true
 		);
 
-		wp_set_script_translations( 'ybs-booking-block-editor', 'magepeople-yacht-booking-system', YBS_PLUGIN_DIR . 'languages' );
+		wp_set_script_translations( 'mageyabo-booking-block-editor', 'magepeople-yacht-booking-system', MAGEYABO_PLUGIN_DIR . 'languages' );
 
 		register_block_type(
 			'magepeople-yacht-booking-system/booking-form',
 			array(
-				'editor_script'   => 'ybs-booking-block-editor',
+				'editor_script'   => 'mageyabo-booking-block-editor',
 				'attributes'      => array(
 					'yachtId' => array(
 						'type'    => 'number',

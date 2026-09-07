@@ -1,5 +1,5 @@
 <?php
-namespace Ybs\Payments;
+namespace MageYaBo\Payments;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -7,8 +7,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * No gateway class hierarchy - each gateway
- * only needs to add itself to the `ybs_payment_gateways` list and answer the
- * `ybs_payment_start` filter for its own id. This is the same seam the
+ * only needs to add itself to the `mageyabo_payment_gateways` list and answer the
+ * `mageyabo_payment_start` filter for its own id. This is the same seam the
  * sibling shuttle plugin uses to keep its gateways decoupled.
  */
 class Gateways {
@@ -25,7 +25,7 @@ class Gateways {
 	 * @return array<string, array{label:string, enabled:bool}>
 	 */
 	public static function available() {
-		return apply_filters( 'ybs_payment_gateways', array() );
+		return apply_filters( 'mageyabo_payment_gateways', array() );
 	}
 
 	/**
@@ -50,6 +50,6 @@ class Gateways {
 	 * @return array{redirect:string}|null|\WP_Error
 	 */
 	public static function start( $gateway_id, $booking_id ) {
-		return apply_filters( 'ybs_payment_start', null, $gateway_id, $booking_id );
+		return apply_filters( 'mageyabo_payment_start', null, $gateway_id, $booking_id );
 	}
 }

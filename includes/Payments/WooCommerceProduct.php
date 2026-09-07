@@ -1,7 +1,7 @@
 <?php
-namespace Ybs\Payments;
+namespace MageYaBo\Payments;
 
-use Ybs\PostTypes\Yacht;
+use MageYaBo\PostTypes\Yacht;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -16,13 +16,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * carrier for yacht bookings.
  *
  * Meta links (mage-eventpress compatible naming):
- *   yacht  -> _ybs_wc_product_id   (kept for backwards compatibility)
+ *   yacht  -> _mageyabo_wc_product_id   (kept for backwards compatibility)
  *   yacht  -> link_wc_product      (canonical, MEP-style)
- *   product-> link_ybs_yacht
+ *   product-> link_mageyabo_yacht
  */
 class WooCommerceProduct {
 
-	const PRODUCT_META_KEY = 'link_ybs_yacht';
+	const PRODUCT_META_KEY = 'link_mageyabo_yacht';
 
 	public static function register() {
 		add_action( 'save_post_yacht', array( __CLASS__, 'sync_on_save' ), 99 );
@@ -43,10 +43,10 @@ class WooCommerceProduct {
 	 * before this integration was enabled).
 	 */
 	public static function get_product_id( $yacht_id ) {
-		$product_id = (int) get_post_meta( $yacht_id, '_ybs_wc_product_id', true );
+		$product_id = (int) get_post_meta( $yacht_id, '_mageyabo_wc_product_id', true );
 
 		if ( ! $product_id ) {
-			$product_id = (int) get_post_meta( $yacht_id, 'link_wc_product', true );
+			$product_id = (int) get_post_meta( $yacht_id, 'mageyabo_link_wc_product', true );
 		}
 
 		if ( $product_id && get_post( $product_id ) ) {
@@ -75,7 +75,7 @@ class WooCommerceProduct {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- reverse meta_value lookup, which get_post_meta() cannot do; runs only on the legacy fallback path.
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ('_ybs_wc_product_id','link_wc_product') AND meta_value = %s AND post_id != %d LIMIT 1",
+				"SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ('_mageyabo_wc_product_id','mageyabo_link_wc_product') AND meta_value = %s AND post_id != %d LIMIT 1",
 				(string) (int) $product_id,
 				(int) $product_id
 			)
@@ -97,7 +97,7 @@ class WooCommerceProduct {
 			return;
 		}
 
-		$product_id = (int) get_post_meta( $post_id, 'link_wc_product', true );
+		$product_id = (int) get_post_meta( $post_id, 'mageyabo_link_wc_product', true );
 
 		if ( ! $product_id ) {
 			$product_id = self::get_product_id( $post_id );
@@ -141,8 +141,8 @@ class WooCommerceProduct {
 		}
 
 		update_post_meta( $product_id, self::PRODUCT_META_KEY, (int) $yacht_id );
-		update_post_meta( $yacht_id, '_ybs_wc_product_id', $product_id );
-		update_post_meta( $yacht_id, 'link_wc_product', $product_id );
+		update_post_meta( $yacht_id, '_mageyabo_wc_product_id', $product_id );
+		update_post_meta( $yacht_id, 'mageyabo_link_wc_product', $product_id );
 
 		return $product_id;
 	}
@@ -244,7 +244,7 @@ class WooCommerceProduct {
 			return;
 		}
 
-		$product_id = (int) get_post_meta( $post_id, 'link_wc_product', true );
+		$product_id = (int) get_post_meta( $post_id, 'mageyabo_link_wc_product', true );
 
 		if ( $product_id && 'product' === get_post_type( $product_id ) ) {
 			wp_delete_post( $product_id, true );

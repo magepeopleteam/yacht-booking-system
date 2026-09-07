@@ -1,12 +1,12 @@
 <?php
-namespace Ybs\Booking;
+namespace MageYaBo\Booking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /*
- * The data layer for `wp_ybs_bookings`, one of the plugin's own tables, so
+ * The data layer for `wp_mageyabo_bookings`, one of the plugin's own tables, so
  * every call below is necessarily a direct query - core has no API for it.
  * Nothing here is cached on purpose: these rows back the availability and
  * seat-count checks, and serving a stale count would oversell a charter.
@@ -23,7 +23,7 @@ class BookingRepository {
 
 	public static function table() {
 		global $wpdb;
-		return $wpdb->prefix . 'ybs_bookings';
+		return $wpdb->prefix . 'mageyabo_bookings';
 	}
 
 	public static function create( array $data ) {
@@ -49,7 +49,7 @@ class BookingRepository {
 			'status'          => 'pending',
 			'payment_method'  => sanitize_key( $data['payment_method'] ?? '' ),
 			'payment_status'  => 'unpaid',
-			'qr_token'        => function_exists( 'ybs_generate_token' ) ? ybs_generate_token( 24 ) : wp_generate_password( 24, false ),
+			'qr_token'        => function_exists( 'mageyabo_generate_token' ) ? mageyabo_generate_token( 24 ) : wp_generate_password( 24, false ),
 			'created_at'      => $now,
 			'updated_at'      => $now,
 		);
@@ -61,7 +61,7 @@ class BookingRepository {
 		 * @param int   $booking_id
 		 * @param array $fields
 		 */
-		do_action( 'ybs_after_booking_created', $booking_id, $fields );
+		do_action( 'mageyabo_after_booking_created', $booking_id, $fields );
 
 		return $booking_id;
 	}
@@ -78,7 +78,7 @@ class BookingRepository {
 			/**
 			 * @param int $booking_id
 			 */
-			do_action( 'ybs_after_booking_deleted', (int) $id );
+			do_action( 'mageyabo_after_booking_deleted', (int) $id );
 		}
 
 		return $deleted;
@@ -123,7 +123,7 @@ class BookingRepository {
 		 * @param string $new_status
 		 * @param string $old_status
 		 */
-		do_action( 'ybs_after_booking_status_changed', $id, $status, $before['status'] );
+		do_action( 'mageyabo_after_booking_status_changed', $id, $status, $before['status'] );
 
 		return true;
 	}
@@ -266,12 +266,12 @@ class BookingRepository {
 	public static function with_yacht_lock( $yacht_id, callable $callback ) {
 		global $wpdb;
 
-		$name = substr( 'ybs_yacht_' . sha1( (string) $yacht_id ), 0, 48 );
+		$name = substr( 'mageyabo_yacht_' . sha1( (string) $yacht_id ), 0, 48 );
 		$got  = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, %d)', $name, 5 ) );
 
 		if ( 1 !== $got ) {
 			return new \WP_Error(
-				'ybs_booking_busy',
+				'mageyabo_booking_busy',
 				__( 'Another booking for this yacht is being processed. Please try again.', 'magepeople-yacht-booking-system' )
 			);
 		}
