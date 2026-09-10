@@ -775,7 +775,19 @@ class YachtsController extends Controller {
 		$data = self::summarize( $post );
 		$data['description'] = $post->post_content;
 
+		// This route is public so the booking form and details page can read
+		// a yacht, which means the operator's own configuration must not ride
+		// along in the response. Only a user who can manage settings - the
+		// wizard that edits these fields - receives them.
+		$withheld = \MageYaBo\Capabilities::can( 'settings' )
+			? array()
+			: \MageYaBo\PostTypes\Yacht::admin_only_meta_keys();
+
 		foreach ( \MageYaBo\PostTypes\Yacht::META_KEYS as $key ) {
+			if ( in_array( $key, $withheld, true ) ) {
+				continue;
+			}
+
 			$value = get_post_meta( $post->ID, \MageYaBo\PostTypes\Yacht::meta_key( $key ), true );
 			$data[ $key ] = in_array( $key, array( 'gallery', 'faq', 'included_items', 'off_days' ), true )
 				? ( is_array( $value ) ? $value : array() )

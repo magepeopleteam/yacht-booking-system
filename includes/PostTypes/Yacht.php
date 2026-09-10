@@ -81,6 +81,22 @@ class Yacht {
 		return self::META_PREFIX . $logical;
 	}
 
+	/**
+	 * Fields that are operator configuration rather than yacht information.
+	 * `GET /yachts/{id}` is a public route because the booking form and the
+	 * details page read from it, so these are withheld from anyone who cannot
+	 * manage settings. Anything added to META_KEYS is public unless it is
+	 * listed here.
+	 *
+	 * @return string[]
+	 */
+	public static function admin_only_meta_keys() {
+		return array(
+			'confirmation_email_subject',
+			'confirmation_email_body',
+		);
+	}
+
 	public static function register() {
 		register_post_type(
 			self::POST_TYPE,
@@ -118,6 +134,29 @@ class Yacht {
 			$is_string_list  = in_array( $key, $string_list_keys, true );
 			$is_integer_list = in_array( $key, $integer_list_keys, true );
 			$is_list         = $is_object_list || $is_string_list || $is_integer_list;
+
+			// `auth_callback` only gates writes - read exposure is decided by
+			// `show_in_rest`. The operator's confirmation-email fields would
+			// otherwise be readable by anyone through core's own
+			// /wp/v2/yacht-posts route, so they are kept out of it entirely.
+			// The wizard reads and writes them through this plugin's own
+			// capability-checked routes instead.
+			if ( in_array( $key, self::admin_only_meta_keys(), true ) ) {
+				register_post_meta(
+					self::POST_TYPE,
+					self::meta_key( $key ),
+					array(
+						'single'        => true,
+						'show_in_rest'  => false,
+						'type'          => 'string',
+						'auth_callback' => function () {
+							return Capabilities::can( 'settings' );
+						},
+					)
+				);
+
+				continue;
+			}
 
 			$show_in_rest = true;
 
