@@ -24,10 +24,18 @@ class OfflineGateway {
 		$enabled = in_array( self::ID, (array) Settings::get( 'payment_methods', array() ), true );
 
 		$gateways[ self::ID ] = array(
-			'label'       => __( 'Offline / Manual Payment', 'magepeople-yacht-booking-system' ),
-			'enabled'     => $enabled,
-			'instructions' => Settings::get( 'offline_instructions', '' ),
+			'label'   => __( 'Offline / Manual Payment', 'magepeople-yacht-booking-system' ),
+			'enabled' => $enabled,
 		);
+
+		// This list is localised into every front-end page that renders a
+		// plugin shortcode, and the instructions usually carry bank or IBAN
+		// details. Send them only when offline payment is actually on, so an
+		// operator who fills the field in and later switches the method off
+		// does not keep publishing them.
+		if ( $enabled ) {
+			$gateways[ self::ID ]['instructions'] = Settings::get( 'offline_instructions', '' );
+		}
 
 		return $gateways;
 	}
