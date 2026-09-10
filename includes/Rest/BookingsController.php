@@ -77,6 +77,18 @@ class BookingsController extends Controller {
 	public static function create( WP_REST_Request $request ) {
 		$data = $request->get_json_params();
 
+		// Rate-limit: at most one *successful* booking per IP per minute.
+		// The counter is only started once a booking has actually been
+		// written (see below) - starting it here would lock a customer out
+		// for a minute for mistyping a date or picking a slot that turned
+		// out to be taken, which are the most common outcomes of this route.
+		$ip       = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0';
+		$rate_key = 'mageyaboBookingRate_' . md5( $ip );
+
+		if ( get_transient( $rate_key ) ) {
+			return new WP_Error( 'mageyabo_rate_limited', __( 'Please wait a moment before submitting another booking.', 'magepeople-yacht-booking-system' ), array( 'status' => 429 ) );
+		}
+
 		$yacht_id = (int) ( $data['yacht_id'] ?? 0 );
 		$yacht    = get_post( $yacht_id );
 
@@ -188,6 +200,9 @@ class BookingsController extends Controller {
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
+
+		// A booking exists now, so start this IP's cool-off window.
+		set_transient( $rate_key, 1, MINUTE_IN_SECONDS );
 
 		$payment_start = Gateways::start( $payment_method, $result['booking_id'] );
 

@@ -59,6 +59,20 @@ class YachtsController extends Controller {
 			)
 		);
 
+		// The wizard has to load the operator's own configuration
+		// (confirmation-email subject and body) to edit it, and the public
+		// read route above deliberately withholds those fields. They are
+		// served only through this capability-gated route.
+		register_rest_route(
+			self::NAMESPACE_,
+			'/yachts/(?P<id>\d+)/edit',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'edit_fields' ),
+				'permission_callback' => array( __CLASS__, 'can_manage_settings' ),
+			)
+		);
+
 		register_rest_route(
 			self::NAMESPACE_,
 			'/yachts/(?P<id>\d+)/availability',
@@ -293,6 +307,23 @@ class YachtsController extends Controller {
 	}
 
 	public static function show( WP_REST_Request $request ) {
+		$post = self::get_readable_yacht( (int) $request['id'] );
+
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		// Public route: always strip admin-only fields regardless of who is
+		// asking. Admin-only data (confirmation-email subject/body) is only
+		// returned through the capability-gated edit/create/update routes.
+		return rest_ensure_response( self::public_full( $post ) );
+	}
+
+	/**
+	 * Capability-gated read for the yacht wizard: the same payload as show()
+	 * plus the admin-only fields the wizard edits.
+	 */
+	public static function edit_fields( WP_REST_Request $request ) {
 		$post = self::get_readable_yacht( (int) $request['id'] );
 
 		if ( is_wp_error( $post ) ) {
@@ -771,17 +802,31 @@ class YachtsController extends Controller {
 		);
 	}
 
+	/**
+	 * Every field of a yacht, including the operator's own configuration.
+	 * Only reachable from capability-gated routes (edit/create/update).
+	 */
 	private static function full( $post ) {
+		return self::fields( $post, array() );
+	}
+
+	/**
+	 * Public-safe payload for the unauthenticated read route. Admin-only
+	 * fields (confirmation-email subject and body) are withheld
+	 * unconditionally, so no capability check stands between the public and
+	 * the operator's configuration.
+	 */
+	private static function public_full( $post ) {
+		return self::fields( $post, \MageYaBo\PostTypes\Yacht::admin_only_meta_keys() );
+	}
+
+	/**
+	 * @param \WP_Post $post     Yacht.
+	 * @param array    $withheld Logical meta keys to leave out of the response.
+	 */
+	private static function fields( $post, array $withheld ) {
 		$data = self::summarize( $post );
 		$data['description'] = $post->post_content;
-
-		// This route is public so the booking form and details page can read
-		// a yacht, which means the operator's own configuration must not ride
-		// along in the response. Only a user who can manage settings - the
-		// wizard that edits these fields - receives them.
-		$withheld = \MageYaBo\Capabilities::can( 'settings' )
-			? array()
-			: \MageYaBo\PostTypes\Yacht::admin_only_meta_keys();
 
 		foreach ( \MageYaBo\PostTypes\Yacht::META_KEYS as $key ) {
 			if ( in_array( $key, $withheld, true ) ) {
@@ -800,8 +845,8 @@ class YachtsController extends Controller {
 		$data['mageyabo_yacht_class']    = array_map( 'intval', wp_get_post_terms( $post->ID, 'mageyabo_yacht_class', array( 'fields' => 'ids' ) ) );
 		$data['mageyabo_yacht_occasion'] = array_map( 'intval', wp_get_post_terms( $post->ID, 'mageyabo_yacht_occasion', array( 'fields' => 'ids' ) ) );
 
-		$thumbnail_id             = get_post_thumbnail_id( $post->ID );
-		$data['featured_media']   = $thumbnail_id ? (int) $thumbnail_id : 0;
+		$thumbnail_id           = get_post_thumbnail_id( $post->ID );
+		$data['featured_media'] = $thumbnail_id ? (int) $thumbnail_id : 0;
 
 		$data['gallery'] = array_values(
 			array_filter(

@@ -349,8 +349,8 @@ msgid "Publish"
 msgstr ""
 
 #: assets/admin/src/components/PublishBox.js:20
-#: assets/admin/src/routes/YachtsList.js:181
 #: assets/admin/src/routes/YachtsList.js:30
+#: assets/admin/src/routes/YachtsList.js:181
 msgid "Published"
 msgstr ""
 
@@ -386,7 +386,7 @@ msgstr ""
 
 #: assets/admin/src/components/Shell.js:8
 #: assets/admin/src/routes/YachtsList.js:141
-#: includes/PostTypes/Yacht.php:89
+#: includes/PostTypes/Yacht.php:105
 #: templates/single-yacht.php:86
 msgid "Yachts"
 msgstr ""
@@ -404,10 +404,10 @@ msgstr ""
 #. translators: %d: number of guests
 #: assets/admin/src/components/Shell.js:11
 #: assets/admin/src/routes/Guests.js:43
+#: includes/Frontend/Shortcode.php:50
 #: includes/Frontend/Shortcode.php:173
 #: includes/Frontend/Shortcode.php:240
 #: includes/Frontend/Shortcode.php:329
-#: includes/Frontend/Shortcode.php:50
 #: includes/Payments/WooCommerceGateway.php:236
 #: includes/Payments/WooCommerceGateway.php:276
 #: templates/single-yacht.php:149
@@ -678,7 +678,7 @@ msgstr ""
 #: assets/admin/src/routes/Bookings.js:92
 #: assets/admin/src/routes/Guests.js:59
 #: includes/Frontend/Shortcode.php:134
-#: includes/PostTypes/Yacht.php:90
+#: includes/PostTypes/Yacht.php:106
 msgid "Yacht"
 msgstr ""
 
@@ -1108,14 +1108,14 @@ msgid "Draft saved."
 msgstr ""
 
 #: assets/admin/src/routes/YachtWizard.js:206
-#: includes/PostTypes/Yacht.php:92
+#: includes/PostTypes/Yacht.php:108
 msgid "Edit Yacht"
 msgstr ""
 
 #: assets/admin/src/routes/YachtWizard.js:206
 #: assets/admin/src/routes/YachtsList.js:153
 #: assets/admin/src/routes/YachtsList.js:238
-#: includes/PostTypes/Yacht.php:91
+#: includes/PostTypes/Yacht.php:107
 msgid "Add New Yacht"
 msgstr ""
 
@@ -1646,14 +1646,14 @@ msgstr ""
 msgid "Subscribe"
 msgstr ""
 
-#: includes/Frontend/Shortcode.php:136
 #: includes/Frontend/Shortcode.php:45
+#: includes/Frontend/Shortcode.php:136
 msgid "Select a yacht"
 msgstr ""
 
+#: includes/Frontend/Shortcode.php:47
 #: includes/Frontend/Shortcode.php:214
 #: includes/Frontend/Shortcode.php:217
-#: includes/Frontend/Shortcode.php:47
 #: includes/Settings.php:48
 #: templates/single-yacht.php:38
 #: templates/single-yacht.php:424
@@ -1673,7 +1673,7 @@ msgid "seats left"
 msgstr ""
 
 #: includes/Frontend/Shortcode.php:52
-#: includes/Rest/BookingsController.php:123
+#: includes/Rest/BookingsController.php:135
 msgid "Please accept the terms and conditions."
 msgstr ""
 
@@ -1847,7 +1847,7 @@ msgid "Near Me"
 msgstr ""
 
 #: includes/Frontend/Shortcode.php:270
-#: includes/PostTypes/Yacht.php:94
+#: includes/PostTypes/Yacht.php:110
 msgid "Search Yachts"
 msgstr ""
 
@@ -1975,7 +1975,7 @@ msgid "Could not prepare the WooCommerce product for this yacht."
 msgstr ""
 
 #: includes/Payments/WooCommerceGateway.php:141
-#: includes/Rest/BookingsController.php:142
+#: includes/Rest/BookingsController.php:154
 msgid "This slot is not available."
 msgstr ""
 
@@ -1985,13 +1985,13 @@ msgid "Charter Start"
 msgstr ""
 
 #: includes/Payments/WooCommerceGateway.php:456
-#: includes/Rest/BookingsController.php:84
+#: includes/Rest/BookingsController.php:96
 msgid "Please choose a valid yacht."
 msgstr ""
 
 #: includes/Payments/WooCommerceGateway.php:465
 #: includes/Payments/WooCommerceGateway.php:486
-#: includes/Rest/BookingsController.php:107
+#: includes/Rest/BookingsController.php:119
 msgid "Please choose a valid date and time."
 msgstr ""
 
@@ -1999,31 +1999,31 @@ msgstr ""
 msgid "Yacht Charter"
 msgstr ""
 
-#: includes/PostTypes/Yacht.php:93
+#: includes/PostTypes/Yacht.php:109
 msgid "View Yacht"
 msgstr ""
 
-#: includes/PostTypes/Yacht.php:95
+#: includes/PostTypes/Yacht.php:111
 msgid "No yachts found"
 msgstr ""
 
-#: includes/PostTypes/Yacht.php:96
+#: includes/PostTypes/Yacht.php:112
 msgid "No yachts found in Trash"
 msgstr ""
 
-#: includes/Rest/BookingsController.php:119
+#: includes/Rest/BookingsController.php:131
 msgid "Please provide your name, email and phone number."
 msgstr ""
 
-#: includes/Rest/BookingsController.php:133
+#: includes/Rest/BookingsController.php:145
 msgid "Please choose an available payment method."
 msgstr ""
 
-#: includes/Rest/BookingsController.php:211
+#: includes/Rest/BookingsController.php:226
 msgid "Invalid booking or status."
 msgstr ""
 
-#: includes/Rest/BookingsController.php:221
+#: includes/Rest/BookingsController.php:236
 msgid "Booking not found."
 msgstr ""
 
@@ -2080,78 +2080,78 @@ msgstr ""
 msgid "Unknown WooCommerce payment gateway."
 msgstr ""
 
-#: includes/Rest/YachtsController.php:118
+#: includes/Rest/YachtsController.php:132
 msgid "Please choose a date and time."
 msgstr ""
 
-#: includes/Rest/YachtsController.php:156
+#: includes/Rest/YachtsController.php:170
 msgid "Please provide a month as YYYY-MM."
 msgstr ""
 
-#: includes/Rest/YachtsController.php:285
-#: includes/Rest/YachtsController.php:289
-#: includes/Rest/YachtsController.php:334
-#: includes/Rest/YachtsController.php:371
+#: includes/Rest/YachtsController.php:299
+#: includes/Rest/YachtsController.php:303
+#: includes/Rest/YachtsController.php:365
+#: includes/Rest/YachtsController.php:402
 msgid "Yacht not found."
 msgstr ""
 
-#: includes/Rest/YachtsController.php:311
+#: includes/Rest/YachtsController.php:342
 msgid "Untitled Yacht"
 msgstr ""
 
-#: includes/Rest/YachtsController.php:387
+#: includes/Rest/YachtsController.php:418
 msgid "Sample yachts have already been imported."
 msgstr ""
 
-#: includes/Rest/YachtsController.php:445
+#: includes/Rest/YachtsController.php:476
 msgid "Ocean Breeze"
 msgstr ""
 
-#: includes/Rest/YachtsController.php:446
+#: includes/Rest/YachtsController.php:477
 msgid "A sleek 42ft motor yacht perfect for sunset cruises and small celebrations along the coast."
 msgstr ""
 
-#: includes/Rest/YachtsController.php:471
+#: includes/Rest/YachtsController.php:502
 msgid "Sapphire Horizon"
 msgstr ""
 
-#: includes/Rest/YachtsController.php:472
+#: includes/Rest/YachtsController.php:503
 msgid "A spacious 68ft luxury cruiser with a sundeck lounge, ideal for corporate charters and weddings."
 msgstr ""
 
-#: includes/Rest/YachtsController.php:497
+#: includes/Rest/YachtsController.php:528
 msgid "Island Serenade"
 msgstr ""
 
-#: includes/Rest/YachtsController.php:498
+#: includes/Rest/YachtsController.php:529
 msgid "A breezy 36ft catamaran built for laid-back island hopping and small bachelorette groups."
 msgstr ""
 
-#: includes/Rest/YachtsController.php:523
+#: includes/Rest/YachtsController.php:554
 msgid "Golden Mirage"
 msgstr ""
 
-#: includes/Rest/YachtsController.php:524
+#: includes/Rest/YachtsController.php:555
 msgid "A striking 55ft superyacht with a jacuzzi deck, built for high-end business entertaining."
 msgstr ""
 
-#: includes/Rest/YachtsController.php:549
+#: includes/Rest/YachtsController.php:580
 msgid "Aegean Muse"
 msgstr ""
 
-#: includes/Rest/YachtsController.php:550
+#: includes/Rest/YachtsController.php:581
 msgid "A whitewashed 48ft sailing yacht drifting past the caldera - built for sunset proposals."
 msgstr ""
 
-#: includes/Rest/YachtsController.php:575
+#: includes/Rest/YachtsController.php:606
 msgid "Southern Star"
 msgstr ""
 
-#: includes/Rest/YachtsController.php:576
+#: includes/Rest/YachtsController.php:607
 msgid "A lively 60ft party yacht with a sound system and open deck, built for big celebrations - bookable as a full charter or by the seat."
 msgstr ""
 
-#: includes/Rest/YachtsController.php:619
+#: includes/Rest/YachtsController.php:650
 msgid "Please provide a date as YYYY-MM-DD."
 msgstr ""
 
@@ -2424,4 +2424,9 @@ msgstr ""
 
 #: templates/single-yacht.php:434
 msgid "Next photo"
+msgstr ""
+
+
+#: includes/Rest/BookingsController.php:89
+msgid "Please wait a moment before submitting another booking."
 msgstr ""

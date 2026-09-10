@@ -131,7 +131,7 @@ export default function YachtWizard({ yachtId }) {
 		]).then(([classes, occasions]) => setTaxonomies({ classes, occasions }));
 
 		if (yachtId) {
-			api.get(`/yachts/${yachtId}`)
+			api.get(`/yachts/${yachtId}/edit`)
 				.then((data) => {
 					setForm((prev) => ({ ...prev, ...data }));
 					setLoading(false);
