@@ -20,14 +20,55 @@ class Templates {
 
 	const THEME_DIR = 'magepeople-yacht-booking-system';
 
+	/**
+	 * Theme blocks that duplicate something Shortcode::append_to_single_yacht()
+	 * already renders itself, further down in the same block template.
+	 */
+	const DUPLICATE_THEME_BLOCKS = array(
+		// Duplicates the gallery's own hero image/thumbnail strip.
+		'core/post-featured-image',
+		// Duplicates `.ybs-yp-title` in the gallery's header section.
+		'core/post-title',
+	);
+
 	public static function register() {
 		add_filter( 'template_include', array( __CLASS__, 'load_single_yacht_template' ), 20 );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'register_assets' ) );
+		add_filter( 'render_block', array( __CLASS__, 'suppress_duplicate_theme_blocks' ), 10, 2 );
+	}
+
+	/**
+	 * On a block theme, the single-yacht page renders through WordPress's own
+	 * singular block template (see load_single_yacht_template() below) so its
+	 * header/footer always match the rest of the site - but that template's
+	 * own title/featured-image blocks then duplicate what
+	 * Shortcode::append_to_single_yacht() already renders as part of its
+	 * richer gallery/header section. Drop the theme's copies rather than the
+	 * plugin's - the plugin's versions carry the styling (class badge,
+	 * stats row, thumbnail strip) the bare theme blocks don't.
+	 */
+	public static function suppress_duplicate_theme_blocks( $block_content, $block ) {
+		if ( in_array( $block['blockName'] ?? '', self::DUPLICATE_THEME_BLOCKS, true ) && is_singular( Yacht::POST_TYPE ) ) {
+			return '';
+		}
+
+		return $block_content;
 	}
 
 	public static function register_assets() {
 		wp_register_style( 'mageyabo-single', MAGEYABO_PLUGIN_URL . 'assets/frontend/yacht-single.css', array( 'mageyabo-frontend' ), MAGEYABO_VERSION );
 		wp_register_script( 'mageyabo-single', MAGEYABO_PLUGIN_URL . 'assets/frontend/yacht-single.js', array(), MAGEYABO_VERSION, true );
+
+		// Enqueued here (rather than only inside load_single_yacht_template())
+		// so a block theme - which never takes the custom-template branch
+		// below - still gets the single-yacht styles/behaviour when the page
+		// renders through Shortcode::append_to_single_yacht() instead.
+		if ( is_singular( Yacht::POST_TYPE ) ) {
+			wp_enqueue_style( 'mageyabo-frontend' );
+			wp_enqueue_script( 'mageyabo-frontend' );
+			wp_enqueue_style( 'mageyabo-single' );
+			wp_enqueue_script( 'mageyabo-single' );
+		}
 	}
 
 	/**
@@ -36,6 +77,20 @@ class Templates {
 	 */
 	public static function load_single_yacht_template( $template ) {
 		if ( ! is_singular( Yacht::POST_TYPE ) ) {
+			return $template;
+		}
+
+		// Block themes have no header.php/footer.php for document_start()/
+		// document_end() to call get_header()/get_footer() through; the
+		// hand-built page shell those fall back to (replicating core's
+		// template-canvas markup) doesn't reliably match every theme's real
+		// header/footer template parts - global-styles wrappers, layout
+		// constraints, etc. can end up looking subtly different from the
+		// rest of the site. Rather than risk that mismatch, block themes
+		// keep WordPress's own singular template here; the exact same
+		// design still renders, through Shortcode::append_to_single_yacht()
+		// on `the_content`, just inside the theme's real header/footer.
+		if ( self::is_block_theme() ) {
 			return $template;
 		}
 
@@ -54,11 +109,6 @@ class Templates {
 		if ( has_filter( 'the_content', array( Shortcode::class, 'append_to_single_yacht' ) ) ) {
 			remove_filter( 'the_content', array( Shortcode::class, 'append_to_single_yacht' ), 10 );
 		}
-
-		wp_enqueue_style( 'mageyabo-frontend' );
-		wp_enqueue_script( 'mageyabo-frontend' );
-		wp_enqueue_style( 'mageyabo-single' );
-		wp_enqueue_script( 'mageyabo-single' );
 
 		return $override;
 	}

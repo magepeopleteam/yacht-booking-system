@@ -19,6 +19,19 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class YachtsController extends Controller {
 
+	/**
+	 * Maps the search bar's "Weekly charter / Day charter / Hourly charter"
+	 * toggle to the booking-type price fields each one covers. "Day charter"
+	 * spans every same-day booking type (half day, morning/evening slot,
+	 * full day) rather than just `daily`, since a yacht priced only for a
+	 * morning slot is still a same-day charter, not an hourly or multi-day one.
+	 */
+	const CHARTER_TYPE_PRICE_KEYS = array(
+		'hourly' => array( 'mageyabo_base_price_hourly' ),
+		'day'    => array( 'mageyabo_base_price_halfday', 'mageyabo_base_price_morning_slot', 'mageyabo_base_price_evening_slot', 'mageyabo_base_price_daily' ),
+		'weekly' => array( 'mageyabo_base_price_multiday' ),
+	);
+
 	public static function register_routes() {
 		register_rest_route(
 			self::NAMESPACE_,
@@ -231,6 +244,14 @@ class YachtsController extends Controller {
 			);
 		}
 
+		if ( $request->get_param( 'location' ) ) {
+			$meta_query[] = array(
+				'key'     => 'mageyabo_location_name',
+				'value'   => sanitize_text_field( $request->get_param( 'location' ) ),
+				'compare' => 'LIKE',
+			);
+		}
+
 		if ( $meta_query ) {
 			$args['meta_query'] = $meta_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 		}
@@ -241,6 +262,20 @@ class YachtsController extends Controller {
 
 		$query = new \WP_Query( $args );
 		$items = array_map( array( __CLASS__, 'summarize' ), $query->posts );
+
+		// "Weekly/day/hourly charter" toggle on the search bar: re-price each
+		// item off just that charter type's rate (instead of the cheapest rate
+		// across all of them) and drop yachts that don't offer it at all.
+		$charter_type = sanitize_key( $request->get_param( 'charter_type' ) );
+
+		if ( isset( self::CHARTER_TYPE_PRICE_KEYS[ $charter_type ] ) ) {
+			foreach ( $items as &$item ) {
+				$item['from_price'] = self::from_price( $item['id'], self::CHARTER_TYPE_PRICE_KEYS[ $charter_type ] );
+			}
+			unset( $item );
+
+			$items = array_values( array_filter( $items, static fn( $item ) => $item['from_price'] > 0 ) );
+		}
 
 		// Price range and "near me" filters need computed values, applied post-query.
 		$price_min = $request->get_param( 'price_min' );
@@ -864,11 +899,11 @@ class YachtsController extends Controller {
 		return $data;
 	}
 
-	private static function from_price( $yacht_id ) {
+	private static function from_price( $yacht_id, array $keys = array( 'mageyabo_base_price_hourly', 'mageyabo_base_price_halfday', 'mageyabo_base_price_morning_slot', 'mageyabo_base_price_evening_slot', 'mageyabo_base_price_daily' ) ) {
 		$prices = array_filter(
 			array_map(
 				static fn( $key ) => (float) get_post_meta( $yacht_id, $key, true ),
-				array( 'mageyabo_base_price_hourly', 'mageyabo_base_price_halfday', 'mageyabo_base_price_morning_slot', 'mageyabo_base_price_evening_slot', 'mageyabo_base_price_daily' )
+				$keys
 			)
 		);
 

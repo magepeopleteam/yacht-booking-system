@@ -13,7 +13,6 @@
 }
 
 .ybs-booking-form,
-.ybs-search,
 .ybs-yacht-page {
 	--ybs-primary: #f97316;
 	--ybs-primary-dark: #ea580c;
@@ -26,8 +25,7 @@
 	--ybs-radius: 8px;
 }
 
-.ybs-booking-form,
-.ybs-search {
+.ybs-booking-form {
 	max-width: 900px;
 	margin: 24px 0;
 	padding: 20px;
@@ -138,34 +136,213 @@
 	margin-top: 20px;
 }
 
+/*
+ * Shared by the [mageyabo_yacht_search] results grid (rendered in search.js)
+ * and the single-yacht "Similar Yachts" section (rendered server-side) -
+ * self-contained custom properties rather than the shared --ybs-* tokens, so
+ * the card looks right regardless of which wrapper it's nested inside.
+ */
 .ybs-yacht-card {
-	display: block;
-	border: 1px solid #e2e8f0;
-	border-radius: 12px;
+	--yc-ink: #1e293b;
+	--yc-muted: #64748b;
+	--yc-border: #e2e8f0;
+	--yc-soft: #f8fafc;
+	--yc-accent: #f97316;
+	--yc-accent-dark: #ea580c;
+	display: flex;
+	flex-direction: column;
+	border: 1px solid var( --yc-border );
+	border-radius: 14px;
 	overflow: hidden;
+	background: #fff;
 	text-decoration: none;
-	color: #1e293b;
+	color: var( --yc-ink );
+	box-shadow: 0 1px 2px rgba( 15, 23, 42, .04 );
+	transition: box-shadow .2s ease, transform .2s ease;
 }
 
-.ybs-yacht-card img {
+.ybs-yacht-card:hover {
+	box-shadow: 0 16px 32px -12px rgba( 15, 23, 42, .18 );
+	transform: translateY( -2px );
+}
+
+.ybs-yacht-card__media {
+	position: relative;
+	aspect-ratio: 4 / 3;
+	background: var( --yc-soft );
+}
+
+.ybs-yacht-card__media img {
 	width: 100%;
-	height: 150px;
+	height: 100%;
 	object-fit: cover;
 	display: block;
 }
 
-.ybs-yacht-card__body {
-	padding: 12px 14px;
+.ybs-yacht-card__media-placeholder {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient( 135deg, #1e293b, #334155 );
 }
 
-.ybs-yacht-card__body h3 {
-	margin: 0 0 4px;
-	font-size: 15px;
+.ybs-yacht-card__media-placeholder .dashicons {
+	color: rgba( 255, 255, 255, .35 );
+	font-size: 40px;
+	width: 40px;
+	height: 40px;
 }
 
-.ybs-yacht-card__price {
+.ybs-yacht-card__class {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: rgba( 255, 255, 255, .92 );
+	color: var( --yc-ink );
+	font-size: 11px;
 	font-weight: 700;
-	color: #ea580c;
+	text-transform: uppercase;
+	letter-spacing: .03em;
+}
+
+.ybs-yacht-card__photos {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 9px;
+	border-radius: 999px;
+	background: rgba( 15, 23, 42, .72 );
+	color: #fff;
+	font-size: 11.5px;
+	font-weight: 600;
+}
+
+.ybs-yacht-card__photos .dashicons {
+	font-size: 13px;
+	width: 13px;
+	height: 13px;
+}
+
+.ybs-yacht-card__body {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	padding: 14px 16px 16px;
+}
+
+.ybs-yacht-card__title {
+	margin: 0 0 6px;
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1.3;
+	color: var( --yc-ink );
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+}
+
+.ybs-yacht-card__location {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin: 0 0 8px;
+	font-size: 12.5px;
+	color: var( --yc-muted );
+}
+
+.ybs-yacht-card__location .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+.ybs-yacht-card__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+.ybs-yacht-card__meta-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 12.5px;
+	color: var( --yc-muted );
+}
+
+.ybs-yacht-card__meta-item .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	opacity: .8;
+}
+
+.ybs-yacht-card__footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin-top: auto;
+	padding-top: 12px;
+	border-top: 1px solid var( --yc-border );
+}
+
+.ybs-yacht-card__price-label {
+	display: block;
+	font-size: 10.5px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .03em;
+	color: var( --yc-muted );
+}
+
+.ybs-yacht-card__price-value {
+	font-size: 16px;
+	font-weight: 800;
+	color: var( --yc-ink );
+}
+
+.ybs-yacht-card__price-value small {
+	font-size: 12px;
+	font-weight: 600;
+	color: var( --yc-muted );
+}
+
+.ybs-yacht-card__book {
+	flex: none;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 8px 14px;
+	border-radius: 999px;
+	background: var( --yc-accent );
+	color: #fff;
+	font-size: 12.5px;
+	font-weight: 700;
+	white-space: nowrap;
+	transition: background .15s ease;
+}
+
+.ybs-yacht-card__book span {
+	display: inline-block;
+	transition: transform .15s ease;
+}
+
+.ybs-yacht-card:hover .ybs-yacht-card__book {
+	background: var( --yc-accent-dark );
+}
+
+.ybs-yacht-card:hover .ybs-yacht-card__book span {
+	transform: translateX( 3px );
 }
 
 .ybs-newsletter {
@@ -253,23 +430,120 @@
 	margin: 0 auto;
 }
 
+/*
+ * The block theme's singular template includes its own "post meta" template
+ * part below the content - a separator plus "Posted [date] in [categories]
+ * by [author]" / "Tags:" row. Yachts have no categories/tags/author terms
+ * to show there, so it renders as bare, empty-looking labels. It's a plain
+ * <div> (unlike the header/footer/comments template parts, which use
+ * <header>/<footer>/<section>), so this selector only ever matches it.
+ */
+body.single-mageyabo_yacht main div.wp-block-template-part {
+	display: none;
+}
+
 .ybs-yp-gallery {
 	margin-bottom: 20px;
 }
 
-.ybs-yp-gallery__main {
+/* Hero photo (left, wide) + a 2x2 grid of smaller tiles (right) - both
+   open the same lightbox, just at a different starting photo. */
+.ybs-yp-gallery__grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 8px;
+	/* Belt-and-suspenders: whatever happens to the items/tracks inside, the
+	   gallery itself can never visually grow past the height it's given -
+	   nothing it contains can spill into the title/content below it. */
+	overflow: hidden;
+}
+
+@media ( min-width: 700px ) {
+	.ybs-yp-gallery__grid {
+		grid-template-columns: 1.6fr 1fr;
+		grid-template-rows: 420px;
+		height: 420px;
+	}
+}
+
+.ybs-yp-gallery__hero,
+.ybs-yp-gallery__tile {
 	position: relative;
-	aspect-ratio: 16 / 8;
+	display: block;
+	/* Grid/flex items default to `min-height: auto`, which floors their size
+	   at their content's natural (min-content) size - for an <img> that's
+	   its full intrinsic height, regardless of `height: 100%` above it. That
+	   silently overrides the 420px this gallery is meant to fit in and is
+	   what let a tall photo blow the whole layout out. */
+	min-height: 0;
+	width: 100%;
+	padding: 0;
+	border: 0;
 	border-radius: 16px;
 	overflow: hidden;
+	cursor: pointer;
 	background: linear-gradient( 135deg, #1e293b, #334155 );
 }
 
-.ybs-yp-gallery__main-img {
+.ybs-yp-gallery__hero {
+	aspect-ratio: 16 / 10;
+}
+
+@media ( min-width: 700px ) {
+	.ybs-yp-gallery__hero {
+		aspect-ratio: auto;
+		height: 100%;
+	}
+}
+
+.ybs-yp-gallery__hero img,
+.ybs-yp-gallery__tile img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 	display: block;
+	transition: transform .3s ease;
+}
+
+.ybs-yp-gallery__hero:hover img,
+.ybs-yp-gallery__tile:hover img {
+	transform: scale( 1.04 );
+}
+
+.ybs-yp-gallery__tiles {
+	display: grid;
+	grid-template-columns: repeat( 2, 1fr );
+	/* Without an explicit row track, the grid's auto-sized rows are
+	   indefinite at the desktop breakpoint (where the tiles no longer have
+	   their own aspect-ratio) - each tile's `height: 100%` image then had
+	   nothing definite to resolve against and fell back to its native
+	   pixel size, blowing the gallery out over everything below it. */
+	grid-template-rows: repeat( 2, 1fr );
+	gap: 8px;
+	height: 100%;
+	min-height: 0;
+}
+
+.ybs-yp-gallery__tile {
+	aspect-ratio: 1;
+}
+
+@media ( min-width: 700px ) {
+	.ybs-yp-gallery__tile {
+		aspect-ratio: auto;
+	}
+}
+
+.ybs-yp-gallery__more {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba( 15, 23, 42, .55 );
+	color: #fff;
+	font-size: 20px;
+	font-weight: 700;
 }
 
 .ybs-yp-gallery__placeholder {
@@ -288,61 +562,132 @@
 	height: 56px;
 }
 
-.ybs-yp-gallery__count {
+.ybs-yp-gallery__view {
 	position: absolute;
 	bottom: 14px;
 	right: 14px;
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
-	padding: 6px 12px;
-	border-radius: 20px;
-	background: rgba( 15, 23, 42, .72 );
+	padding: 8px 16px;
+	border-radius: 999px;
+	background: var( --ybs-primary );
 	color: #fff;
-	font-size: 12.5px;
-	font-weight: 600;
+	font-size: 13px;
+	font-weight: 700;
+	box-shadow: 0 6px 16px -4px rgba( 0, 0, 0, .35 );
+	transition: background .15s ease;
 }
 
-.ybs-yp-gallery__count .dashicons {
+.ybs-yp-gallery__hero:hover .ybs-yp-gallery__view {
+	background: var( --ybs-primary-dark );
+}
+
+.ybs-yp-gallery__view .dashicons {
 	font-size: 15px;
 	width: 15px;
 	height: 15px;
 }
 
-.ybs-yp-gallery__thumbs {
+/* ---- Lightbox ---- */
+
+.ybs-yp-lightbox {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
 	display: flex;
-	gap: 8px;
-	margin-top: 8px;
-	overflow-x: auto;
+	align-items: center;
+	justify-content: center;
+	background: rgba( 8, 10, 20, .92 );
+	padding: 16px;
 }
 
-.ybs-yp-gallery__thumb {
-	flex: 0 0 auto;
-	width: 76px;
-	height: 56px;
-	padding: 0;
-	border: 2px solid transparent;
-	border-radius: 10px;
+.ybs-yp-lightbox[hidden] {
+	display: none;
+}
+
+body.ybs-yp-lightbox-open {
 	overflow: hidden;
+}
+
+.ybs-yp-lightbox__img {
+	max-width: min( 1100px, 100% );
+	max-height: 88vh;
+	object-fit: contain;
+	border-radius: 8px;
+	box-shadow: 0 20px 60px rgba( 0, 0, 0, .5 );
+}
+
+.ybs-yp-lightbox__close,
+.ybs-yp-lightbox__prev,
+.ybs-yp-lightbox__next {
+	position: absolute;
+	appearance: none;
+	border: 0;
+	background: rgba( 255, 255, 255, .12 );
+	color: #fff;
 	cursor: pointer;
-	background: none;
-	opacity: .7;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background .15s ease;
 }
 
-.ybs-yp-gallery__thumb img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	display: block;
+.ybs-yp-lightbox__close:hover,
+.ybs-yp-lightbox__prev:hover,
+.ybs-yp-lightbox__next:hover {
+	background: rgba( 255, 255, 255, .22 );
 }
 
-.ybs-yp-gallery__thumb:hover {
-	opacity: 1;
+.ybs-yp-lightbox__close {
+	top: 16px;
+	right: 16px;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	font-size: 22px;
+	line-height: 1;
 }
 
-.ybs-yp-gallery__thumb.is-active {
-	border-color: var( --ybs-primary );
-	opacity: 1;
+.ybs-yp-lightbox__prev,
+.ybs-yp-lightbox__next {
+	top: 50%;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	font-size: 28px;
+	line-height: 1;
+	transform: translateY( -50% );
+}
+
+.ybs-yp-lightbox__prev {
+	left: 16px;
+}
+
+.ybs-yp-lightbox__next {
+	right: 16px;
+}
+
+.ybs-yp-lightbox__count {
+	position: absolute;
+	bottom: 20px;
+	left: 50%;
+	transform: translateX( -50% );
+	padding: 6px 14px;
+	border-radius: 999px;
+	background: rgba( 255, 255, 255, .12 );
+	color: #fff;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+@media ( max-width: 560px ) {
+	.ybs-yp-lightbox__prev,
+	.ybs-yp-lightbox__next {
+		width: 38px;
+		height: 38px;
+		font-size: 22px;
+	}
 }
 
 .ybs-yp-header {
@@ -1110,4 +1455,244 @@ select.ybs-yl-bar__control {
 .ybs-yl-loadmore:hover {
 	border-color: var( --yl-gold );
 	background: var( --yl-gold-soft );
+}
+
+/* ------------------------------------------------------- Search shortcode */
+/*
+ * [mageyabo_yacht_search]'s "Weekly / Day / Hourly charter" toggle + Where/
+ * Dates/Guests/Price bar - same gold palette and pill/bar shapes as the
+ * Yacht List bar above (`.ybs-yl-bar`, `.ybs-yl-tabs`), re-scoped under
+ * `.ybs-search` since the two shortcodes can appear independently of one
+ * another on a page.
+ */
+
+.ybs-search {
+	--ybs-search-bg: #fff;
+	--ybs-search-ink: #222;
+	--ybs-search-gray: #717171;
+	--ybs-search-gray-2: #b0b0b0;
+	--ybs-search-line: #ddd;
+	--ybs-search-line-soft: #ebebeb;
+	--ybs-search-gold: #b08a3e;
+	--ybs-search-gold-strong: #9a7733;
+	max-width: 900px;
+	margin: 24px auto;
+	font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	color: var( --ybs-search-ink );
+	box-sizing: border-box;
+}
+
+.ybs-search-toggle {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	width: fit-content;
+	max-width: 100%;
+	gap: 4px;
+	margin: 0 auto 16px;
+	padding: 4px;
+	border: 1px solid var( --ybs-search-line-soft );
+	border-radius: 999px;
+	background: var( --ybs-search-bg );
+	box-shadow: 0 10px 30px -20px rgba( 0, 0, 0, .15 );
+	overflow-x: auto;
+}
+
+.ybs-search-toggle__btn {
+	appearance: none !important;
+	-webkit-appearance: none !important;
+	-moz-appearance: none !important;
+	flex: none;
+	border: 0 !important;
+	background: transparent !important;
+	border-radius: 999px;
+	padding: 10px 24px;
+	font-size: 13.5px;
+	font-weight: 700;
+	font-family: inherit;
+	color: rgba( 34, 34, 34, .75 );
+	white-space: nowrap;
+	cursor: pointer;
+	transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.ybs-search-toggle__btn:hover {
+	color: var( --ybs-search-ink );
+}
+
+.ybs-search-toggle__btn.is-active {
+	background: var( --ybs-search-gold ) !important;
+	color: #fff;
+	box-shadow: 0 6px 20px -8px rgba( 176, 138, 62, .55 );
+}
+
+.ybs-search-bar {
+	display: grid;
+	grid-template-columns: 1fr;
+	background: var( --ybs-search-bg );
+	border: 1px solid var( --ybs-search-line-soft );
+	border-radius: 20px;
+	box-shadow: 0 3px 12px rgba( 0, 0, 0, .1 ), 0 1px 2px rgba( 0, 0, 0, .08 );
+	transition: box-shadow .2s ease;
+}
+
+.ybs-search-bar:hover {
+	box-shadow: 0 6px 20px rgba( 0, 0, 0, .16 );
+}
+
+@media ( min-width: 768px ) {
+	.ybs-search-bar {
+		grid-template-columns: minmax( 0, 1.3fr ) minmax( 0, 1.3fr ) minmax( 0, .8fr ) minmax( 0, 1fr ) auto;
+		border-radius: 40px;
+	}
+}
+
+.ybs-search-bar__field {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 12px 24px;
+	border-bottom: 1px solid var( --ybs-search-line-soft );
+}
+
+@media ( min-width: 768px ) {
+	.ybs-search-bar__field {
+		border-bottom: 0;
+		border-right: 1px solid var( --ybs-search-line-soft );
+	}
+}
+
+.ybs-search-bar__label {
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .03em;
+	color: var( --ybs-search-ink );
+}
+
+.ybs-search-bar__label small {
+	margin-left: 2px;
+	font-size: 10px;
+	font-weight: 500;
+	text-transform: none;
+	letter-spacing: normal;
+	color: var( --ybs-search-gray-2 );
+}
+
+.ybs-search-bar__control {
+	/* `!important` throughout: this shortcode can land inside any theme, and
+	   most themes ship their own `input[type=date]`/`input, select` reset
+	   with a background+border that otherwise out-specifies (or simply
+	   loads after) this class alone, leaving a stray boxed-input look inside
+	   what's supposed to be one seamless pill bar. */
+	appearance: none !important;
+	-webkit-appearance: none !important;
+	-moz-appearance: none !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	background: transparent !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	width: 100%;
+	height: auto !important;
+	min-height: 0 !important;
+	font-size: 14px !important;
+	font-weight: 500 !important;
+	line-height: normal !important;
+	color: var( --ybs-search-gray ) !important;
+	font-family: inherit !important;
+}
+
+.ybs-search-bar__control:focus {
+	outline: none !important;
+	box-shadow: none !important;
+	border: 0 !important;
+}
+
+select.ybs-search-bar__control {
+	cursor: pointer;
+}
+
+.ybs-search-bar__stepper {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 2px;
+}
+
+.ybs-search-bar__step {
+	appearance: none !important;
+	-webkit-appearance: none !important;
+	-moz-appearance: none !important;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+	width: 26px;
+	height: 26px;
+	padding: 0 !important;
+	margin: 0 !important;
+	border-radius: 50%;
+	border: 1px solid var( --ybs-search-line ) !important;
+	background: #fff !important;
+	color: var( --ybs-search-ink );
+	font-family: inherit;
+	font-size: 14px;
+	line-height: 1;
+	cursor: pointer;
+	transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+
+.ybs-search-bar__step:hover {
+	border-color: var( --ybs-search-ink ) !important;
+	background: var( --ybs-search-line-soft ) !important;
+}
+
+.ybs-search-guests {
+	min-width: 16px;
+	text-align: center;
+	font-size: 15px;
+	font-weight: 700;
+	color: var( --ybs-search-ink );
+}
+
+.ybs-search-bar__submit {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	padding: 8px 12px;
+}
+
+.ybs-search-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	width: 100%;
+	border: 0;
+	border-radius: 999px;
+	background: var( --ybs-search-gold );
+	color: #fff;
+	font-size: 14px;
+	font-weight: 700;
+	font-family: inherit;
+	padding: 14px 26px;
+	cursor: pointer;
+	transition: background .15s ease;
+}
+
+@media ( min-width: 768px ) {
+	.ybs-search-btn {
+		width: auto;
+	}
+}
+
+.ybs-search-btn:hover {
+	background: var( --ybs-search-gold-strong );
+}
+
+.ybs-search .ybs-search-results {
+	margin-top: 24px;
 }

@@ -20,6 +20,7 @@ final class Migrator {
 	public static function activate() {
 		self::install();
 		Capabilities::install();
+		self::create_pages();
 
 		if ( ! wp_next_scheduled( 'mageyabo_daily_maintenance' ) ) {
 			wp_schedule_event( time(), 'daily', 'mageyabo_daily_maintenance' );
@@ -29,6 +30,49 @@ final class Migrator {
 		// during an activation hook - defer the rewrite flush to the next
 		// normal page load instead of flushing against an empty rewrite set.
 		update_option( 'mageyabo_flush_rewrite_rules', 1 );
+	}
+
+	/**
+	 * Creates the front-end pages the plugin needs, if they don't already
+	 * exist. The page ID is cached in an option so we can find it again on
+	 * a later activation (e.g. after the page was renamed) without matching
+	 * on title.
+	 */
+	private static function create_pages() {
+		self::create_page_once(
+			'mageyabo_search_yacht_page_id',
+			__( 'Search Yacht', 'magepeople-yacht-booking-system' ),
+			'[mageyabo_yacht_search]'
+		);
+	}
+
+	private static function create_page_once( $option_name, $title, $content ) {
+		$page_id = (int) get_option( $option_name );
+
+		// Page still exists (and hasn't been trashed) - nothing to do.
+		if ( $page_id && 'page' === get_post_type( $page_id ) && 'trash' !== get_post_status( $page_id ) ) {
+			return $page_id;
+		}
+
+		$page_id = wp_insert_post(
+			array(
+				'post_title'     => $title,
+				'post_content'   => $content,
+				'post_status'    => 'publish',
+				'post_type'      => 'page',
+				'comment_status' => 'closed',
+				'ping_status'    => 'closed',
+			),
+			true
+		);
+
+		if ( is_wp_error( $page_id ) ) {
+			return 0;
+		}
+
+		update_option( $option_name, $page_id );
+
+		return $page_id;
 	}
 
 	public static function deactivate() {

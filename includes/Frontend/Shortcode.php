@@ -221,53 +221,81 @@ class Shortcode {
 		return ob_get_clean();
 	}
 
+	/**
+	 * Search bar styled after dubaiyachtbooking.com's own booking widget: a
+	 * "Weekly / Day / Hourly charter" pill toggle above a Where/Dates/Guests/
+	 * Price bar. The toggle re-prices results off that charter type's own
+	 * rate via the `charter_type` REST param (see
+	 * `YachtsController::CHARTER_TYPE_PRICE_KEYS`); Dates is left unwired to
+	 * the query, matching `[mageyabo_yacht_list]`'s bar, which doesn't filter
+	 * on it either - there's no per-date/season pricing to filter by yet.
+	 */
 	public static function render_search( $atts ) {
 		wp_enqueue_script( 'mageyabo-frontend' );
 		wp_enqueue_style( 'mageyabo-frontend' );
 
-		$classes   = get_terms( array( 'taxonomy' => 'mageyabo_yacht_class', 'hide_empty' => false ) );
-		$occasions = get_terms( array( 'taxonomy' => 'mageyabo_yacht_occasion', 'hide_empty' => false ) );
+		$currency    = Settings::get( 'currency_symbol', '$' );
+		$locations   = self::yacht_locations();
+		$price_tiers = self::price_tiers( $currency );
+
+		$where_default = 1 === count( $locations )
+			/* translators: %s: the shared location of every yacht in the fleet, e.g. "Dubai Marina". */
+			? sprintf( __( 'All %s', 'magepeople-yacht-booking-system' ), $locations[0] )
+			: __( 'All Locations', 'magepeople-yacht-booking-system' );
 
 		ob_start();
 		?>
 		<div class="ybs-search" data-ybs-search>
-			<div class="ybs-field-row">
-				<div class="ybs-field">
-					<label><?php esc_html_e( 'Date', 'magepeople-yacht-booking-system' ); ?></label>
-					<input type="date" class="ybs-search-date" />
+			<div class="ybs-search-toggle" role="tablist" aria-label="<?php esc_attr_e( 'Charter type', 'magepeople-yacht-booking-system' ); ?>">
+				<button type="button" role="tab" aria-selected="false" class="ybs-search-toggle__btn" data-charter-type="weekly"><?php esc_html_e( 'Weekly charter', 'magepeople-yacht-booking-system' ); ?></button>
+				<button type="button" role="tab" aria-selected="true" class="ybs-search-toggle__btn is-active" data-charter-type="day"><?php esc_html_e( 'Day charter', 'magepeople-yacht-booking-system' ); ?></button>
+				<button type="button" role="tab" aria-selected="false" class="ybs-search-toggle__btn" data-charter-type="hourly"><?php esc_html_e( 'Hourly charter', 'magepeople-yacht-booking-system' ); ?></button>
+			</div>
+
+			<div class="ybs-search-bar">
+				<div class="ybs-search-bar__field">
+					<span class="ybs-search-bar__label"><?php esc_html_e( 'Where', 'magepeople-yacht-booking-system' ); ?></span>
+					<select class="ybs-search-where ybs-search-bar__control">
+						<option value=""><?php echo esc_html( $where_default ); ?></option>
+						<?php if ( count( $locations ) > 1 ) : ?>
+							<?php foreach ( $locations as $location ) : ?>
+								<option value="<?php echo esc_attr( $location ); ?>"><?php echo esc_html( $location ); ?></option>
+							<?php endforeach; ?>
+						<?php endif; ?>
+					</select>
 				</div>
-				<div class="ybs-field">
-					<label><?php esc_html_e( 'Guests', 'magepeople-yacht-booking-system' ); ?></label>
-					<input type="number" class="ybs-search-guests" min="1" />
+				<div class="ybs-search-bar__field">
+					<span class="ybs-search-bar__label">
+						<?php esc_html_e( 'Dates', 'magepeople-yacht-booking-system' ); ?>
+						<small><?php esc_html_e( '(sets season rates)', 'magepeople-yacht-booking-system' ); ?></small>
+					</span>
+					<input type="date" class="ybs-search-date ybs-search-bar__control" />
 				</div>
-				<div class="ybs-field">
-					<label><?php esc_html_e( 'Class', 'magepeople-yacht-booking-system' ); ?></label>
-					<select class="ybs-search-class">
-						<option value=""><?php esc_html_e( 'Any', 'magepeople-yacht-booking-system' ); ?></option>
-						<?php foreach ( $classes as $term ) : ?>
-							<option value="<?php echo esc_attr( $term->slug ); ?>"><?php echo esc_html( $term->name ); ?></option>
+				<div class="ybs-search-bar__field">
+					<span class="ybs-search-bar__label"><?php esc_html_e( 'Guests', 'magepeople-yacht-booking-system' ); ?></span>
+					<div class="ybs-search-bar__stepper">
+						<button type="button" class="ybs-search-bar__step" data-step="-1" aria-label="<?php esc_attr_e( 'Fewer guests', 'magepeople-yacht-booking-system' ); ?>">&minus;</button>
+						<b class="ybs-search-guests" data-value="2">2</b>
+						<button type="button" class="ybs-search-bar__step" data-step="1" aria-label="<?php esc_attr_e( 'More guests', 'magepeople-yacht-booking-system' ); ?>">+</button>
+					</div>
+				</div>
+				<div class="ybs-search-bar__field">
+					<span class="ybs-search-bar__label"><?php esc_html_e( 'Price', 'magepeople-yacht-booking-system' ); ?></span>
+					<select class="ybs-search-price ybs-search-bar__control">
+						<option value=""><?php esc_html_e( 'Any price', 'magepeople-yacht-booking-system' ); ?></option>
+						<?php foreach ( $price_tiers as $value => $label ) : ?>
+							<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
 						<?php endforeach; ?>
 					</select>
 				</div>
-				<div class="ybs-field">
-					<label><?php esc_html_e( 'Occasion', 'magepeople-yacht-booking-system' ); ?></label>
-					<select class="ybs-search-occasion">
-						<option value=""><?php esc_html_e( 'Any', 'magepeople-yacht-booking-system' ); ?></option>
-						<?php foreach ( $occasions as $term ) : ?>
-							<option value="<?php echo esc_attr( $term->slug ); ?>"><?php echo esc_html( $term->name ); ?></option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-				<div class="ybs-field">
-					<label><?php esc_html_e( 'Max Price', 'magepeople-yacht-booking-system' ); ?></label>
-					<input type="number" class="ybs-search-price-max" min="0" />
-				</div>
-				<div class="ybs-field ybs-search-nearme-field">
-					<label>&nbsp;</label>
-					<button type="button" class="ybs-btn ybs-search-nearme"><?php esc_html_e( 'Near Me', 'magepeople-yacht-booking-system' ); ?></button>
+				<div class="ybs-search-bar__submit">
+					<button type="button" class="ybs-search-btn" aria-label="<?php esc_attr_e( 'Search yachts', 'magepeople-yacht-booking-system' ); ?>">
+						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+						<span><?php esc_html_e( 'Search', 'magepeople-yacht-booking-system' ); ?></span>
+					</button>
 				</div>
 			</div>
-			<button type="button" class="ybs-btn is-primary ybs-search-submit"><?php esc_html_e( 'Search Yachts', 'magepeople-yacht-booking-system' ); ?></button>
+
 			<div class="ybs-search-results"></div>
 		</div>
 		<?php
@@ -296,22 +324,7 @@ class Shortcode {
 		$show_search = 'yes' === $atts['search'] || '1' === (string) $atts['search'];
 		$classes     = get_terms( array( 'taxonomy' => 'mageyabo_yacht_class', 'hide_empty' => false ) );
 		$currency    = Settings::get( 'currency_symbol', '$' );
-
-		// value = "min-max" ("" max means no ceiling) - parsed by yacht-list.js
-		// into separate price_min/price_max REST params, since a flat "under
-		// X" max alone can't express the top open-ended "10,000+" tier.
-		$price_tiers = array(
-			/* translators: %s: currency symbol. */
-			'0-1000'     => sprintf( __( 'Under %s1,000 per hour', 'magepeople-yacht-booking-system' ), $currency ),
-			/* translators: %1$s: currency symbol. */
-			'1000-2500'  => sprintf( __( '%1$s1,000 to %1$s2,500 per hour', 'magepeople-yacht-booking-system' ), $currency ),
-			/* translators: %1$s: currency symbol. */
-			'2500-5000'  => sprintf( __( '%1$s2,500 to %1$s5,000 per hour', 'magepeople-yacht-booking-system' ), $currency ),
-			/* translators: %1$s: currency symbol. */
-			'5000-10000' => sprintf( __( '%1$s5,000 to %1$s10,000 per hour', 'magepeople-yacht-booking-system' ), $currency ),
-			/* translators: %s: currency symbol. */
-			'10000-'     => sprintf( __( '%s10,000+ per hour', 'magepeople-yacht-booking-system' ), $currency ),
-		);
+		$price_tiers = self::price_tiers( $currency );
 
 		ob_start();
 		?>
@@ -429,36 +442,54 @@ class Shortcode {
 		ob_start();
 		?>
 		<div class="ybs-yacht-page">
-			<div class="ybs-yp-gallery" data-ybs-gallery>
+			<div class="ybs-yp-gallery" data-ybs-gallery data-photos="<?php echo esc_attr( wp_json_encode( $gallery_urls ) ); ?>">
 				<?php if ( $gallery_urls ) : ?>
-					<div class="ybs-yp-gallery__main">
-						<img class="ybs-yp-gallery__main-img" src="<?php echo esc_url( $gallery_urls[0] ); ?>" alt="<?php echo esc_attr( get_the_title( $yacht_id ) ); ?>" />
-						<?php if ( count( $gallery_urls ) > 1 ) : ?>
-							<span class="ybs-yp-gallery__count">
-								<span class="dashicons dashicons-camera"></span>
-								<span class="ybs-yp-gallery__count-text"><?php echo esc_html( sprintf( '1 / %d', count( $gallery_urls ) ) ); ?></span>
-							</span>
+					<?php
+					$photo_count = count( $gallery_urls );
+					$tile_urls   = array_slice( $gallery_urls, 1, 4 );
+					$more_count  = $photo_count - 1 - count( $tile_urls );
+					?>
+					<div class="ybs-yp-gallery__grid">
+						<button type="button" class="ybs-yp-gallery__hero" data-ybs-open data-index="0">
+							<img src="<?php echo esc_url( $gallery_urls[0] ); ?>" alt="<?php echo esc_attr( get_the_title( $yacht_id ) ); ?>" />
+							<?php if ( $photo_count > 1 ) : ?>
+								<span class="ybs-yp-gallery__view">
+									<span class="dashicons dashicons-camera"></span>
+									<?php echo esc_html( sprintf( /* translators: %d: total number of photos. */ __( 'View Photos (%d)', 'magepeople-yacht-booking-system' ), $photo_count ) ); ?>
+								</span>
+							<?php endif; ?>
+						</button>
+						<?php if ( $tile_urls ) : ?>
+							<div class="ybs-yp-gallery__tiles">
+								<?php foreach ( $tile_urls as $i => $url ) : ?>
+									<button type="button" class="ybs-yp-gallery__tile" data-ybs-open data-index="<?php echo esc_attr( $i + 1 ); ?>">
+										<img src="<?php echo esc_url( $url ); ?>" alt="" />
+										<?php if ( $more_count > 0 && $i === count( $tile_urls ) - 1 ) : ?>
+											<span class="ybs-yp-gallery__more">+<?php echo esc_html( $more_count ); ?></span>
+										<?php endif; ?>
+									</button>
+								<?php endforeach; ?>
+							</div>
 						<?php endif; ?>
 					</div>
-					<?php if ( count( $gallery_urls ) > 1 ) : ?>
-						<div class="ybs-yp-gallery__thumbs">
-							<?php foreach ( $gallery_urls as $i => $url ) : ?>
-								<button type="button" class="ybs-yp-gallery__thumb<?php echo 0 === $i ? ' is-active' : ''; ?>" data-full="<?php echo esc_url( $url ); ?>">
-									<img src="<?php echo esc_url( $url ); ?>" alt="" />
-								</button>
-							<?php endforeach; ?>
-						</div>
-					<?php endif; ?>
 				<?php else : ?>
 					<div class="ybs-yp-gallery__placeholder"><span class="dashicons dashicons-palmtree"></span></div>
 				<?php endif; ?>
+
+				<div class="ybs-yp-lightbox" hidden>
+					<button type="button" class="ybs-yp-lightbox__close" aria-label="<?php esc_attr_e( 'Close', 'magepeople-yacht-booking-system' ); ?>">&times;</button>
+					<button type="button" class="ybs-yp-lightbox__prev" aria-label="<?php esc_attr_e( 'Previous photo', 'magepeople-yacht-booking-system' ); ?>">&#8249;</button>
+					<img class="ybs-yp-lightbox__img" src="" alt="" />
+					<button type="button" class="ybs-yp-lightbox__next" aria-label="<?php esc_attr_e( 'Next photo', 'magepeople-yacht-booking-system' ); ?>">&#8250;</button>
+					<span class="ybs-yp-lightbox__count"></span>
+				</div>
 			</div>
 
 			<div class="ybs-yp-header">
 				<?php if ( $classes ) : ?>
 					<span class="ybs-yp-class-badge"><?php echo esc_html( $classes[0]->name ); ?></span>
 				<?php endif; ?>
-				<h2 class="ybs-yp-title"><?php echo esc_html( get_the_title( $yacht_id ) ); ?></h2>
+				<h1 class="ybs-yp-title"><?php echo esc_html( get_the_title( $yacht_id ) ); ?></h1>
 				<div class="ybs-yp-stats">
 					<?php if ( $capacity ) : ?>
 						<span class="ybs-yp-stat"><span class="dashicons dashicons-groups"></span><?php echo esc_html( /* translators: %d: maximum number of guests. */ sprintf( __( '%d guests max', 'magepeople-yacht-booking-system' ), $capacity ) ); ?></span>
@@ -546,21 +577,56 @@ class Shortcode {
 							<h3><?php esc_html_e( 'Similar Yachts', 'magepeople-yacht-booking-system' ); ?></h3>
 							<div class="ybs-search-results">
 								<?php foreach ( $similar as $other ) : ?>
+									<?php
+									$other_capacity    = (int) get_post_meta( $other->ID, 'mageyabo_capacity', true );
+									$other_length      = get_post_meta( $other->ID, 'mageyabo_length', true );
+									$other_location    = get_post_meta( $other->ID, 'mageyabo_location_name', true );
+									$other_classes     = wp_get_post_terms( $other->ID, 'mageyabo_yacht_class', array( 'fields' => 'names' ) );
+									$other_gallery     = get_post_meta( $other->ID, 'mageyabo_gallery', true );
+									$other_photo_count = is_array( $other_gallery ) ? count( $other_gallery ) : 0;
+									$other_thumb       = get_the_post_thumbnail_url( $other, 'medium' );
+									$other_rates       = self::yacht_rates( $other->ID );
+									?>
 									<a class="ybs-yacht-card" href="<?php echo esc_url( get_permalink( $other ) ); ?>">
-										<?php $other_thumb = get_the_post_thumbnail_url( $other, 'medium' ); ?>
-										<?php if ( $other_thumb ) : ?>
-											<img src="<?php echo esc_url( $other_thumb ); ?>" alt="" />
-										<?php endif; ?>
+										<div class="ybs-yacht-card__media">
+											<?php if ( $other_thumb ) : ?>
+												<img src="<?php echo esc_url( $other_thumb ); ?>" alt="<?php echo esc_attr( get_the_title( $other ) ); ?>" loading="lazy" />
+											<?php else : ?>
+												<div class="ybs-yacht-card__media-placeholder"><span class="dashicons dashicons-palmtree"></span></div>
+											<?php endif; ?>
+											<?php if ( $other_classes ) : ?>
+												<span class="ybs-yacht-card__class"><?php echo esc_html( $other_classes[0] ); ?></span>
+											<?php endif; ?>
+											<?php if ( $other_photo_count > 0 ) : ?>
+												<span class="ybs-yacht-card__photos"><span class="dashicons dashicons-camera"></span><?php echo esc_html( $other_photo_count ); ?></span>
+											<?php endif; ?>
+										</div>
 										<div class="ybs-yacht-card__body">
-											<h3><?php echo esc_html( get_the_title( $other ) ); ?></h3>
-											<?php
-											$other_rates = self::yacht_rates( $other->ID );
-											if ( $other_rates ) :
-												?>
-												<div class="ybs-yacht-card__price">
-													<?php echo esc_html( /* translators: %s: formatted lowest price. */ sprintf( __( 'From %s', 'magepeople-yacht-booking-system' ), self::format_price( min( wp_list_pluck( $other_rates, 'amount' ) ), $currency ) ) ); ?>
+											<h3 class="ybs-yacht-card__title"><?php echo esc_html( get_the_title( $other ) ); ?></h3>
+											<?php if ( $other_location ) : ?>
+												<p class="ybs-yacht-card__location"><span class="dashicons dashicons-location"></span><?php echo esc_html( $other_location ); ?></p>
+											<?php endif; ?>
+											<?php if ( $other_capacity || $other_length ) : ?>
+												<div class="ybs-yacht-card__meta">
+													<?php if ( $other_capacity ) : ?>
+														<span class="ybs-yacht-card__meta-item"><span class="dashicons dashicons-groups"></span><?php echo esc_html( /* translators: %d: number of guests. */ sprintf( __( '%d guests', 'magepeople-yacht-booking-system' ), $other_capacity ) ); ?></span>
+													<?php endif; ?>
+													<?php if ( $other_length ) : ?>
+														<span class="ybs-yacht-card__meta-item"><span class="dashicons dashicons-leftright"></span><?php echo esc_html( /* translators: %s: length in metres. */ sprintf( __( '%s m', 'magepeople-yacht-booking-system' ), $other_length ) ); ?></span>
+													<?php endif; ?>
 												</div>
 											<?php endif; ?>
+											<div class="ybs-yacht-card__footer">
+												<?php if ( $other_rates ) : ?>
+													<div class="ybs-yacht-card__price">
+														<span class="ybs-yacht-card__price-label"><?php esc_html_e( 'From', 'magepeople-yacht-booking-system' ); ?></span>
+														<span class="ybs-yacht-card__price-value"><?php echo esc_html( self::format_price( min( wp_list_pluck( $other_rates, 'amount' ) ), $currency ) ); ?></span>
+													</div>
+												<?php else : ?>
+													<span></span>
+												<?php endif; ?>
+												<span class="ybs-yacht-card__book"><?php esc_html_e( 'View', 'magepeople-yacht-booking-system' ); ?> <span>&rarr;</span></span>
+											</div>
 										</div>
 									</a>
 								<?php endforeach; ?>
@@ -716,5 +782,50 @@ class Shortcode {
 		$decimals = ( fmod( $amount, 1.0 ) === 0.0 ) ? 0 : 2;
 
 		return $currency . number_format( $amount, $decimals );
+	}
+
+	/**
+	 * Shared by `[mageyabo_yacht_search]` and `[mageyabo_yacht_list]`'s "Price"
+	 * dropdown. value = "min-max" ("" max means no ceiling) - parsed by
+	 * search.js/yacht-list.js into separate price_min/price_max REST params,
+	 * since a flat "under X" max alone can't express the top open-ended
+	 * "10,000+" tier.
+	 */
+	private static function price_tiers( $currency ) {
+		return array(
+			/* translators: %s: currency symbol. */
+			'0-1000'     => sprintf( __( 'Under %s1,000 per hour', 'magepeople-yacht-booking-system' ), $currency ),
+			/* translators: %1$s: currency symbol. */
+			'1000-2500'  => sprintf( __( '%1$s1,000 to %1$s2,500 per hour', 'magepeople-yacht-booking-system' ), $currency ),
+			/* translators: %1$s: currency symbol. */
+			'2500-5000'  => sprintf( __( '%1$s2,500 to %1$s5,000 per hour', 'magepeople-yacht-booking-system' ), $currency ),
+			/* translators: %1$s: currency symbol. */
+			'5000-10000' => sprintf( __( '%1$s5,000 to %1$s10,000 per hour', 'magepeople-yacht-booking-system' ), $currency ),
+			/* translators: %s: currency symbol. */
+			'10000-'     => sprintf( __( '%s10,000+ per hour', 'magepeople-yacht-booking-system' ), $currency ),
+		);
+	}
+
+	/**
+	 * Distinct, non-empty location names among published yachts, for the
+	 * search bar's "Where" filter - a direct query rather than loading every
+	 * yacht through WP_Query just to read one meta field each.
+	 */
+	private static function yacht_locations() {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		return $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT pm.meta_value FROM {$wpdb->postmeta} pm
+				INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+				WHERE pm.meta_key = %s AND pm.meta_value <> ''
+					AND p.post_type = %s AND p.post_status = 'publish'
+				ORDER BY pm.meta_value ASC",
+				'mageyabo_location_name',
+				Yacht::POST_TYPE
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 	}
 }
