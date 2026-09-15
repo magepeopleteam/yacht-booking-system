@@ -109,6 +109,7 @@ class Menu {
 			'mageyaboAdminConfig',
 			array(
 				'adminUrl'    => admin_url(),
+				'pluginUrl'   => MAGEYABO_PLUGIN_URL,
 				'extraRoutes' => array_values( $extra_routes ),
 				'currency'    => \MageYaBo\Settings::get( 'currency_symbol', '$' ),
 				'adminEmail'  => get_option( 'admin_email' ),

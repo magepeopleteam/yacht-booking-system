@@ -12,6 +12,7 @@ import TestEmailModal from '../components/TestEmailModal';
 import FaqEditor from '../components/FaqEditor';
 import MediaPicker from '../components/MediaPicker';
 import GalleryPicker from '../components/GalleryPicker';
+import RelatedYachtsPicker from '../components/RelatedYachtsPicker';
 import TagSelect from '../components/TagSelect';
 import PublishBox from '../components/PublishBox';
 import PaymentSettingsCard from '../components/PaymentSettingsCard';
@@ -31,6 +32,7 @@ const DEFAULT_FORM = {
 	featured_media: 0,
 	thumbnail: '',
 	gallery: [],
+	related_yachts: [],
 	location_name: '',
 	location_lat: '',
 	location_lng: '',
@@ -144,8 +146,17 @@ export default function YachtWizard({ yachtId }) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [yachtId]);
 
-	const goNext = () => {
-		if (1 === step) {
+	/** Jumps to any step directly - clicking the nav, not just "Next", can call this. */
+	const goToStep = (target) => {
+		if (step === target) {
+			return;
+		}
+
+		// Basic Info is the only step with required fields - leaving it
+		// forward (via Next or by clicking straight to a later step) still
+		// has to clear that gate; going back to it, or between any of the
+		// other steps, is always free.
+		if (1 === step && target > step) {
 			const stepErrors = validateBasicInfo(form);
 
 			if (Object.keys(stepErrors).length) {
@@ -156,8 +167,10 @@ export default function YachtWizard({ yachtId }) {
 		}
 
 		setErrors({});
-		setStep((s) => Math.min(STEPS.length, s + 1));
+		setStep(Math.max(1, Math.min(STEPS.length, target)));
 	};
+
+	const goNext = () => goToStep(step + 1);
 
 	const save = (status, { silent } = {}) => {
 		setSaving(true);
@@ -209,16 +222,19 @@ export default function YachtWizard({ yachtId }) {
 
 			<nav className="ybs-wizard-steps" aria-label={__('Yacht setup steps', 'magepeople-yacht-booking-system')}>
 				{STEPS.map((item, index) => (
-					<div
+					<button
+						type="button"
 						key={item.key}
 						data-step={index + 1}
 						className={
 							'ybs-wizard-steps__step' +
 							(step === index + 1 ? ' is-active' : step > index + 1 ? ' is-done' : '')
 						}
+						aria-current={step === index + 1 ? 'step' : undefined}
+						onClick={() => goToStep(index + 1)}
 					>
 						{item.label}
-					</div>
+					</button>
 				))}
 			</nav>
 
@@ -245,7 +261,7 @@ export default function YachtWizard({ yachtId }) {
 					<PaymentSettingsCard />
 
 					{1 === step && (
-						<Step1Sidebar form={form} set={set} taxonomies={taxonomies} setTaxonomies={setTaxonomies} />
+						<Step1Sidebar form={form} set={set} taxonomies={taxonomies} setTaxonomies={setTaxonomies} yachtId={yachtId} />
 					)}
 				</aside>
 			</div>
@@ -338,7 +354,7 @@ function StepBasicInfo({ form, set, errors }) {
 }
 
 /** Media/taxonomy cards only make sense while editing Basic Info - shown in the sidebar only on step 1. */
-function Step1Sidebar({ form, set, taxonomies, setTaxonomies }) {
+function Step1Sidebar({ form, set, taxonomies, setTaxonomies, yachtId }) {
 	return (
 		<>
 			<Card title={__('Featured Image', 'magepeople-yacht-booking-system')}>
@@ -354,6 +370,17 @@ function Step1Sidebar({ form, set, taxonomies, setTaxonomies }) {
 
 			<Card title={__('Gallery', 'magepeople-yacht-booking-system')} subtitle={__('Shown on the yacht listing page.', 'magepeople-yacht-booking-system')}>
 				<GalleryPicker items={form.gallery} onChange={(items) => set('gallery', items)} />
+			</Card>
+
+			<Card
+				title={__('Related Yachts', 'magepeople-yacht-booking-system')}
+				subtitle={__('Shown as a carousel on this yacht\'s details page.', 'magepeople-yacht-booking-system')}
+			>
+				<RelatedYachtsPicker
+					selected={form.related_yachts}
+					onChange={(ids) => set('related_yachts', ids)}
+					excludeId={yachtId}
+				/>
 			</Card>
 
 			<Card title={__('Yacht Class', 'magepeople-yacht-booking-system')}>
@@ -599,6 +626,18 @@ function StepReview({ form, set }) {
 						{'shared' !== mode && rateRows('base_price_', '')}
 						{'both' === mode && rateRows('base_price_shared_', __(' (shared)', 'magepeople-yacht-booking-system'))}
 						<tr><th>{__('Location', 'magepeople-yacht-booking-system')}</th><td>{form.location_name}</td></tr>
+						<tr>
+							<th>{__('Related Yachts', 'magepeople-yacht-booking-system')}</th>
+							<td>
+								{form.related_yachts && form.related_yachts.length ? (
+									form.related_yachts
+										.map((item) => (item && 'object' === typeof item ? item.title : `#${item}`))
+										.join(', ')
+								) : (
+									<em>{__('None picked — shown automatically by class instead.', 'magepeople-yacht-booking-system')}</em>
+								)}
+							</td>
+						</tr>
 					</tbody>
 				</table>
 			</Card>

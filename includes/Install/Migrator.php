@@ -44,6 +44,21 @@ final class Migrator {
 			__( 'Search Yacht', 'magepeople-yacht-booking-system' ),
 			'[mageyabo_yacht_search]'
 		);
+		self::create_yacht_list_page();
+	}
+
+	/**
+	 * Public so the dummy-fleet importer (YachtsController::dummy_import())
+	 * can also create this page on demand - a site that installed the
+	 * plugin before this page existed, then later imports the sample
+	 * fleet, still ends up with somewhere to see it.
+	 */
+	public static function create_yacht_list_page() {
+		return self::create_page_once(
+			'mageyabo_yacht_list_page_id',
+			__( 'Yacht List', 'magepeople-yacht-booking-system' ),
+			'[mageyabo_yacht_list]'
+		);
 	}
 
 	private static function create_page_once( $option_name, $title, $content ) {

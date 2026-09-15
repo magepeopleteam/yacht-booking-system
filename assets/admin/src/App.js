@@ -9,6 +9,7 @@ import Bookings from './routes/Bookings';
 import Calendar from './routes/Calendar';
 import Guests from './routes/Guests';
 import SettingsScreen from './routes/Settings';
+import UserGuide from './routes/UserGuide';
 
 export default function App() {
 	const segments = useHashRoute();
@@ -37,6 +38,9 @@ export default function App() {
 			break;
 		case 'settings':
 			screen = <SettingsScreen />;
+			break;
+		case 'user-guide':
+			screen = <UserGuide />;
 			break;
 		case 'dashboard':
 			screen = <Dashboard />;

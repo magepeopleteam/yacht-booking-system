@@ -15,6 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * the `stripe-php` SDK, so the plugin carries zero Composer runtime dependencies.
  * The webhook signature is verified by hand (HMAC-SHA256 over
  * "{timestamp}.{payload}"), which is all `stripe-php`'s verifier does anyway.
+ *
+ * Sessions are created with `ui_mode=embedded`: instead of a `url` to
+ * redirect the whole page to, Stripe hands back a `client_secret` that
+ * `booking-form.js` mounts as an inline card form inside the booking popup
+ * (`stripe.initEmbeddedCheckout()`), so the guest enters their card without
+ * ever leaving the site - Stripe only takes over for the moment payment is
+ * actually confirmed, via `return_url` below.
  */
 class StripeGateway {
 
@@ -53,10 +60,17 @@ class StripeGateway {
 			return new \WP_Error( 'mageyabo_stripe_not_configured', __( 'Stripe is not configured.', 'magepeople-yacht-booking-system' ) );
 		}
 
+		// Embedded mode takes a single `return_url` (no separate success/cancel
+		// pair) - `{CHECKOUT_SESSION_ID}` is a literal Stripe placeholder, not a
+		// PHP variable, so it's appended after add_query_arg() rather than
+		// passed through it, which would otherwise urlencode the braces.
+		$return_url  = add_query_arg( array( 'mageyabo_booking' => $booking_id, 'mageyabo_payment' => 'return' ), home_url( '/' ) );
+		$return_url .= ( false === strpos( $return_url, '?' ) ? '?' : '&' ) . 'session_id={CHECKOUT_SESSION_ID}';
+
 		$body = array(
-			'mode'                              => 'payment',
-			'success_url'                       => add_query_arg( array( 'mageyabo_booking' => $booking_id, 'mageyabo_payment' => 'success' ), home_url( '/' ) ),
-			'cancel_url'                        => add_query_arg( array( 'mageyabo_booking' => $booking_id, 'mageyabo_payment' => 'cancelled' ), home_url( '/' ) ),
+			'mode'       => 'payment',
+			'ui_mode'    => 'embedded',
+			'return_url' => $return_url,
 			'line_items' => array(
 				array(
 					'quantity'   => 1,
@@ -91,14 +105,17 @@ class StripeGateway {
 
 		$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		if ( empty( $data['url'] ) ) {
-			$message = $data['error']['message'] ?? __( 'Stripe did not return a checkout URL.', 'magepeople-yacht-booking-system' );
+		if ( empty( $data['client_secret'] ) ) {
+			$message = $data['error']['message'] ?? __( 'Stripe did not return a client secret.', 'magepeople-yacht-booking-system' );
 			return new \WP_Error( 'mageyabo_stripe_error', $message );
 		}
 
 		BookingRepository::update_payment( $booking_id, 'unpaid', array( 'transaction_ref' => sanitize_text_field( $data['id'] ) ) );
 
-		return array( 'redirect' => $data['url'] );
+		return array(
+			'client_secret'   => $data['client_secret'],
+			'publishable_key' => Settings::get( 'stripe_publishable_key' ),
+		);
 	}
 
 	public static function register_webhook_route() {

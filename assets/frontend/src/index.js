@@ -5,6 +5,8 @@ import { initMaps, initNewsletter } from './map';
 import { initAvailabilityCalendars } from './availability-calendar';
 import { initGalleries } from './gallery';
 import { initYachtList } from './yacht-list';
+import { initCarousels } from './carousel';
+import { initCustomSelects } from './custom-select';
 
 function boot() {
 	initBookingForms();
@@ -14,6 +16,8 @@ function boot() {
 	initAvailabilityCalendars();
 	initGalleries();
 	initYachtList();
+	initCarousels();
+	initCustomSelects();
 }
 
 if ( 'loading' === document.readyState ) {

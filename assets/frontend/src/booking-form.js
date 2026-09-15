@@ -65,20 +65,122 @@ function toggleFields( form ) {
 	} );
 }
 
+/**
+ * One radio "card" per enabled gateway instead of a plain <select> - visually
+ * selecting a payment method rather than picking it from a closed dropdown.
+ * Each input keeps the shared `.ybs-bf-payment` class so the rest of this
+ * file can keep asking "which one is checked" the same way it used to ask
+ * "what's the select's value".
+ */
 function populatePaymentMethods( form ) {
-	const select = form.querySelector( '.ybs-bf-payment' );
-	const gateways = ( window.mageyaboFrontendConfig && window.mageyaboFrontendConfig.gateways ) || {};
+	const list = form.querySelector( '[data-ybs-bf-pm-list]' );
 
-	select.innerHTML = '';
+	if ( ! list ) {
+		return;
+	}
+
+	const gateways = ( window.mageyaboFrontendConfig && window.mageyaboFrontendConfig.gateways ) || {};
+	// Radio inputs need a shared `name` to behave as one group - unique per
+	// form instance so a page with more than one booking form (e.g. the
+	// standalone [mageyabo_booking_form] shortcode plus a sidebar one) never
+	// has their groups cross-select each other.
+	const groupName = 'ybs-bf-payment-' + Math.random().toString( 36 ).slice( 2, 9 );
+
+	list.innerHTML = '';
+
+	let firstInput = null;
 
 	Object.keys( gateways ).forEach( ( id ) => {
-		if ( gateways[ id ] && gateways[ id ].enabled ) {
-			const option = document.createElement( 'option' );
-			option.value = id;
-			option.textContent = gateways[ id ].label;
-			select.appendChild( option );
+		if ( ! gateways[ id ] || ! gateways[ id ].enabled ) {
+			return;
+		}
+
+		const card = document.createElement( 'label' );
+		card.className = 'ybs-bf-pm-card';
+		card.dataset.gateway = id;
+
+		const input = document.createElement( 'input' );
+		input.type = 'radio';
+		input.name = groupName;
+		input.value = id;
+		input.className = 'ybs-bf-payment';
+
+		const icon = document.createElement( 'span' );
+		icon.className = 'ybs-bf-pm-card__icon';
+		icon.setAttribute( 'aria-hidden', 'true' );
+
+		const label = document.createElement( 'span' );
+		label.className = 'ybs-bf-pm-card__label';
+		label.textContent = gateways[ id ].label;
+
+		card.append( input, icon, label );
+		list.appendChild( card );
+
+		if ( ! firstInput ) {
+			firstInput = input;
 		}
 	} );
+
+	if ( firstInput ) {
+		firstInput.checked = true;
+	}
+}
+
+function selectedPaymentMethod( form ) {
+	const checked = form.querySelector( '.ybs-bf-payment:checked' );
+	return checked ? checked.value : '';
+}
+
+/**
+ * Lazily grabs a Stripe.js client - the script itself only loads at all when
+ * the Stripe gateway is enabled (see Shortcode::register_assets()), so this
+ * is never called otherwise.
+ */
+let stripeClientPromise = null;
+
+function getStripeClient( publishableKey ) {
+	if ( ! stripeClientPromise ) {
+		stripeClientPromise = window.Stripe
+			? Promise.resolve( window.Stripe( publishableKey ) )
+			: Promise.reject( new Error( 'Stripe.js is not loaded.' ) );
+	}
+
+	return stripeClientPromise;
+}
+
+/**
+ * Swaps the modal from "fill in your details" to Stripe's own Embedded
+ * Checkout - the booking already exists (pending/unpaid) by the time this
+ * runs, and `payment.client_secret` is what ties this browser session to it.
+ * Stripe renders the actual card number/expiry/CVC fields inside
+ * `[data-ybs-bf-stripe-mount]`; nothing left in this form needs to be
+ * submitted until the guest pays inside that mounted widget.
+ */
+async function mountStripeCheckout( form, payment ) {
+	const config = window.mageyaboFrontendConfig;
+	const fields = form.querySelector( '[data-ybs-bf-modal-fields]' );
+	const cardBox = form.querySelector( '[data-ybs-bf-stripe-card]' );
+	const mountEl = form.querySelector( '[data-ybs-bf-stripe-mount]' );
+	const errorBox = form.querySelector( '.ybs-bf-error' );
+
+	try {
+		const stripe = await getStripeClient( payment.publishable_key );
+		const checkout = await stripe.initEmbeddedCheckout( { clientSecret: payment.client_secret } );
+
+		if ( fields ) {
+			fields.hidden = true;
+		}
+
+		if ( cardBox ) {
+			cardBox.hidden = false;
+		}
+
+		errorBox.hidden = true;
+		checkout.mount( mountEl );
+	} catch ( e ) {
+		errorBox.hidden = false;
+		errorBox.textContent = ( config.i18n && config.i18n.stripeLoadError ) || 'Could not load the payment form. Please refresh and try again.';
+	}
 }
 
 function currentYachtId( form ) {
@@ -176,6 +278,43 @@ function setSubmitEnabled( form, enabled ) {
 	if ( button ) {
 		button.disabled = ! enabled;
 	}
+}
+
+/**
+ * Guest details, payment method, and the terms checkbox only exist inside
+ * this popup (custom-payment-method forms only - a WooCommerce checkout
+ * form has none of this and skips straight to "add-to-cart"). It opens on
+ * "Book Now" regardless of whether the current quote is valid, so an
+ * availability problem ("too close to another booking", an off-day, and so
+ * on) is something the visitor actually sees explained, rather than a
+ * button that's disabled for no visible reason.
+ */
+function openModal( form ) {
+	const modal = form.querySelector( '[data-ybs-bf-modal]' );
+
+	if ( ! modal ) {
+		return;
+	}
+
+	modal.hidden = false;
+	document.body.classList.add( 'ybs-bf-modal-open' );
+
+	const firstField = modal.querySelector( '.ybs-bf-name' );
+
+	if ( firstField ) {
+		firstField.focus();
+	}
+}
+
+function closeModal( form ) {
+	const modal = form.querySelector( '[data-ybs-bf-modal]' );
+
+	if ( ! modal ) {
+		return;
+	}
+
+	modal.hidden = true;
+	document.body.classList.remove( 'ybs-bf-modal-open' );
 }
 
 async function refreshQuote( form ) {
@@ -287,7 +426,7 @@ async function submitBooking( form ) {
 		start_datetime: window_.start,
 		end_datetime: window_.end,
 		guest_count: Number( form.querySelector( '.ybs-bf-guests' ).value || 1 ),
-		payment_method: form.querySelector( '.ybs-bf-payment' ).value,
+		payment_method: selectedPaymentMethod( form ),
 		terms_accepted: true,
 		guest: {
 			name: form.querySelector( '.ybs-bf-name' ).value,
@@ -315,10 +454,24 @@ async function submitBooking( form ) {
 			return;
 		}
 
+		// Stripe (embedded): the booking exists, but payment isn't - mount its
+		// card form inline instead of redirecting anywhere.
+		if ( data.payment && data.payment.client_secret ) {
+			await mountStripeCheckout( form, data.payment );
+			return;
+		}
+
+		// PayPal (and anything else that hands back a hosted page): there's
+		// nothing left to do here but send the browser there.
 		if ( data.payment && data.payment.redirect ) {
 			window.location.href = data.payment.redirect;
 			return;
 		}
+
+		// The modal (if this form has one) is about to be wiped out along
+		// with the rest of the form - drop the scroll-lock class it left on
+		// <body> too, or the page would stay stuck unscrollable behind it.
+		document.body.classList.remove( 'ybs-bf-modal-open' );
 
 		form.innerHTML = '<div class="ybs-notice is-success">' +
 			( config.i18n.bookingConfirmed || 'Thank you - your booking request has been received.' ) +
@@ -402,6 +555,26 @@ export function initBookingForms() {
 				updateHiddenFields( form );
 			} );
 		} else {
+			const openModalButton = form.querySelector( '.ybs-bf-open-modal' );
+
+			if ( openModalButton ) {
+				openModalButton.addEventListener( 'click', () => openModal( form ) );
+			}
+
+			form.querySelectorAll( '[data-ybs-bf-modal-close]' ).forEach( ( el ) => {
+				el.addEventListener( 'click', () => closeModal( form ) );
+			} );
+
+			const modal = form.querySelector( '[data-ybs-bf-modal]' );
+
+			if ( modal ) {
+				document.addEventListener( 'keydown', ( event ) => {
+					if ( 'Escape' === event.key && ! modal.hidden ) {
+						closeModal( form );
+					}
+				} );
+			}
+
 			form.querySelector( '.ybs-bf-submit' ).addEventListener( 'click', () => submitBooking( form ) );
 		}
 

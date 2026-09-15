@@ -71,7 +71,7 @@ $mageyabo_similar = array();
 
 if ( $mageyabo_classes ) {
 	// One implementation, shared with the shortcode renderer.
-	$mageyabo_similar = Shortcode::similar_yachts_public( $mageyabo_yacht_id, wp_list_pluck( $mageyabo_classes, 'term_id' ) );
+	$mageyabo_similar = Shortcode::related_yachts_public( $mageyabo_yacht_id, wp_list_pluck( $mageyabo_classes, 'term_id' ) );
 }
 
 \MageYaBo\Frontend\Templates::document_start();

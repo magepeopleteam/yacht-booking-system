@@ -10,6 +10,7 @@ const BUILTIN_NAV = [
 	{ id: 'calendar', label: __('Calendar', 'magepeople-yacht-booking-system'), icon: 'dashicons-calendar-alt' },
 	{ id: 'guests', label: __('Guests', 'magepeople-yacht-booking-system'), icon: 'dashicons-groups' },
 	{ id: 'settings', label: __('Settings', 'magepeople-yacht-booking-system'), icon: 'dashicons-admin-generic' },
+	{ id: 'user-guide', label: __('User Guide', 'magepeople-yacht-booking-system'), icon: 'dashicons-book-alt' },
 ];
 
 function extraNav() {

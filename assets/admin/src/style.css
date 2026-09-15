@@ -422,6 +422,209 @@ body.ybs-shell #wpbody-content > .wrap {
 	background: var( --ybs-bg );
 }
 
+/* ------------------------------------------------------------ User Guide */
+
+.ybs-guide-columns {
+	column-count: 2;
+	column-gap: 24px;
+}
+
+.ybs-guide-columns .ybs-guide-section {
+	break-inside: avoid;
+	-webkit-column-break-inside: avoid;
+	page-break-inside: avoid;
+}
+
+@media screen and ( max-width: 960px ) {
+	.ybs-guide-columns {
+		column-count: 1;
+	}
+}
+
+.ybs-guide-section h4 {
+	margin: 20px 0 8px;
+	font-size: 14px;
+	font-weight: 700;
+	color: var( --ybs-ink );
+}
+
+.ybs-guide-section h4:first-child {
+	margin-top: 0;
+}
+
+.ybs-guide-section p {
+	margin: 0 0 12px;
+	font-size: 13.5px;
+	line-height: 1.65;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-guide-section table {
+	margin-bottom: 14px;
+}
+
+.ybs-guide-list {
+	margin: 0 0 12px;
+	padding-left: 20px;
+	font-size: 13.5px;
+	line-height: 1.7;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-guide-list li {
+	margin-bottom: 6px;
+}
+
+.ybs-guide-list strong {
+	color: var( --ybs-ink );
+}
+
+.ybs-guide-code {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 6px;
+	background: var( --ybs-bg );
+	border: 1px solid var( --ybs-border );
+	color: var( --ybs-primary-dark );
+	font-family: Consolas, Monaco, monospace;
+	font-size: 12.5px;
+	white-space: nowrap;
+}
+
+.ybs-guide-toc ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.ybs-guide-toc a {
+	display: inline-block;
+	padding: 6px 14px;
+	border-radius: 999px;
+	background: var( --ybs-bg );
+	border: 1px solid var( --ybs-border );
+	color: var( --ybs-ink-soft );
+	font-size: 12.5px;
+	font-weight: 600;
+	text-decoration: none;
+	transition: border-color .15s ease, color .15s ease, background .15s ease;
+}
+
+.ybs-guide-toc a:hover {
+	border-color: var( --ybs-primary );
+	color: var( --ybs-primary-dark );
+	background: var( --ybs-primary-soft );
+}
+
+.ybs-guide-figure {
+	margin: 4px 0 18px;
+	padding: 0;
+	max-width: 480px;
+	border: 1px solid var( --ybs-border );
+	border-radius: 10px;
+	background: var( --ybs-bg );
+	overflow: hidden;
+	box-shadow: 0 1px 2px rgba( 16, 24, 40, .04 );
+}
+
+.ybs-guide-figure__frame {
+	display: block;
+	position: relative;
+	width: 100%;
+	height: 190px;
+	padding: 0;
+	margin: 0;
+	border: 0;
+	border-bottom: 1px solid var( --ybs-border );
+	background: #fff;
+	cursor: zoom-in;
+	overflow: hidden;
+}
+
+.ybs-guide-figure__frame img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: top center;
+	transition: transform .2s ease;
+}
+
+.ybs-guide-figure__frame:hover img {
+	transform: scale( 1.03 );
+}
+
+.ybs-guide-figure__zoom {
+	position: absolute;
+	right: 8px;
+	bottom: 8px;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 10px 4px 6px;
+	border-radius: 999px;
+	background: rgba( 20, 22, 26, .68 );
+	color: #fff;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1;
+}
+
+.ybs-guide-figure__zoom .dashicons {
+	width: 14px;
+	height: 14px;
+	font-size: 14px;
+}
+
+.ybs-guide-figure figcaption {
+	padding: 10px 16px;
+	font-size: 12px;
+	line-height: 1.5;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-guide-lightbox {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 5vh 5vw;
+	background: rgba( 15, 17, 20, .82 );
+}
+
+.ybs-guide-lightbox img {
+	max-width: 100%;
+	max-height: 100%;
+	border-radius: 8px;
+	box-shadow: 0 24px 60px rgba( 0, 0, 0, .5 );
+	cursor: default;
+}
+
+.ybs-guide-lightbox__close {
+	position: absolute;
+	top: 20px;
+	right: 24px;
+	width: 38px;
+	height: 38px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 0;
+	border-radius: 50%;
+	background: rgba( 255, 255, 255, .12 );
+	color: #fff;
+	cursor: pointer;
+}
+
+.ybs-guide-lightbox__close:hover {
+	background: rgba( 255, 255, 255, .22 );
+}
+
 /* ---------------------------------------------------------------- Badges */
 
 .ybs-badge {
@@ -568,12 +771,29 @@ select.ybs-badge:focus {
 	flex: 1;
 	max-width: 220px;
 	position: relative;
+	padding: 0;
+	font-family: inherit;
 	font-size: 13px;
 	font-weight: 600;
 	color: var( --ybs-ink-faded );
 	background: none;
 	border: 0;
-	cursor: default;
+	cursor: pointer;
+}
+
+.ybs-wizard-steps__step:hover {
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-wizard-steps__step:hover::before {
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-wizard-steps__step.is-active:hover::before,
+.ybs-wizard-steps__step.is-done:hover::before {
+	background: var( --ybs-primary );
+	color: #fff;
 }
 
 .ybs-wizard-steps__step::before {
@@ -1062,6 +1282,136 @@ select.ybs-badge:focus {
 	text-decoration: underline;
 }
 
+/* ------------------------------------------------------ RelatedYachtsPicker */
+/* Same pill + filtered-autocomplete shape as TagSelect above, plus a small
+   thumbnail per yacht (pill and suggestion row alike) since a yacht title
+   alone is harder to recognize at a glance than a taxonomy term name is. */
+
+.ybs-related-picker__pills {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	padding: 8px;
+	border: 1px solid var( --ybs-border );
+	border-radius: var( --ybs-radius );
+	background: #fff;
+}
+
+.ybs-related-picker__pills:focus-within {
+	border-color: var( --ybs-primary );
+	box-shadow: 0 0 0 3px rgba( 249, 115, 22, .16 );
+}
+
+.ybs-related-picker__pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 6px 4px 4px;
+	border-radius: var( --ybs-radius-pill );
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+	font-size: 12.5px;
+	font-weight: 600;
+}
+
+.ybs-related-picker__pill img {
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	object-fit: cover;
+	flex: none;
+}
+
+.ybs-related-picker__pill button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	border: 0;
+	border-radius: 50%;
+	background: rgba( 234, 88, 12, .18 );
+	color: var( --ybs-primary-dark );
+	font-size: 13px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.ybs-related-picker__input-wrap {
+	position: relative;
+	flex: 1;
+	min-width: 90px;
+}
+
+.ybs-related-picker__input-wrap input {
+	width: 100%;
+	border: 0;
+	outline: none;
+	font-size: 13px;
+	padding: 4px 2px;
+}
+
+.ybs-related-picker__suggestions {
+	position: absolute;
+	top: calc( 100% + 4px );
+	left: 0;
+	right: 0;
+	z-index: 20;
+	background: #fff;
+	border: 1px solid var( --ybs-border );
+	border-radius: var( --ybs-radius );
+	box-shadow: 0 10px 25px rgba( 0, 0, 0, .12 );
+	max-height: 240px;
+	overflow-y: auto;
+}
+
+.ybs-related-picker__suggestions button {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	padding: 6px 12px;
+	border: 0;
+	background: #fff;
+	text-align: left;
+	font-size: 12.5px;
+	cursor: pointer;
+}
+
+.ybs-related-picker__suggestions button:hover {
+	background: var( --ybs-bg );
+}
+
+.ybs-related-picker__suggestions img,
+.ybs-related-picker__no-thumb {
+	width: 28px;
+	height: 28px;
+	border-radius: 6px;
+	object-fit: cover;
+	flex: none;
+}
+
+.ybs-related-picker__no-thumb {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var( --ybs-bg );
+	color: var( --ybs-ink-faded );
+	font-size: 15px;
+}
+
+.ybs-related-picker__option-title small {
+	color: var( --ybs-ink-faded );
+	font-weight: 400;
+}
+
+.ybs-related-picker__no-match {
+	padding: 8px 12px;
+	font-size: 12px;
+	color: var( --ybs-ink-faded );
+}
+
 /* ----------------------------------------------------------------- FAQ */
 
 .ybs-faq-editor {
@@ -1181,21 +1531,124 @@ select.ybs-badge:focus {
 
 /* ------------------------------------------------------------ Toggle rows */
 
-.ybs-toggle-row {
-	padding: 12px 0;
-	border-bottom: 1px solid var( --ybs-border );
+/*
+ * Each payment method as its own bordered card - icon, title + short
+ * description, an Enabled/Disabled status pill, and the switch, matching
+ * the rental plugin's Payments tab layout (RBFW_Payment_Settings.php's
+ * .gateway-card / .rbfw-gw-card): one consistent row-card per method
+ * instead of a flat list separated only by a bottom border. Colours stay
+ * yacht's own orange (--ybs-primary) rather than adopting rental's blue,
+ * for the same reason rental's Payments tab keeps ITS accent rather than
+ * yacht's - it needs to still look like the rest of this plugin's own
+ * admin (wizard steps, buttons, badges are all this same orange).
+ */
+.ybs-gw-card {
+	border: 1px solid var( --ybs-border );
+	border-radius: 12px;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba( 15, 23, 42, .04 );
+	margin-bottom: 12px;
+	transition: box-shadow .15s ease;
 }
 
-.ybs-toggle-row:last-of-type {
-	border-bottom: 0;
+.ybs-gw-card:last-child {
+	margin-bottom: 0;
 }
 
-.ybs-toggle-row.is-disabled {
-	opacity: .45;
+.ybs-gw-card:hover {
+	box-shadow: 0 4px 14px rgba( 15, 23, 42, .08 );
 }
 
-.ybs-toggle-row.is-disabled .ybs-toggle {
+.ybs-gw-card.is-enabled {
+	border-left: 3px solid var( --ybs-primary );
+}
+
+.ybs-gw-card.is-disabled {
+	opacity: .5;
+}
+
+.ybs-gw-card.is-disabled .ybs-toggle {
 	cursor: not-allowed;
+}
+
+.ybs-gw-card__head {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 16px;
+}
+
+.ybs-gw-card__title {
+	flex: 1;
+	min-width: 0;
+	font-size: 14px;
+	font-weight: 700;
+	color: var( --ybs-ink );
+	line-height: 1.3;
+}
+
+.ybs-gw-card__badge {
+	flex: 0 0 auto;
+	padding: 2px 9px;
+	border-radius: 9px;
+	background: var( --ybs-bg );
+	color: var( --ybs-ink-soft );
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .03em;
+	white-space: nowrap;
+}
+
+.ybs-gw-card__badge.is-active {
+	background: #dcfce7;
+	color: #166534;
+}
+
+.ybs-gw-card__configure {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 5px 12px;
+	border: 1px solid var( --ybs-border );
+	border-radius: 6px;
+	background: #fff;
+	color: var( --ybs-ink-soft );
+	font-family: inherit;
+	font-size: 12.5px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: border-color .15s ease, color .15s ease;
+}
+
+.ybs-gw-card__configure:hover {
+	border-color: var( --ybs-primary );
+	color: var( --ybs-primary );
+}
+
+.ybs-gw-card__configure .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	transition: transform .15s ease;
+}
+
+.ybs-gw-card__configure .dashicons.is-open {
+	transform: rotate( 180deg );
+}
+
+.ybs-gw-card__desc {
+	margin: 0;
+	padding: 0 16px 14px 16px;
+	font-size: 12.5px;
+	color: var( --ybs-ink-faded );
+	line-height: 1.5;
+}
+
+.ybs-gw-card__body {
+	padding: 14px 16px 16px;
+	border-top: 1px solid var( --ybs-border );
 }
 
 .ybs-toggle {
@@ -1203,37 +1656,288 @@ select.ybs-badge:focus {
 	align-items: center;
 	gap: 10px;
 	cursor: pointer;
+	flex: 0 0 auto;
 }
 
-.ybs-payment-group-divider {
-	position: relative;
+/* ---- "How payments work here" intro strip ---- */
+
+.ybs-pay-intro {
+	background: var( --ybs-primary-soft );
+	border: 1px solid #fed7aa;
+	border-radius: 12px;
+	padding: 14px 18px;
+	margin: 0 0 18px;
+}
+
+.ybs-pay-intro__title {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	font-size: 13px;
+	font-weight: 700;
+	color: var( --ybs-primary-dark );
+	margin-bottom: 9px;
+}
+
+.ybs-pay-intro__steps {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat( 3, 1fr );
+	gap: 12px;
+}
+
+.ybs-pay-intro__steps li {
+	display: flex;
+	align-items: flex-start;
+	gap: 9px;
+	font-size: 12.5px;
+	color: var( --ybs-ink-soft );
+	line-height: 1.5;
+}
+
+.ybs-pay-intro__n {
+	flex: 0 0 auto;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: var( --ybs-primary );
+	color: #fff;
+	font-size: 11px;
+	font-weight: 700;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin: 4px 0 8px;
 }
 
-.ybs-payment-group-divider::before {
-	content: '';
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 50%;
-	height: 1px;
-	background: var( --ybs-border );
+@media ( max-width: 782px ) {
+	.ybs-pay-intro__steps {
+		grid-template-columns: 1fr;
+	}
 }
 
-.ybs-payment-group-divider span {
+/* ---- Payment flow mode switcher ---- */
+
+.ybs-mode-head h4 {
+	margin: 0 0 2px;
+	font-size: 14px;
+	font-weight: 700;
+	color: var( --ybs-ink );
+}
+
+.ybs-mode-head p {
+	margin: 0 0 12px;
+	font-size: 12.5px;
+	color: var( --ybs-ink-soft );
+	line-height: 1.55;
+}
+
+.ybs-mode-cards {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+	margin-bottom: 14px;
+}
+
+@media ( max-width: 600px ) {
+	.ybs-mode-cards {
+		grid-template-columns: 1fr;
+	}
+}
+
+.ybs-mode-card {
 	position: relative;
-	padding: 2px 10px;
-	background: var( --ybs-surface );
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 14px 16px;
+	border: 1.5px solid var( --ybs-border );
+	border-radius: 12px;
+	background: var( --ybs-bg );
+	cursor: pointer;
+	transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.ybs-mode-card:hover {
+	border-color: var( --ybs-primary );
+	box-shadow: 0 4px 14px rgba( 15, 23, 42, .06 );
+}
+
+.ybs-mode-card.is-selected {
+	border-color: var( --ybs-primary );
+	background: #fff;
+	box-shadow: 0 6px 18px rgba( 249, 115, 22, .12 );
+}
+
+.ybs-mode-card.is-disabled {
+	cursor: default;
+	background: var( --ybs-bg );
+	border-style: dashed;
+}
+
+.ybs-mode-card.is-disabled:hover {
+	border-color: var( --ybs-border );
+	box-shadow: none;
+}
+
+.ybs-mode-card__icon {
+	flex: 0 0 auto;
+	width: 34px;
+	height: 34px;
+	border-radius: 9px;
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary );
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 17px;
+}
+
+.ybs-mode-card.is-disabled .ybs-mode-card__icon {
+	background: var( --ybs-border );
 	color: var( --ybs-ink-faded );
-	font-size: 11px;
+}
+
+.ybs-mode-card__body {
+	flex: 1;
+	min-width: 0;
+}
+
+.ybs-mode-card__title-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 3px;
+}
+
+.ybs-mode-card__title-row strong {
+	font-size: 14px;
+	color: var( --ybs-ink );
+}
+
+.ybs-mode-card__badge {
+	flex: 0 0 auto;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 9px;
 	font-weight: 700;
 	text-transform: uppercase;
-	letter-spacing: .05em;
+	letter-spacing: .04em;
+	background: #dcfce7;
+	color: #166534;
+	padding: 2px 9px;
 	border-radius: 20px;
+}
+
+.ybs-mode-card__badge::before {
+	content: '';
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: #16a34a;
+}
+
+.ybs-mode-card__desc {
+	display: block;
+	font-size: 12px;
+	color: var( --ybs-ink-soft );
+	line-height: 1.5;
+}
+
+.ybs-mode-card__cta {
+	margin-top: 10px;
+}
+
+/* ---- "You're configuring: <flow>" context banner ---- */
+
+.ybs-mode-context {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+	padding: 10px 16px;
+	border-radius: 10px;
+	border: 1px solid #fed7aa;
+	border-left: 3px solid var( --ybs-primary );
+	background: var( --ybs-primary-soft );
+	margin-bottom: 18px;
+}
+
+.ybs-mode-context__dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var( --ybs-primary );
+	flex: 0 0 auto;
+}
+
+.ybs-mode-context__label {
+	font-size: 12px;
+	font-weight: 600;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-mode-context .dashicons {
+	color: var( --ybs-primary );
+	font-size: 15px;
+}
+
+.ybs-mode-context strong {
+	font-size: 13.5px;
+	color: var( --ybs-primary-dark );
+}
+
+/* ---- WooCommerce Payment Methods accordion ---- */
+
+.ybs-gw-accordion {
 	border: 1px solid var( --ybs-border );
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.ybs-gw-accordion.is-open {
+	border-color: var( --ybs-primary );
+}
+
+.ybs-gw-accordion__bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 13px 16px;
+	border: 0;
+	background: #fff;
+	color: var( --ybs-ink );
+	font-family: inherit;
+	font-size: 14px;
+	font-weight: 700;
+	cursor: pointer;
+	transition: background .15s ease, color .15s ease;
+}
+
+.ybs-gw-accordion.is-open .ybs-gw-accordion__bar {
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-gw-accordion__bar .dashicons {
+	transition: transform .15s ease;
+}
+
+.ybs-gw-accordion.is-open .ybs-gw-accordion__bar .dashicons {
+	transform: rotate( 180deg );
+}
+
+.ybs-gw-accordion__body {
+	padding: 16px;
+	border-top: 1px solid var( --ybs-border );
+}
+
+.ybs-gw-accordion__body > .ybs-btn {
+	margin-bottom: 12px;
 }
 
 .ybs-toggle input {
@@ -1273,16 +1977,6 @@ select.ybs-badge:focus {
 	transform: translateX( 16px );
 }
 
-.ybs-toggle__label {
-	font-size: 13.5px;
-	font-weight: 600;
-	color: var( --ybs-ink );
-}
-
-.ybs-toggle-row__fields {
-	margin: 12px 0 0 48px;
-}
-
 .ybs-payment-modal .components-modal__content {
 	width: min( 560px, 90vw );
 	max-height: 76vh;
@@ -1296,26 +1990,9 @@ select.ybs-badge:focus {
 
 /* ------------------------------------------------------- WC gateway list */
 
-.ybs-wc-gateways {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-}
-
-.ybs-wc-gateway {
-	padding: 10px 12px;
-	border: 1px solid var( --ybs-border );
-	border-radius: 8px;
-	background: var( --ybs-bg );
-}
-
-.ybs-wc-gateway .ybs-hint {
-	margin: 6px 0 0 48px;
-}
-
 .ybs-wc-gateways > a {
 	display: inline-block;
-	margin-top: 4px;
+	margin-top: 10px;
 }
 
 /* --------------------------------------------------------- Payment summary */

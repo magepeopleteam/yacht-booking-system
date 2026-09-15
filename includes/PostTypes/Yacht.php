@@ -65,6 +65,7 @@ class Yacht {
 		'faq',
 		'included_items',
 		'off_days',
+		'related_yachts',
 		'confirmation_email_subject',
 		'confirmation_email_body',
 		'cta_heading',
@@ -127,7 +128,7 @@ class Yacht {
 
 		$object_list_keys  = array( 'faq', 'included_items' );
 		$string_list_keys  = array( 'off_days' );
-		$integer_list_keys = array( 'gallery' ); // Attachment IDs from the WP media library, not URLs.
+		$integer_list_keys = array( 'gallery', 'related_yachts' ); // Attachment/post IDs, not URLs.
 
 		foreach ( self::META_KEYS as $key ) {
 			$is_object_list  = in_array( $key, $object_list_keys, true );

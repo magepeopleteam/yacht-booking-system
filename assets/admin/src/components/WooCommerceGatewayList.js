@@ -49,29 +49,25 @@ export default function WooCommerceGatewayList() {
 	return (
 		<div className="ybs-wc-gateways">
 			{gateways.map((gateway) => (
-				<div className="ybs-wc-gateway" key={gateway.id}>
-					<label className="ybs-toggle">
-						<input
-							type="checkbox"
-							checked={gateway.enabled}
-							disabled={busyId === gateway.id}
-							onChange={() => toggle(gateway)}
-						/>
-						<span className="ybs-toggle__track"><span className="ybs-toggle__thumb" /></span>
-						<span className="ybs-toggle__label">{gateway.title}</span>
-					</label>
-					{gateway.description && <p className="ybs-hint">{gateway.description}</p>}
+				<div className={'ybs-gw-card' + (gateway.enabled ? ' is-enabled' : '')} key={gateway.id}>
+					<div className="ybs-gw-card__head">
+						<label className="ybs-toggle">
+							<input
+								type="checkbox"
+								checked={gateway.enabled}
+								disabled={busyId === gateway.id}
+								onChange={() => toggle(gateway)}
+							/>
+							<span className="ybs-toggle__track"><span className="ybs-toggle__thumb" /></span>
+						</label>
+						<span className="ybs-gw-card__title">{gateway.title}</span>
+						<span className={'ybs-gw-card__badge' + (gateway.enabled ? ' is-active' : '')}>
+							{gateway.enabled ? __('Enabled', 'magepeople-yacht-booking-system') : __('Disabled', 'magepeople-yacht-booking-system')}
+						</span>
+					</div>
+					{gateway.description && <p className="ybs-gw-card__desc">{gateway.description}</p>}
 				</div>
 			))}
-
-			<a
-				className="ybs-hint"
-				href={(window.mageyaboAdminConfig?.adminUrl || '/wp-admin/') + 'admin.php?page=wc-settings&tab=checkout'}
-				target="_blank"
-				rel="noreferrer"
-			>
-				{__('Manage gateway details (API keys, instructions…) in WooCommerce Settings →', 'magepeople-yacht-booking-system')}
-			</a>
 		</div>
 	);
 }

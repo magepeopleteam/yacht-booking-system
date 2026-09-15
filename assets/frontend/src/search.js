@@ -4,7 +4,16 @@ function escapeHtml( str ) {
 	} )[ c ] );
 }
 
-function renderCard( yacht, currency ) {
+// Matches the toggle's data-charter-type values to the i18n string naming
+// the rate that charter type's price actually is (see
+// YachtsController::CHARTER_TYPE_PRICE_KEYS for the same mapping server-side).
+const CHARTER_PERIOD_KEYS = {
+	weekly: 'perWeek',
+	day: 'perDay',
+	hourly: 'perHour',
+};
+
+function renderCard( yacht, currency, charterType ) {
 	const config = window.mageyaboFrontendConfig;
 
 	const media = yacht.thumbnail
@@ -31,8 +40,11 @@ function renderCard( yacht, currency ) {
 	if ( yacht.location && yacht.location.name ) locationBits.push( escapeHtml( yacht.location.name ) );
 	if ( yacht.distance_km ) locationBits.push( `${ yacht.distance_km } km` );
 
+	const periodKey = CHARTER_PERIOD_KEYS[ charterType ];
+	const period = periodKey ? config.i18n[ periodKey ] : '';
+
 	const priceValue = yacht.from_price > 0
-		? `${ currency }${ Number( yacht.from_price ).toLocaleString() }<small>+</small>`
+		? `${ currency }${ Number( yacht.from_price ).toLocaleString() }<small>${ period ? '/' + period : '+' }</small>`
 		: config.i18n.contactForPricing;
 
 	return `
@@ -79,8 +91,9 @@ async function runSearch( root ) {
 	}
 
 	const activeCharter = root.querySelector( '.ybs-search-toggle__btn.is-active' );
-	if ( activeCharter && activeCharter.dataset.charterType ) {
-		params.set( 'charter_type', activeCharter.dataset.charterType );
+	const charterType = activeCharter ? activeCharter.dataset.charterType : '';
+	if ( charterType ) {
+		params.set( 'charter_type', charterType );
 	}
 
 	try {
@@ -88,7 +101,7 @@ async function runSearch( root ) {
 		const data = await response.json();
 
 		results.innerHTML = data.items.length
-			? data.items.map( ( yacht ) => renderCard( yacht, config.currency ) ).join( '' )
+			? data.items.map( ( yacht ) => renderCard( yacht, config.currency, charterType ) ).join( '' )
 			: `<div class="ybs-empty-state">${ config.i18n.noResults }</div>`;
 	} catch ( e ) {
 		results.innerHTML = `<div class="ybs-notice is-error">${ config.i18n.searchFailed }</div>`;
@@ -99,9 +112,17 @@ export function initSearch() {
 	document.querySelectorAll( '[data-ybs-search]' ).forEach( ( root ) => {
 		const search = () => runSearch( root );
 
-		root.querySelector( '.ybs-search-btn' ).addEventListener( 'click', search );
-		root.querySelector( '.ybs-search-where' ).addEventListener( 'change', search );
-		root.querySelector( '.ybs-search-price' ).addEventListener( 'change', search );
+		// Each of these can be hidden per-shortcode (`[mageyabo_yacht_search
+		// where="no" tabs="no" ...]`), so nothing here can assume a given
+		// field or the toggle bar actually exists in this instance.
+		const searchBtn = root.querySelector( '.ybs-search-btn' );
+		if ( searchBtn ) searchBtn.addEventListener( 'click', search );
+
+		const whereField = root.querySelector( '.ybs-search-where' );
+		if ( whereField ) whereField.addEventListener( 'change', search );
+
+		const priceField = root.querySelector( '.ybs-search-price' );
+		if ( priceField ) priceField.addEventListener( 'change', search );
 
 		root.querySelectorAll( '.ybs-search-toggle__btn' ).forEach( ( btn ) => {
 			btn.addEventListener( 'click', () => {

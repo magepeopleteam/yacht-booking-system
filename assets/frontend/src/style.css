@@ -12,6 +12,17 @@
 	src: url( ../fonts/plus-jakarta-sans.woff2 ) format( 'woff2' );
 }
 
+/*
+ * One shared page width for every top-level shortcode container (search
+ * bar, fleet grid, single-yacht page, standalone booking form), so they
+ * line up with each other instead of each shortcode having picked its own
+ * number - a visitor moving from the Search Yacht page to the Yacht List
+ * page (or any other plugin page) sees the same content measure both times.
+ */
+:root {
+	--ybs-container-width: 1180px;
+}
+
 .ybs-booking-form,
 .ybs-yacht-page {
 	--ybs-primary: #f97316;
@@ -26,13 +37,14 @@
 }
 
 .ybs-booking-form {
-	max-width: 900px;
-	margin: 24px 0;
-	padding: 20px;
+	max-width: var( --ybs-container-width );
+	margin: 24px auto;
+	padding: 24px;
 	border: 1px solid var( --ybs-border );
-	border-radius: 12px;
+	border-radius: 16px;
 	background: #fff;
 	color: var( --ybs-ink );
+	font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	box-sizing: border-box;
 }
 
@@ -47,59 +59,312 @@
 .ybs-field-row {
 	display: grid;
 	grid-template-columns: repeat( auto-fit, minmax( 160px, 1fr ) );
-	gap: 14px;
-	margin-bottom: 14px;
+	gap: 16px;
+	margin-bottom: 18px;
 }
 
 .ybs-field label {
 	display: block;
-	margin-bottom: 6px;
-	font-size: 13px;
-	font-weight: 600;
+	margin-bottom: 7px;
+	font-size: 11.5px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+	color: var( --ybs-ink-soft );
 }
 
 .ybs-field input,
 .ybs-field select {
 	width: 100%;
-	padding: 9px 12px;
-	border: 1px solid var( --ybs-border );
-	border-radius: var( --ybs-radius );
-	font-size: 14px;
+	padding: 11px 14px;
+	border: 1.5px solid var( --ybs-border );
+	border-radius: 10px;
+	background: #fff;
+	color: var( --ybs-ink );
+	font-family: inherit;
+	font-size: 14.5px;
+	transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.ybs-field input:hover,
+.ybs-field select:hover {
+	border-color: #cbd5e1;
+}
+
+.ybs-field input:focus,
+.ybs-field select:focus {
+	outline: none;
+	border-color: var( --ybs-primary );
+	box-shadow: 0 0 0 3px var( --ybs-primary-soft );
+}
+
+.ybs-field select {
+	appearance: none;
+	background-image: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 7.5 5 5 5-5'/%3E%3C/svg%3E" );
+	background-repeat: no-repeat;
+	background-position: right 12px center;
+	background-size: 16px;
+	padding-right: 38px;
+	cursor: pointer;
+}
+
+.ybs-field input[type='checkbox'] {
+	width: 17px;
+	height: 17px;
+	accent-color: var( --ybs-primary );
+	vertical-align: middle;
+	margin-right: 8px;
+	cursor: pointer;
+}
+
+/* Standalone fields (Payment Method, the terms checkbox) aren't wrapped in
+   a `.ybs-field-row`, so they had no spacing of their own between them or
+   before the submit button. Applies both on the page (WooCommerce mode,
+   which has no popup) and inside the booking popup's own fields wrapper. */
+.ybs-booking-form > .ybs-field,
+.ybs-bf-modal__fields > .ybs-field {
+	margin-bottom: 20px;
+}
+
+/* ---- Payment Method: a row of clickable cards, one per enabled gateway,
+   built by populatePaymentMethods() in booking-form.js ---- */
+
+.ybs-bf-pm-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.ybs-bf-pm-card {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex: 1 1 150px;
+	padding: 12px 14px;
+	border: 1.5px solid var( --ybs-border );
+	border-radius: 12px;
+	background: #fff;
+	cursor: pointer;
+	transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+}
+
+.ybs-bf-pm-card:hover {
+	border-color: #cbd5e1;
+}
+
+.ybs-bf-pm-card:has( input:checked ) {
+	border-color: var( --ybs-primary );
+	background: var( --ybs-primary-soft );
+	box-shadow: 0 0 0 1px var( --ybs-primary );
+}
+
+.ybs-bf-pm-card input[type='radio'] {
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	flex-shrink: 0;
+	accent-color: var( --ybs-primary );
+	cursor: pointer;
+}
+
+.ybs-bf-pm-card__icon {
+	flex-shrink: 0;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background-color: var( --ybs-primary-soft );
+	background-image: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ea580c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='5' width='20' height='14' rx='2'/%3E%3Cpath d='M2 10h20'/%3E%3C/svg%3E" );
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 16px;
+}
+
+.ybs-bf-pm-card__label {
+	font-size: 13.5px;
+	font-weight: 700;
+	color: var( --ybs-ink );
+}
+
+/* ---- Stripe's own Embedded Checkout, mounted in place of the fields above
+   once "Confirm Booking" creates the booking (see mountStripeCheckout() in
+   booking-form.js) ---- */
+
+.ybs-bf-stripe-card__mount {
+	min-height: 220px;
 }
 
 .ybs-btn {
 	display: inline-flex;
 	align-items: center;
+	justify-content: center;
 	gap: 6px;
 	padding: 10px 20px;
-	border: 1px solid var( --ybs-border );
+	border: 1.5px solid var( --ybs-border );
 	border-radius: 999px;
 	background: #fff;
+	color: var( --ybs-ink );
 	cursor: pointer;
+	font-family: inherit;
 	font-size: 14px;
-	font-weight: 600;
+	font-weight: 700;
+	transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+
+.ybs-btn:hover {
+	border-color: #cbd5e1;
 }
 
 .ybs-btn.is-primary {
-	background: var( --ybs-primary );
-	border-color: var( --ybs-primary );
+	background: linear-gradient( 135deg, var( --ybs-primary ), var( --ybs-primary-dark ) );
+	border-color: transparent;
 	color: #fff;
+	box-shadow: 0 8px 20px -8px rgba( 234, 88, 12, .55 );
 }
 
 .ybs-btn.is-primary:hover {
-	background: var( --ybs-primary-dark );
+	box-shadow: 0 10px 24px -6px rgba( 234, 88, 12, .6 );
+	transform: translateY( -1px );
+}
+
+.ybs-btn.is-primary:active {
+	transform: translateY( 0 );
+}
+
+/* The submit button is the one call to action on the form - give it its
+   own full-width, larger treatment rather than the inline pill every
+   other `.ybs-btn` uses. */
+.ybs-bf-submit {
+	width: 100%;
+	padding: 14px 20px;
+	border-radius: 12px;
+	font-size: 15px;
+	margin-top: 4px;
 }
 
 .ybs-notice {
-	padding: 10px 14px;
-	border-radius: var( --ybs-radius );
-	margin-bottom: 14px;
+	padding: 12px 16px;
+	border-radius: 10px;
+	margin-bottom: 16px;
 	font-size: 14px;
 }
 
 .ybs-notice.is-error { background: #fee2e2; color: #991b1b; }
 .ybs-notice.is-success { background: #dcfce7; color: #166534; }
-.ybs-notice.is-info { background: #fff4ec; color: #ea580c; font-weight: 600; }
+
+.ybs-notice.is-info {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 8px;
+	background: var( --ybs-primary-soft );
+	border: 1px solid #fed7aa;
+	color: var( --ybs-primary-dark );
+	font-size: 18px;
+	font-weight: 800;
+}
+
+.ybs-notice.is-info::before {
+	content: 'Estimated total';
+	font-size: 11px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+	color: var( --ybs-primary );
+	opacity: .8;
+}
+
+/* `.is-info` (`.ybs-bf-price`) is toggled via the `hidden` attribute in
+   booking-form.js, not a class - since the rule above now sets its own
+   `display`, it would otherwise out-specificity the UA stylesheet's plain
+   `[hidden]{display:none}` and stay visible. */
+.ybs-notice.is-info[hidden] {
+	display: none;
+}
+
+/* ---- Booking popup (guest details / payment / terms, opened from "Book
+   Now" - see openModal()/closeModal() in booking-form.js) ---- */
+
+.ybs-bf-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+}
+
+.ybs-bf-modal[hidden] {
+	display: none;
+}
+
+body.ybs-bf-modal-open {
+	overflow: hidden;
+}
+
+.ybs-bf-modal__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba( 15, 23, 42, .6 );
+}
+
+.ybs-bf-modal__dialog {
+	position: relative;
+	width: 100%;
+	max-width: 520px;
+	max-height: 88vh;
+	overflow-y: auto;
+	padding: 28px;
+	border-radius: 16px;
+	background: #fff;
+	color: var( --ybs-ink );
+	font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	box-shadow: 0 24px 60px rgba( 0, 0, 0, .35 );
+	box-sizing: border-box;
+}
+
+.ybs-bf-modal__dialog * {
+	box-sizing: border-box;
+}
+
+.ybs-bf-modal__title {
+	margin: 0 0 18px;
+	padding-right: 30px;
+	font-size: 19px;
+	font-weight: 800;
+	color: var( --ybs-ink );
+}
+
+.ybs-bf-modal__close {
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 0;
+	border-radius: 50%;
+	background: var( --ybs-bg, #f8fafc );
+	color: var( --ybs-ink-soft );
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	transition: background .15s ease, color .15s ease;
+}
+
+.ybs-bf-modal__close:hover {
+	background: #f1f5f9;
+	color: var( --ybs-ink );
+}
+
+@media screen and ( max-width: 600px ) {
+	.ybs-bf-modal__dialog {
+		padding: 22px 18px;
+		border-radius: 14px;
+	}
+}
 
 .ybs-yacht-map {
 	height: 320px;
@@ -115,18 +380,81 @@
 
 .ybs-yacht-faq {
 	margin: 20px 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 }
 
 .ybs-faq-item {
 	border: 1px solid var( --ybs-border, #e2e8f0 );
-	border-radius: 8px;
-	padding: 12px 16px;
-	margin-bottom: 8px;
+	border-radius: 14px;
+	padding: 0 20px;
+	background: #fff;
+	transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.ybs-faq-item:hover {
+	border-color: #cbd5e1;
+}
+
+.ybs-faq-item[open] {
+	border-color: var( --ybs-primary );
+	box-shadow: 0 8px 24px -16px rgba( 234, 88, 12, .35 );
 }
 
 .ybs-faq-item summary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 16px 0;
 	cursor: pointer;
-	font-weight: 600;
+	font-weight: 700;
+	font-size: 15px;
+	color: var( --ybs-ink );
+	list-style: none;
+}
+
+.ybs-faq-item summary::-webkit-details-marker {
+	display: none;
+}
+
+.ybs-faq-item summary:focus-visible {
+	outline: 2px solid var( --ybs-primary );
+	outline-offset: 3px;
+	border-radius: 8px;
+}
+
+/* A rotating "+" stands in for the browser's default disclosure triangle -
+   it turns into an "×" (135deg) once the answer is open. */
+.ybs-faq-item summary::after {
+	content: '+';
+	flex: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary );
+	font-size: 18px;
+	line-height: 1;
+	font-weight: 700;
+	transition: transform .2s ease, background .2s ease, color .2s ease;
+}
+
+.ybs-faq-item[open] summary::after {
+	transform: rotate( 135deg );
+	background: var( --ybs-primary );
+	color: #fff;
+}
+
+.ybs-faq-item > div {
+	padding: 0 0 18px;
+	color: var( --ybs-ink-soft );
+	font-size: 14.5px;
+	line-height: 1.7;
 }
 
 .ybs-search-results {
@@ -426,7 +754,7 @@
 
 .ybs-yacht-page {
 	color: var( --ybs-ink );
-	max-width: 1180px;
+	max-width: var( --ybs-container-width );
 	margin: 0 auto;
 }
 
@@ -759,6 +1087,77 @@ body.ybs-yp-lightbox-open {
 	color: var( --ybs-ink );
 }
 
+/* ---- Related Yachts carousel ---- */
+
+.ybs-yp-carousel {
+	position: relative;
+}
+
+.ybs-yp-carousel__track {
+	display: flex;
+	gap: 16px;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scroll-padding-left: 4px;
+	padding: 4px 4px 8px;
+	margin: 0 -4px;
+	scrollbar-width: none;
+}
+
+.ybs-yp-carousel__track::-webkit-scrollbar {
+	display: none;
+}
+
+.ybs-yp-carousel__item {
+	flex: 0 0 260px;
+	scroll-snap-align: start;
+}
+
+.ybs-yp-carousel__nav {
+	display: none;
+	position: absolute;
+	top: 50%;
+	z-index: 1;
+	width: 36px;
+	height: 36px;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var( --ybs-border );
+	border-radius: 50%;
+	background: #fff;
+	color: var( --ybs-ink );
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	box-shadow: 0 6px 16px -6px rgba( 15, 23, 42, .25 );
+	transform: translateY( -50% );
+	transition: background .15s ease, opacity .15s ease;
+}
+
+.ybs-yp-carousel__nav:hover {
+	background: var( --ybs-primary-soft );
+}
+
+.ybs-yp-carousel__nav:disabled {
+	opacity: .35;
+	cursor: default;
+	background: #fff;
+}
+
+.ybs-yp-carousel__nav.is-prev {
+	left: -18px;
+}
+
+.ybs-yp-carousel__nav.is-next {
+	right: -18px;
+}
+
+@media ( min-width: 640px ) {
+	.ybs-yp-carousel__nav {
+		display: flex;
+	}
+}
+
 .ybs-yp-prose {
 	font-size: 15px;
 	line-height: 1.75;
@@ -915,6 +1314,8 @@ body.ybs-yp-lightbox-open {
 	--yl-card-bg: #f7f7f7;
 	--yl-shadow-pill: 0 3px 12px rgba( 0, 0, 0, .1 ), 0 1px 2px rgba( 0, 0, 0, .08 );
 	--yl-shadow-pill-hover: 0 6px 20px rgba( 0, 0, 0, .16 );
+	max-width: var( --ybs-container-width );
+	margin: 0 auto;
 	font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	color: var( --yl-ink );
 }
@@ -1475,7 +1876,7 @@ select.ybs-yl-bar__control {
 	--ybs-search-line-soft: #ebebeb;
 	--ybs-search-gold: #b08a3e;
 	--ybs-search-gold-strong: #9a7733;
-	max-width: 900px;
+	max-width: var( --ybs-container-width );
 	margin: 24px auto;
 	font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 	color: var( --ybs-search-ink );
@@ -1612,6 +2013,119 @@ select.ybs-yl-bar__control {
 
 select.ybs-search-bar__control {
 	cursor: pointer;
+}
+
+/*
+ * Custom-select.js's floating listbox, replacing a native <select>'s own
+ * dropdown - browsers give no cross-browser way to style an <option>'s
+ * padding/hover/radius, so a "modern" look for the options themselves means
+ * building the popup ourselves. The real <select> (still driving
+ * search.js) is hidden via .ybs-select select below; this is purely what's
+ * shown instead.
+ */
+.ybs-select {
+	position: relative;
+	width: 100%;
+}
+
+.ybs-select select {
+	display: none;
+}
+
+.ybs-select__trigger {
+	appearance: none;
+	-webkit-appearance: none;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	width: 100%;
+	border: 0;
+	background: transparent;
+	padding: 0;
+	margin: 0;
+	font-family: inherit;
+	font-size: 14px;
+	font-weight: 500;
+	line-height: normal;
+	color: var( --ybs-search-gray );
+	cursor: pointer;
+	text-align: left;
+}
+
+.ybs-select__label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ybs-select__chevron {
+	flex: none;
+	width: 8px;
+	height: 8px;
+	border-right: 1.5px solid var( --ybs-search-gray-2 );
+	border-bottom: 1.5px solid var( --ybs-search-gray-2 );
+	transform: rotate( 45deg );
+	margin-top: -3px;
+	transition: transform .15s ease;
+}
+
+.ybs-select.is-open .ybs-select__chevron {
+	transform: rotate( -135deg );
+	margin-top: 3px;
+}
+
+.ybs-select__menu {
+	position: absolute;
+	top: calc( 100% + 12px );
+	left: -16px;
+	z-index: 40;
+	min-width: calc( 100% + 32px );
+	max-height: 280px;
+	overflow-y: auto;
+	background: #fff;
+	border: 1px solid var( --ybs-search-line-soft );
+	border-radius: 14px;
+	box-shadow: 0 20px 45px -14px rgba( 0, 0, 0, .22 );
+	padding: 6px;
+	animation: ybsSelectIn .15s ease;
+}
+
+@keyframes ybsSelectIn {
+	from { opacity: 0; transform: translateY( -6px ); }
+	to { opacity: 1; transform: translateY( 0 ); }
+}
+
+.ybs-select__option {
+	display: block;
+	width: 100%;
+	appearance: none;
+	-webkit-appearance: none;
+	border: 0;
+	background: transparent;
+	text-align: left;
+	padding: 10px 14px;
+	border-radius: 9px;
+	font-family: inherit;
+	font-size: 13.5px;
+	font-weight: 500;
+	color: var( --ybs-search-ink );
+	cursor: pointer;
+	transition: background .12s ease, color .12s ease;
+}
+
+.ybs-select__option.is-focused {
+	background: var( --ybs-search-line-soft );
+}
+
+.ybs-select__option.is-active {
+	background: var( --ybs-search-gold );
+	color: #fff;
+	font-weight: 700;
+}
+
+.ybs-select__option.is-active.is-focused {
+	background: var( --ybs-search-gold-strong );
 }
 
 .ybs-search-bar__stepper {

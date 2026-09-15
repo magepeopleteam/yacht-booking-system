@@ -497,10 +497,16 @@ class YachtsController extends Controller {
 
 		update_option( 'mageyabo_dummy_seeded', 1 );
 
+		// A site that activated the plugin before this page existed (or
+		// whose copy was since deleted) still ends up with somewhere to
+		// see the fleet it just seeded.
+		$yacht_list_page_id = \MageYaBo\Install\Migrator::create_yacht_list_page();
+
 		return rest_ensure_response(
 			array(
-				'imported'     => $imported,
-				'dummy_seeded' => true,
+				'imported'           => $imported,
+				'dummy_seeded'       => true,
+				'yacht_list_page_id' => $yacht_list_page_id,
 			)
 		);
 	}
@@ -765,6 +771,26 @@ class YachtsController extends Controller {
 				);
 
 				update_post_meta( $post_id, $meta_key, array_values( array_filter( $ids ) ) );
+			} elseif ( 'related_yachts' === $key ) {
+				// Same shape as gallery - the wizard's picker keeps rich
+				// {id, title, thumbnail} objects for display, but only the
+				// id is ever stored. Excludes the yacht linking to itself,
+				// which the picker's own option list already filters out,
+				// but a stale payload shouldn't be trusted to enforce that.
+				$ids = array_map(
+					static function ( $item ) {
+						return is_array( $item ) ? (int) ( $item['id'] ?? 0 ) : (int) $item;
+					},
+					is_array( $value ) ? $value : array()
+				);
+				$ids = array_filter(
+					$ids,
+					static function ( $id ) use ( $post_id ) {
+						return $id > 0 && $id !== (int) $post_id;
+					}
+				);
+
+				update_post_meta( $post_id, $meta_key, array_values( array_unique( $ids ) ) );
 			} elseif ( in_array( $key, array( 'faq', 'included_items', 'off_days' ), true ) ) {
 				update_post_meta( $post_id, $meta_key, self::sanitize_meta_rows( $key, $value ) );
 			} elseif ( 'confirmation_email_body' === $key ) {
@@ -869,7 +895,7 @@ class YachtsController extends Controller {
 			}
 
 			$value = get_post_meta( $post->ID, \MageYaBo\PostTypes\Yacht::meta_key( $key ), true );
-			$data[ $key ] = in_array( $key, array( 'gallery', 'faq', 'included_items', 'off_days' ), true )
+			$data[ $key ] = in_array( $key, array( 'gallery', 'faq', 'included_items', 'off_days', 'related_yachts' ), true )
 				? ( is_array( $value ) ? $value : array() )
 				: $value;
 		}
@@ -892,6 +918,31 @@ class YachtsController extends Controller {
 						return $url ? array( 'id' => (int) $attachment_id, 'url' => $url ) : null;
 					},
 					$data['gallery']
+				)
+			)
+		);
+
+		// Hydrated for the wizard's picker (title/thumbnail to render each
+		// pill) - a related yacht that's since been trashed/deleted is
+		// silently dropped rather than shown as a broken entry.
+		$data['related_yachts'] = array_values(
+			array_filter(
+				array_map(
+					static function ( $related_id ) {
+						$related_id   = (int) $related_id;
+						$related_post = get_post( $related_id );
+
+						if ( ! $related_post || \MageYaBo\PostTypes\Yacht::POST_TYPE !== $related_post->post_type ) {
+							return null;
+						}
+
+						return array(
+							'id'        => $related_id,
+							'title'     => get_the_title( $related_post ),
+							'thumbnail' => get_the_post_thumbnail_url( $related_post, 'thumbnail' ) ?: '',
+						);
+					},
+					$data['related_yachts']
 				)
 			)
 		);
