@@ -299,7 +299,14 @@ export default function PaymentMethodFields( { settings, onSettingsChange } ) {
 						onChange={ () => toggleMethod( 'stripe' ) }
 					>
 						<div className="ybs-field-row">
-							<Field label={ __( 'Publishable Key', 'magepeople-yacht-booking-system' ) }>
+							<Field
+								label={ __( 'Publishable Key', 'magepeople-yacht-booking-system' ) }
+								hint={
+									settings.stripe_publishable_key && ! settings.stripe_publishable_key.startsWith( 'pk_' )
+										? __( 'Doesn\'t look like a Stripe publishable key (should start with "pk_") - the card form on the booking page won\'t load until this matches one from your Stripe Dashboard.', 'magepeople-yacht-booking-system' )
+										: __( 'From your Stripe Dashboard → Developers → API keys. Required for the card form guests fill in - Stripe stays off on the front end without it.', 'magepeople-yacht-booking-system' )
+								}
+							>
 								<input type="text" value={ settings.stripe_publishable_key || '' } onChange={ ( e ) => set( 'stripe_publishable_key', e.target.value ) } />
 							</Field>
 							<Field

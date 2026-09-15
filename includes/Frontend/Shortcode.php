@@ -81,6 +81,15 @@ class Shortcode {
 					'subscribeError'  => __( 'Something went wrong. Please try again.', 'magepeople-yacht-booking-system' ),
 					'cardDetails'     => __( 'Card Details', 'magepeople-yacht-booking-system' ),
 					'stripeLoadError' => __( 'Could not load the payment form. Please refresh and try again.', 'magepeople-yacht-booking-system' ),
+					'bookingConfirmedTitle' => __( 'Booking Confirmed!', 'magepeople-yacht-booking-system' ),
+					/* translators: %s: guest email address */
+					'bookingConfirmedWithEmail' => __( "We've received your request and sent a confirmation to %s.", 'magepeople-yacht-booking-system' ),
+					'detailBookingId' => __( 'Booking ID', 'magepeople-yacht-booking-system' ),
+					'detailDates'     => __( 'Date & Time', 'magepeople-yacht-booking-system' ),
+					'detailGuests'    => __( 'Guests', 'magepeople-yacht-booking-system' ),
+					'detailPayment'   => __( 'Payment Method', 'magepeople-yacht-booking-system' ),
+					'detailTotal'     => __( 'Total', 'magepeople-yacht-booking-system' ),
+					'close'           => __( 'Close', 'magepeople-yacht-booking-system' ),
 				),
 			)
 		);
@@ -269,6 +278,23 @@ class Shortcode {
 						<div class="ybs-bf-stripe-card" data-ybs-bf-stripe-card hidden>
 							<p class="ybs-hint"><?php esc_html_e( "Almost done - enter your card details below to complete payment.", 'magepeople-yacht-booking-system' ); ?></p>
 							<div class="ybs-bf-stripe-card__mount" data-ybs-bf-stripe-mount></div>
+						</div>
+
+						<?php /*
+						 * Revealed in place of the fields once a booking that needs no
+						 * further payment step (offline, or anything else that doesn't
+						 * hand back a redirect/client secret) is actually created - a
+						 * proper confirmation screen inside the same popup, not just a
+						 * one-line notice, with the booking's own details filled in by
+						 * showBookingSuccess() in booking-form.js.
+						 */ ?>
+						<div class="ybs-bf-success" data-ybs-bf-success hidden>
+							<div class="ybs-bf-success__icon" aria-hidden="true">
+								<span class="dashicons dashicons-yes-alt"></span>
+							</div>
+							<p class="ybs-bf-success__message" data-ybs-bf-success-message></p>
+							<dl class="ybs-bf-success__details" data-ybs-bf-success-details></dl>
+							<button type="button" class="ybs-btn is-primary" data-ybs-bf-modal-close><?php esc_html_e( 'Close', 'magepeople-yacht-booking-system' ); ?></button>
 						</div>
 
 						<div class="ybs-bf-error ybs-notice is-error" hidden></div>

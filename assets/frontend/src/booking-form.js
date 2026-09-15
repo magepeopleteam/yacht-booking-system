@@ -163,21 +163,49 @@ async function mountStripeCheckout( form, payment ) {
 	const mountEl = form.querySelector( '[data-ybs-bf-stripe-mount]' );
 	const errorBox = form.querySelector( '.ybs-bf-error' );
 
+	if ( fields ) {
+		fields.hidden = true;
+	}
+
+	if ( cardBox ) {
+		cardBox.hidden = false;
+	}
+
+	errorBox.hidden = true;
+
+	// Stripe's own mount() is documented against a CSS selector, not an
+	// element reference - give the container a stable id (once) rather than
+	// relying on element-argument support that isn't part of its documented
+	// contract.
+	if ( ! mountEl.id ) {
+		mountEl.id = 'ybs-bf-stripe-mount-' + Math.random().toString( 36 ).slice( 2, 9 );
+	}
+
+	// initEmbeddedCheckout() is a real network round-trip (Stripe fetching
+	// the session by its client secret) - a blank box until it resolves
+	// would look broken rather than loading.
+	const loading = document.createElement( 'div' );
+	loading.className = 'ybs-bf-stripe-card__mount-loading';
+	loading.textContent = ( config.i18n && config.i18n.loading ) || 'Loading…';
+	mountEl.appendChild( loading );
+
 	try {
 		const stripe = await getStripeClient( payment.publishable_key );
 		const checkout = await stripe.initEmbeddedCheckout( { clientSecret: payment.client_secret } );
 
-		if ( fields ) {
-			fields.hidden = true;
-		}
+		loading.remove();
+		checkout.mount( '#' + mountEl.id );
+	} catch ( e ) {
+		loading.remove();
 
 		if ( cardBox ) {
-			cardBox.hidden = false;
+			cardBox.hidden = true;
 		}
 
-		errorBox.hidden = true;
-		checkout.mount( mountEl );
-	} catch ( e ) {
+		if ( fields ) {
+			fields.hidden = false;
+		}
+
 		errorBox.hidden = false;
 		errorBox.textContent = ( config.i18n && config.i18n.stripeLoadError ) || 'Could not load the payment form. Please refresh and try again.';
 	}
@@ -315,6 +343,114 @@ function closeModal( form ) {
 
 	modal.hidden = true;
 	document.body.classList.remove( 'ybs-bf-modal-open' );
+}
+
+/**
+ * "2026-09-20 10:00:00" / "2026-09-20 12:00:00" -> "Sun, Sep 20, 2026,
+ * 10:00 AM - 12:00 PM" in the visitor's own locale/timezone - these are the
+ * same MySQL-format strings computeWindow() builds for the booking payload,
+ * just read back for display rather than submitted.
+ */
+function formatDateRange( startStr, endStr ) {
+	const start = new Date( startStr.replace( ' ', 'T' ) );
+	const end = endStr ? new Date( endStr.replace( ' ', 'T' ) ) : null;
+
+	if ( isNaN( start.getTime() ) ) {
+		return startStr;
+	}
+
+	const dateFmt = new Intl.DateTimeFormat( undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' } );
+	const timeFmt = new Intl.DateTimeFormat( undefined, { hour: 'numeric', minute: '2-digit' } );
+
+	if ( end && ! isNaN( end.getTime() ) ) {
+		return `${ dateFmt.format( start ) }, ${ timeFmt.format( start ) } - ${ timeFmt.format( end ) }`;
+	}
+
+	return `${ dateFmt.format( start ) }, ${ timeFmt.format( start ) }`;
+}
+
+/**
+ * The confirmation screen shown in place of the fields once a booking that
+ * needs no further payment step (offline, or anything else that doesn't
+ * hand back a redirect/client secret) actually goes through - the popup
+ * stays open, just switched to "here's what you booked" instead of quietly
+ * vanishing along with the rest of the form.
+ */
+function showBookingSuccess( form, data, payload, window_ ) {
+	const config = window.mageyaboFrontendConfig;
+	const i18n = config.i18n || {};
+	const fields = form.querySelector( '[data-ybs-bf-modal-fields]' );
+	const cardBox = form.querySelector( '[data-ybs-bf-stripe-card]' );
+	const successBox = form.querySelector( '[data-ybs-bf-success]' );
+	const messageEl = form.querySelector( '[data-ybs-bf-success-message]' );
+	const detailsEl = form.querySelector( '[data-ybs-bf-success-details]' );
+	const titleEl = form.querySelector( '.ybs-bf-modal__title' );
+	const openModalButton = form.querySelector( '.ybs-bf-open-modal' );
+
+	if ( ! successBox ) {
+		return false;
+	}
+
+	if ( fields ) {
+		fields.hidden = true;
+	}
+
+	if ( cardBox ) {
+		cardBox.hidden = true;
+	}
+
+	if ( titleEl ) {
+		titleEl.textContent = i18n.bookingConfirmedTitle || 'Booking Confirmed!';
+	}
+
+	if ( messageEl ) {
+		messageEl.textContent = payload.guest.email && i18n.bookingConfirmedWithEmail
+			? i18n.bookingConfirmedWithEmail.replace( '%s', payload.guest.email )
+			: ( i18n.bookingConfirmed || 'Thank you - your booking request has been received.' );
+	}
+
+	if ( detailsEl ) {
+		const gateways = config.gateways || {};
+		const paymentLabel = ( gateways[ payload.payment_method ] && gateways[ payload.payment_method ].label ) || payload.payment_method;
+		const total = data.pricing ? `${ config.currency }${ Number( data.pricing.total ).toFixed( 2 ) }` : '';
+
+		const rows = [
+			[ i18n.detailBookingId || 'Booking ID', '#' + data.booking_id ],
+			[ i18n.detailDates || 'Date & Time', formatDateRange( window_.start, window_.end ) ],
+			[ i18n.detailGuests || 'Guests', String( payload.guest_count ) ],
+			[ i18n.detailPayment || 'Payment Method', paymentLabel ],
+			[ i18n.detailTotal || 'Total', total ],
+		];
+
+		detailsEl.innerHTML = '';
+
+		rows.forEach( ( [ label, value ] ) => {
+			if ( ! value ) {
+				return;
+			}
+
+			const dt = document.createElement( 'dt' );
+			dt.textContent = label;
+			const dd = document.createElement( 'dd' );
+			dd.textContent = value;
+			detailsEl.append( dt, dd );
+		} );
+	}
+
+	successBox.hidden = false;
+
+	// Nothing left to book on this form instance until the page is reloaded
+	// (the availability check above only holds for this exact window) - swap
+	// "Book Now" for a small confirmed note instead of leaving a live button
+	// that would just start a second, redundant booking.
+	if ( openModalButton ) {
+		const confirmedNote = document.createElement( 'p' );
+		confirmedNote.className = 'ybs-notice is-success ybs-bf-confirmed-note';
+		confirmedNote.textContent = i18n.bookingConfirmedTitle || 'Booking Confirmed!';
+		openModalButton.replaceWith( confirmedNote );
+	}
+
+	return true;
 }
 
 async function refreshQuote( form ) {
@@ -468,14 +604,18 @@ async function submitBooking( form ) {
 			return;
 		}
 
-		// The modal (if this form has one) is about to be wiped out along
-		// with the rest of the form - drop the scroll-lock class it left on
-		// <body> too, or the page would stay stuck unscrollable behind it.
-		document.body.classList.remove( 'ybs-bf-modal-open' );
-
-		form.innerHTML = '<div class="ybs-notice is-success">' +
-			( config.i18n.bookingConfirmed || 'Thank you - your booking request has been received.' ) +
-			'</div>';
+		// No further payment step (offline, or any future gateway that
+		// neither redirects nor hands back a client secret) - show the
+		// confirmation inside the popup itself rather than replacing the
+		// whole form. Only WooCommerce-mode forms (which never reach this
+		// branch - they submit natively and leave the page) lack a popup at
+		// all, so the fallback below is just a safety net, not the normal path.
+		if ( ! showBookingSuccess( form, data, payload, window_ ) ) {
+			document.body.classList.remove( 'ybs-bf-modal-open' );
+			form.innerHTML = '<div class="ybs-notice is-success">' +
+				( config.i18n.bookingConfirmed || 'Thank you - your booking request has been received.' ) +
+				'</div>';
+		}
 	} catch ( e ) {
 		errorBox.hidden = false;
 		errorBox.textContent = config.i18n.notAvailable;

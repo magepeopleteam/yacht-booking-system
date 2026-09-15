@@ -117,6 +117,20 @@
 	cursor: pointer;
 }
 
+/* Chrome/Edge/Safari repaint an autofilled input with their own yellow/blue
+   tint (and keep re-applying it on every keystroke) no matter what
+   `background` is set above - the only reliable override is this inset
+   box-shadow trick, with the transition delay so it doesn't visibly flash
+   before taking effect. */
+.ybs-field input:-webkit-autofill,
+.ybs-field input:-webkit-autofill:hover,
+.ybs-field input:-webkit-autofill:focus {
+	-webkit-text-fill-color: var( --ybs-ink );
+	-webkit-box-shadow: 0 0 0 1000px #fff inset;
+	box-shadow: 0 0 0 1000px #fff inset;
+	transition: background-color 9999s ease-in-out 0s;
+}
+
 /* Standalone fields (Payment Method, the terms checkbox) aren't wrapped in
    a `.ybs-field-row`, so they had no spacing of their own between them or
    before the submit button. Applies both on the page (WooCommerce mode,
@@ -132,42 +146,57 @@
 .ybs-bf-pm-list {
 	display: flex;
 	flex-wrap: wrap;
+	align-items: stretch;
 	gap: 10px;
 }
 
-.ybs-bf-pm-card {
+/*
+ * Each card IS a <label> (so clicking anywhere on it toggles its radio) -
+ * which means the generic ".ybs-field label" rule above (uppercase,
+ * 11.5px, display:block, etc., meant for a field's own caption) matches it
+ * too and, being two selectors deep, out-specifies a bare ".ybs-bf-pm-card"
+ * rule. Every property that rule sets has to be explicitly reset here,
+ * scoped under ".ybs-bf-pm-list" so this side wins instead.
+ */
+.ybs-bf-pm-list .ybs-bf-pm-card {
 	display: flex;
 	align-items: center;
 	gap: 10px;
 	flex: 1 1 150px;
 	padding: 12px 14px;
+	margin-bottom: 0;
 	border: 1.5px solid var( --ybs-border );
 	border-radius: 12px;
 	background: #fff;
+	color: var( --ybs-ink );
+	font-size: 13.5px;
+	font-weight: 600;
+	text-transform: none;
+	letter-spacing: normal;
 	cursor: pointer;
 	transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
 }
 
-.ybs-bf-pm-card:hover {
+.ybs-bf-pm-list .ybs-bf-pm-card:hover {
 	border-color: #cbd5e1;
 }
 
-.ybs-bf-pm-card:has( input:checked ) {
+.ybs-bf-pm-list .ybs-bf-pm-card:has( input:checked ) {
 	border-color: var( --ybs-primary );
 	background: var( --ybs-primary-soft );
 	box-shadow: 0 0 0 1px var( --ybs-primary );
 }
 
-.ybs-bf-pm-card input[type='radio'] {
-	width: 18px;
-	height: 18px;
+.ybs-bf-pm-list .ybs-bf-pm-card input[type='radio'] {
+	width: 17px;
+	height: 17px;
 	margin: 0;
 	flex-shrink: 0;
 	accent-color: var( --ybs-primary );
 	cursor: pointer;
 }
 
-.ybs-bf-pm-card__icon {
+.ybs-bf-pm-list .ybs-bf-pm-card__icon {
 	flex-shrink: 0;
 	width: 30px;
 	height: 30px;
@@ -179,10 +208,89 @@
 	background-size: 16px;
 }
 
-.ybs-bf-pm-card__label {
-	font-size: 13.5px;
+.ybs-bf-pm-list .ybs-bf-pm-card__label {
+	color: inherit;
+	font: inherit;
+}
+
+/* ---- Booking confirmation, shown in place of the fields once a booking
+   that needs no further payment step goes through (see showBookingSuccess()
+   in booking-form.js) ---- */
+
+.ybs-bf-success {
+	text-align: center;
+	padding: 8px 0 4px;
+}
+
+.ybs-bf-success__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 56px;
+	height: 56px;
+	margin: 0 auto 14px;
+	border-radius: 50%;
+	background: #dcfce7;
+	color: var( --ybs-success );
+}
+
+.ybs-bf-success__icon .dashicons {
+	width: 32px;
+	height: 32px;
+	font-size: 32px;
+}
+
+.ybs-bf-success__message {
+	margin: 0 0 20px;
+	font-size: 14.5px;
+	line-height: 1.6;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-bf-success__details {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 10px 16px;
+	margin: 0 0 22px;
+	padding: 16px 18px;
+	border: 1px solid var( --ybs-border );
+	border-radius: 12px;
+	background: var( --ybs-bg, #f8fafc );
+	text-align: left;
+}
+
+.ybs-bf-success__details dt {
+	font-size: 11.5px;
 	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+	color: var( --ybs-ink-soft );
+	white-space: nowrap;
+}
+
+.ybs-bf-success__details dd {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 600;
 	color: var( --ybs-ink );
+	text-align: right;
+}
+
+.ybs-bf-success .ybs-btn {
+	width: 100%;
+}
+
+/* Replaces the main page's "Book Now" trigger once a booking on this form
+   instance has gone through - there's nothing left to book without
+   reloading the page (the availability check only holds for that one
+   window), so a live button there would just invite a redundant booking. */
+.ybs-bf-confirmed-note {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	text-align: center;
+	font-weight: 700;
 }
 
 /* ---- Stripe's own Embedded Checkout, mounted in place of the fields above
@@ -190,7 +298,21 @@
    booking-form.js) ---- */
 
 .ybs-bf-stripe-card__mount {
+	position: relative;
 	min-height: 220px;
+}
+
+/* A blank 220px box while initEmbeddedCheckout()'s network round-trip is in
+   flight would read as broken, not loading - mountStripeCheckout() puts this
+   placeholder in before mounting and Stripe's iframe replaces it. */
+.ybs-bf-stripe-card__mount-loading {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var( --ybs-ink-faded );
+	font-size: 13.5px;
 }
 
 .ybs-btn {

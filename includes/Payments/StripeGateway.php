@@ -35,9 +35,17 @@ class StripeGateway {
 	}
 
 	public static function declare_self( $gateways ) {
+		// The embedded card form (see class docblock) is mounted client-side
+		// with the *publishable* key - a secret key alone gets a booking
+		// created but leaves the guest looking at a card form that can never
+		// mount, so both keys are required before Stripe is offered at all.
+		$publishable_key = (string) Settings::get( 'stripe_publishable_key' );
+
 		$gateways[ self::ID ] = array(
 			'label'   => __( 'Stripe', 'magepeople-yacht-booking-system' ),
-			'enabled' => in_array( self::ID, (array) Settings::get( 'payment_methods', array() ), true ) && Settings::get( 'stripe_secret_key' ),
+			'enabled' => in_array( self::ID, (array) Settings::get( 'payment_methods', array() ), true )
+				&& Settings::get( 'stripe_secret_key' )
+				&& 0 === strpos( $publishable_key, 'pk_' ),
 		);
 
 		return $gateways;
