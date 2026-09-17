@@ -109,3 +109,48 @@ if ( ! function_exists( 'mageyabo_format_duration' ) ) {
 		return implode( ' ', $parts );
 	}
 }
+
+/**
+ * The public "Booking Confirmation" page - where both hosted gateways send a
+ * guest once they are done paying, and the page a confirmation email links
+ * to. Falls back to the site root if the page was deleted, so a return URL
+ * is never empty.
+ *
+ * The token is what authorises the lookup: a booking id on its own is
+ * guessable, and this page shows a guest's name, phone and charter details.
+ *
+ * @param int    $booking_id Optional booking to deep-link to.
+ * @param string $token      That booking's `qr_token`.
+ */
+if ( ! function_exists( 'mageyabo_confirmation_url' ) ) {
+	function mageyabo_confirmation_url( $booking_id = 0, $token = '' ) {
+		$page_id = (int) get_option( 'mageyabo_confirmation_page_id' );
+		$url     = $page_id && 'publish' === get_post_status( $page_id ) ? get_permalink( $page_id ) : home_url( '/' );
+
+		if ( ! $url ) {
+			$url = home_url( '/' );
+		}
+
+		if ( ! $booking_id ) {
+			return $url;
+		}
+
+		return add_query_arg(
+			array(
+				'mageyabo_booking' => (int) $booking_id,
+				'mageyabo_key'     => rawurlencode( (string) $token ),
+			),
+			$url
+		);
+	}
+}
+
+/**
+ * Human-friendly booking reference ("YB-000123"). The numeric id is what the
+ * database uses; this is what goes on a ticket and into an email.
+ */
+if ( ! function_exists( 'mageyabo_booking_reference' ) ) {
+	function mageyabo_booking_reference( $booking_id ) {
+		return sprintf( 'YB-%06d', (int) $booking_id );
+	}
+}

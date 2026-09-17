@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import DateField from './DateField';
 
 export default function RepeatableRows({ items, fields, onChange, addLabel, emptyItem }) {
 	const rows = items || [];
@@ -21,7 +22,14 @@ export default function RepeatableRows({ items, fields, onChange, addLabel, empt
 			{rows.map((row, index) => (
 				<div className="ybs-repeatable-row" key={index}>
 					{fields.map((field) =>
-						'textarea' === field.type ? (
+						'date' === field.type ? (
+							<DateField
+								key={field.key}
+								placeholder={field.label}
+								value={row[field.key] || ''}
+								onChange={(value) => update(index, field.key, value)}
+							/>
+						) : 'textarea' === field.type ? (
 							<textarea
 								key={field.key}
 								placeholder={field.label}

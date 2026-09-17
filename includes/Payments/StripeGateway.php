@@ -72,8 +72,20 @@ class StripeGateway {
 		// pair) - `{CHECKOUT_SESSION_ID}` is a literal Stripe placeholder, not a
 		// PHP variable, so it's appended after add_query_arg() rather than
 		// passed through it, which would otherwise urlencode the braces.
-		$return_url  = add_query_arg( array( 'mageyabo_booking' => $booking_id, 'mageyabo_payment' => 'return' ), home_url( '/' ) );
+		$return_url  = add_query_arg( 'mageyabo_payment', 'return', mageyabo_confirmation_url( $booking_id, $booking['qr_token'] ) );
 		$return_url .= ( false === strpos( $return_url, '?' ) ? '?' : '&' ) . 'session_id={CHECKOUT_SESSION_ID}';
+
+		// A deposit booking charges the deposit now and leaves the balance
+		// with the operator - amount_due_now() is the single place that
+		// decides which, so no gateway can disagree with another.
+		$amount_due = \MageYaBo\Booking\PricingEngine::amount_due_now( $booking );
+		$is_deposit = $amount_due < (float) $booking['total_price'];
+
+		$item_name = $is_deposit
+			/* translators: %d: booking id */
+			? sprintf( __( 'Deposit for Yacht Booking #%d', 'magepeople-yacht-booking-system' ), $booking_id )
+			/* translators: %d: booking id */
+			: sprintf( __( 'Yacht Booking #%d', 'magepeople-yacht-booking-system' ), $booking_id );
 
 		$body = array(
 			'mode'       => 'payment',
@@ -84,10 +96,9 @@ class StripeGateway {
 					'quantity'   => 1,
 					'price_data' => array(
 						'currency'     => strtolower( $booking['currency'] ),
-						'unit_amount'  => (int) round( (float) $booking['total_price'] * 100 ),
+						'unit_amount'  => (int) round( $amount_due * 100 ),
 						'product_data' => array(
-							/* translators: %d: booking id */
-							'name' => sprintf( __( 'Yacht Booking #%d', 'magepeople-yacht-booking-system' ), $booking_id ),
+							'name' => $item_name,
 						),
 					),
 				),
@@ -160,6 +171,54 @@ class StripeGateway {
 		}
 
 		return rest_ensure_response( array( 'received' => true ) );
+	}
+
+	/**
+	 * Confirms one checkout session straight with Stripe and marks the booking
+	 * paid if it really is. The webhook is still the primary path - this only
+	 * covers the gap between a guest finishing payment and the webhook
+	 * arriving, which is exactly when they are looking at the return page.
+	 *
+	 * Safe to call repeatedly: it verifies the session belongs to this
+	 * booking, and does nothing unless Stripe says the session is paid.
+	 */
+	public static function reconcile_session( $booking_id, $session_id ) {
+		$secret_key = Settings::get( 'stripe_secret_key' );
+		$booking    = BookingRepository::find( $booking_id );
+
+		if ( ! $secret_key || ! $booking || 'paid' === $booking['payment_status'] ) {
+			return false;
+		}
+
+		$response = wp_remote_get(
+			self::API_BASE . '/checkout/sessions/' . rawurlencode( $session_id ),
+			array(
+				'headers' => array( 'Authorization' => 'Bearer ' . $secret_key ),
+				'timeout' => 15,
+			)
+		);
+
+		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return false;
+		}
+
+		$session = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( ! is_array( $session ) || 'paid' !== ( $session['payment_status'] ?? '' ) ) {
+			return false;
+		}
+
+		// The session id arrives in the URL, so it is attacker-supplied:
+		// without this check someone could quote any paid session of their own
+		// and have an unrelated booking marked paid.
+		if ( (int) ( $session['metadata']['booking_id'] ?? 0 ) !== (int) $booking_id ) {
+			return false;
+		}
+
+		BookingRepository::update_payment( $booking_id, 'paid', array( 'transaction_ref' => sanitize_text_field( $session['payment_intent'] ?? '' ) ) );
+		BookingRepository::update_status( $booking_id, 'processing' );
+
+		return true;
 	}
 
 	/**

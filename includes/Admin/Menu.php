@@ -113,6 +113,12 @@ class Menu {
 				'extraRoutes' => array_values( $extra_routes ),
 				'currency'    => \MageYaBo\Settings::get( 'currency_symbol', '$' ),
 				'adminEmail'  => get_option( 'admin_email' ),
+				// When WooCommerce checkout is live it handles the whole
+				// payment step, discounts included, so this plugin's own
+				// coupon codes never come into play. The Coupons screen says
+				// so rather than letting an operator build codes that quietly
+				// do nothing.
+				'wooCheckout' => \MageYaBo\Payments\WooCommerceGateway::is_active(),
 			)
 		);
 	}

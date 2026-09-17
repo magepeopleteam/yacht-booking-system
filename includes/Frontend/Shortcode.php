@@ -46,14 +46,12 @@ class Shortcode {
 		wp_register_script( 'mageyabo-frontend', MAGEYABO_PLUGIN_URL . 'assets/build/frontend.js', $frontend_deps, $asset['version'], true );
 		wp_register_style( 'mageyabo-frontend', MAGEYABO_PLUGIN_URL . 'assets/build/style-frontend.css', array( 'mageyabo-leaflet', 'dashicons' ), $asset['version'] );
 
-		wp_localize_script(
-			'mageyabo-frontend',
-			'mageyaboFrontendConfig',
-			array(
+		$config = array(
 				'restRoot'             => esc_url_raw( rest_url( 'mageyabo/v1/' ) ),
 				'nonce'                => wp_create_nonce( 'wp_rest' ),
 				'currency'             => Settings::get( 'currency_symbol', '$' ),
 				'gateways'             => $gateways,
+				'addonsEnabled'        => (bool) Settings::get( 'addons_enabled', true ),
 				'stripePublishableKey' => $stripe_ready ? Settings::get( 'stripe_publishable_key' ) : '',
 				'i18n'                 => array(
 					'selectYacht'   => __( 'Select a yacht', 'magepeople-yacht-booking-system' ),
@@ -90,9 +88,34 @@ class Shortcode {
 					'detailPayment'   => __( 'Payment Method', 'magepeople-yacht-booking-system' ),
 					'detailTotal'     => __( 'Total', 'magepeople-yacht-booking-system' ),
 					'close'           => __( 'Close', 'magepeople-yacht-booking-system' ),
-				),
-			)
+					'extras'          => __( 'Optional extras', 'magepeople-yacht-booking-system' ),
+					'charter'         => __( 'Charter', 'magepeople-yacht-booking-system' ),
+					'extrasTotal'     => __( 'Extras', 'magepeople-yacht-booking-system' ),
+					'discount'        => __( 'Discount', 'magepeople-yacht-booking-system' ),
+					'tax'             => __( 'Tax', 'magepeople-yacht-booking-system' ),
+					'total'           => __( 'Total', 'magepeople-yacht-booking-system' ),
+					'estimatedTotal'  => __( 'Estimated total', 'magepeople-yacht-booking-system' ),
+					/* translators: %s: formatted deposit amount. */
+					'depositDueNow'   => __( 'Pay %s deposit now', 'magepeople-yacht-booking-system' ),
+					/* translators: %s: formatted balance amount. */
+					'depositBalance'  => __( 'Balance of %s due before departure.', 'magepeople-yacht-booking-system' ),
+					'viewBooking'     => __( 'View your booking', 'magepeople-yacht-booking-system' ),
+			),
 		);
+
+		/**
+		 * The booking form's JS config.
+		 *
+		 * An add-on rendering extra fields into the form (see
+		 * `mageyabo_booking_form_extras`) adds the strings and flags its own
+		 * script needs here, rather than localizing a second object onto the
+		 * same form.
+		 *
+		 * @param array $config
+		 */
+		$config = (array) apply_filters( 'mageyabo_booking_form_config', $config );
+
+		wp_localize_script( 'mageyabo-frontend', 'mageyaboFrontendConfig', $config );
 	}
 
 	public static function render_booking_form( $atts ) {
@@ -201,6 +224,45 @@ class Shortcode {
 					<input type="number" class="ybs-bf-guests" min="1"<?php echo $capacity > 0 ? ' max="' . esc_attr( $capacity ) . '"' : ''; ?> value="1" />
 				</div>
 			</div>
+
+			<?php if ( Settings::get( 'addons_enabled', true ) ) : ?>
+				<?php /*
+				 * Filled in by loadAddons() in booking-form.js from
+				 * GET /yachts/{id}/addons, not printed here: the form can be
+				 * rendered without a yacht (the picker above), and the list has
+				 * to follow whichever yacht is currently selected.
+				 */ ?>
+				<div class="ybs-bf-addons" data-ybs-bf-addons hidden>
+					<span class="ybs-bf-addons__title"><?php esc_html_e( 'Optional extras', 'magepeople-yacht-booking-system' ); ?></span>
+					<div class="ybs-bf-addons__list" data-ybs-bf-addons-list></div>
+				</div>
+				<?php if ( $wc_product_id ) : ?>
+					<?php /* Compact "id:qty,id:qty" list - parsed back by WooCommerceGateway::parse_request(). */ ?>
+					<input type="hidden" name="mageyabo_addons" value="" />
+				<?php endif; ?>
+			<?php endif; ?>
+
+			<?php
+			/**
+			 * Extra fields between the add-ons and the price.
+			 *
+			 * The Pro add-on's coupon field renders here. `wc_product_id` is
+			 * passed because it decides which checkout this form posts to,
+			 * and an add-on may have nothing to offer on one of them - the
+			 * coupon field sits out the WooCommerce path, where WooCommerce
+			 * runs its own coupons at checkout.
+			 *
+			 * @param array $context
+			 */
+			do_action(
+				'mageyabo_booking_form_extras',
+				array(
+					'yacht_id'      => $yacht_id,
+					'wc_product_id' => $wc_product_id,
+					'booking_mode'  => $yacht_mode,
+				)
+			);
+			?>
 
 			<div class="ybs-bf-price ybs-notice is-info" hidden></div>
 

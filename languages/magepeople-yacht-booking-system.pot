@@ -2,17 +2,1495 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MagePeople Yacht Booking System 1.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/magepeople-yacht-booking-system\n"
+"Project-Id-Version: MagePeople Yacht Booking System 1.2.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/yacht-booking-system\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-07T00:00:00+00:00\n"
+"POT-Creation-Date: 2026-09-17T08:09:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: manual extraction\n"
+"X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: magepeople-yacht-booking-system\n"
+
+#. Plugin Name of the plugin
+#: magepeople-yacht-booking-system.php
+msgid "MagePeople Yacht Booking System"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: magepeople-yacht-booking-system.php
+msgid "https://wordpress.org/plugins/magepeople-yacht-booking-system"
+msgstr ""
+
+#. Description of the plugin
+#: magepeople-yacht-booking-system.php
+msgid "Yacht and boat charter booking - yacht management, a full booking engine, and built-in payments (Offline, PayPal, Stripe, WooCommerce)."
+msgstr ""
+
+#. Author of the plugin
+#: magepeople-yacht-booking-system.php
+msgid "MagePeople"
+msgstr ""
+
+#. Author URI of the plugin
+#: magepeople-yacht-booking-system.php
+msgid "https://magepeople.com/"
+msgstr ""
+
+#: includes/Admin/Menu.php:23
+#: includes/Admin/Menu.php:24
+#: assets/admin/src/components/Shell.js:60
+msgid "Yacht Booking"
+msgstr ""
+
+#: includes/Admin/Menu.php:128
+msgid "Yacht Booking System: run \"npm install && npm run build\" in the plugin directory to compile the admin app."
+msgstr ""
+
+#: includes/Booking/AvailabilityService.php:65
+msgid "Not enough remaining capacity for this time slot."
+msgstr ""
+
+#. translators: %d: maximum guest capacity.
+#: includes/Booking/AvailabilityService.php:74
+#, php-format
+msgid "This yacht can take a maximum of %d guests."
+msgstr ""
+
+#: includes/Booking/AvailabilityService.php:90
+msgid "Shared seats are already booked for this time - only shared bookings are available for this slot."
+msgstr ""
+
+#: includes/Booking/AvailabilityService.php:91
+msgid "This yacht is already booked for the selected time."
+msgstr ""
+
+#: includes/Booking/AvailabilityService.php:110
+#: includes/Booking/AvailabilityService.php:119
+#: includes/Booking/PricingEngine.php:86
+msgid "This date is not available for booking."
+msgstr ""
+
+#: includes/Booking/AvailabilityService.php:137
+msgid "This booking does not meet the minimum notice period required."
+msgstr ""
+
+#: includes/Booking/AvailabilityService.php:155
+msgid "This booking is shorter than the minimum allowed duration."
+msgstr ""
+
+#: includes/Booking/AvailabilityService.php:158
+msgid "This booking is longer than the maximum allowed duration."
+msgstr ""
+
+#: includes/Booking/AvailabilityService.php:194
+msgid "This time is too close to another booking for this yacht."
+msgstr ""
+
+#: includes/Booking/BookingRepository.php:589
+msgid "Another booking for this yacht is being processed. Please try again."
+msgstr ""
+
+#: includes/Booking/GuestRepository.php:199
+msgid "Anonymized Guest"
+msgstr ""
+
+#: includes/Booking/PricingEngine.php:301
+msgid "Unknown booking type."
+msgstr ""
+
+#: includes/Booking/PricingEngine.php:308
+msgid "This booking type is not available for this yacht."
+msgstr ""
+
+#: includes/Capabilities.php:99
+msgid "Yacht Manager"
+msgstr ""
+
+#: includes/Capabilities.php:100
+msgid "Yacht Staff"
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:89
+msgid "We could not find that booking. Please use the link from your confirmation email."
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:123
+msgid "Booking reference"
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:126
+#: includes/Rest/ReportsController.php:41
+#: assets/admin/src/routes/Bookings.js:104
+#: assets/admin/src/routes/Calendar.js:32
+msgid "Guest"
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:129
+#: includes/Frontend/Shortcode.php:92
+msgid "Charter"
+msgstr ""
+
+#. translators: %d: number of guests
+#: includes/Frontend/BookingConfirmation.php:136
+#: includes/Frontend/Shortcode.php:62
+#: includes/Frontend/Shortcode.php:87
+#: includes/Frontend/Shortcode.php:223
+#: includes/Frontend/Shortcode.php:451
+#: includes/Frontend/Shortcode.php:521
+#: includes/Payments/WooCommerceGateway.php:237
+#: includes/Payments/WooCommerceGateway.php:277
+#: templates/single-yacht.php:149
+#: assets/admin/src/components/Shell.js:12
+#: assets/admin/src/routes/Guests.js:43
+#: assets/admin/src/routes/UserGuide.js:447
+msgid "Guests"
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:140
+#: includes/Frontend/Shortcode.php:93
+#: assets/admin/src/routes/Settings.js:426
+msgid "Extras"
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:158
+msgid "Coupon"
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:165
+#: includes/Frontend/Shortcode.php:89
+#: includes/Frontend/Shortcode.php:96
+#: assets/admin/src/routes/Bookings.js:109
+#: assets/admin/src/routes/Calendar.js:38
+#: assets/admin/src/routes/Guests.js:65
+msgid "Total"
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:169
+#: assets/admin/src/routes/YachtWizard.js:653
+#: assets/admin/src/routes/YachtWizard.js:657
+msgid "Deposit"
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:173
+msgid "Paid so far"
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:177
+msgid "Balance due"
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:184
+msgid "Payment instructions"
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:190
+msgid "Check-in code"
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:192
+msgid "Show this code to the crew when you board."
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:227
+msgid "This booking has been cancelled."
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:229
+msgid "Please get in touch if you were not expecting this."
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:235
+msgid "Payment was cancelled. Your booking is being held as unpaid - you can pay again or contact us to arrange another method."
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:241
+msgid "Payment received."
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:243
+msgid "Your booking is confirmed and a confirmation email is on its way."
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:249
+msgid "Thank you."
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:251
+msgid "We're confirming your payment with the provider - this page will show it as soon as it clears, and you'll get an email either way."
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:256
+msgid "Your booking is reserved."
+msgstr ""
+
+#: includes/Frontend/BookingConfirmation.php:258
+msgid "It is awaiting payment."
+msgstr ""
+
+#: includes/Frontend/Newsletter.php:41
+msgid "Please provide a valid email address."
+msgstr ""
+
+#: includes/Frontend/Newsletter.php:48
+msgid "Please wait a moment before subscribing again."
+msgstr ""
+
+#: includes/Frontend/Newsletter.php:82
+msgid "Stay in the loop"
+msgstr ""
+
+#: includes/Frontend/Newsletter.php:83
+msgid "Your email address"
+msgstr ""
+
+#: includes/Frontend/Newsletter.php:98
+msgid "Subscribe"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:57
+#: includes/Frontend/Shortcode.php:186
+msgid "Select a yacht"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:58
+#: assets/admin/src/components/PaymentSettingsCard.js:53
+#: assets/admin/src/components/PaymentSettingsModal.js:44
+#: assets/admin/src/routes/Addons.js:93
+#: assets/admin/src/routes/Bookings.js:95
+#: assets/admin/src/routes/Guests.js:49
+#: assets/admin/src/routes/Settings.js:167
+#: assets/admin/src/routes/Settings.js:582
+#: assets/admin/src/routes/YachtWizard.js:214
+#: assets/admin/src/routes/YachtWizard.js:520
+msgid "Loading…"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:59
+#: includes/Frontend/Shortcode.php:272
+#: includes/Frontend/Shortcode.php:284
+#: includes/Settings.php:60
+#: templates/single-yacht.php:38
+#: templates/single-yacht.php:424
+msgid "Book Now"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:60
+msgid "Not available for the selected time."
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:61
+msgid "Near me"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:63
+msgid "seats left"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:64
+#: includes/Rest/BookingsController.php:212
+msgid "Please accept the terms and conditions."
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:65
+msgid "No yachts matched your search."
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:66
+msgid "Search failed. Please try again."
+msgstr ""
+
+#. translators: %d: number of yachts found.
+#: includes/Frontend/Shortcode.php:67
+#, php-format
+msgid "%d yacht available"
+msgstr ""
+
+#. translators: %d: number of yachts found.
+#: includes/Frontend/Shortcode.php:68
+#, php-format
+msgid "%d yachts available"
+msgstr ""
+
+#. translators: %d: number of yachts found.
+#: includes/Frontend/Shortcode.php:69
+msgid "Contact for pricing"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:70
+msgid "photos"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:71
+#: includes/Frontend/Shortcode.php:817
+msgid "From"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:72
+msgid "hour"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:73
+msgid "day"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:74
+msgid "week"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:75
+msgid "guests"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:76
+#: includes/Frontend/Shortcode.php:823
+#: assets/admin/src/routes/YachtsList.js:318
+#: assets/admin/src/routes/YachtsList.js:390
+msgid "View"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:77
+msgid "Thank you - your booking request has been received."
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:78
+msgid "Thanks for subscribing!"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:79
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:80
+msgid "Card Details"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:81
+msgid "Could not load the payment form. Please refresh and try again."
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:82
+msgid "Booking Confirmed!"
+msgstr ""
+
+#. translators: %s: guest email address
+#: includes/Frontend/Shortcode.php:84
+#, php-format
+msgid "We've received your request and sent a confirmation to %s."
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:85
+msgid "Booking ID"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:86
+msgid "Date & Time"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:88
+#: includes/Frontend/Shortcode.php:316
+#: includes/Frontend/Shortcode.php:320
+msgid "Payment Method"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:90
+#: includes/Frontend/Shortcode.php:289
+#: includes/Frontend/Shortcode.php:359
+#: includes/Frontend/Shortcode.php:659
+#: templates/single-yacht.php:428
+#: assets/admin/src/routes/UserGuide.js:48
+msgid "Close"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:91
+#: includes/Frontend/Shortcode.php:236
+msgid "Optional extras"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:94
+msgid "Discount"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:95
+msgid "Tax"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:97
+msgid "Estimated total"
+msgstr ""
+
+#. translators: %s: formatted deposit amount.
+#: includes/Frontend/Shortcode.php:99
+#, php-format
+msgid "Pay %s deposit now"
+msgstr ""
+
+#. translators: %s: formatted balance amount.
+#: includes/Frontend/Shortcode.php:101
+#, php-format
+msgid "Balance of %s due before departure."
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:102
+msgid "View your booking"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:173
+msgid "How do you want to book?"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:175
+msgid "Full Charter - whole yacht"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:176
+msgid "Shared - per seat"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:178
+msgid "Once shared seats are booked for a time slot, that slot can only take further shared bookings."
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:184
+#: includes/PostTypes/Yacht.php:109
+#: assets/admin/src/routes/Bookings.js:103
+#: assets/admin/src/routes/Guests.js:59
+msgid "Yacht"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:196
+#: includes/Payments/WooCommerceGateway.php:233
+#: includes/Payments/WooCommerceGateway.php:275
+msgid "Booking Type"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:198
+#: includes/Frontend/Shortcode.php:864
+#: includes/Payments/WooCommerceGateway.php:606
+#: assets/admin/src/routes/Bookings.js:18
+#: assets/admin/src/routes/Calendar.js:6
+#: assets/admin/src/routes/Guests.js:7
+msgid "Hourly"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:199
+#: includes/Payments/WooCommerceGateway.php:607
+#: assets/admin/src/routes/Bookings.js:19
+#: assets/admin/src/routes/Calendar.js:7
+#: assets/admin/src/routes/Guests.js:8
+msgid "Half-Day"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:200
+#: includes/Frontend/Shortcode.php:866
+#: includes/Payments/WooCommerceGateway.php:608
+#: assets/admin/src/routes/Bookings.js:20
+#: assets/admin/src/routes/Calendar.js:8
+#: assets/admin/src/routes/Guests.js:9
+msgid "Morning Slot"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:201
+#: includes/Frontend/Shortcode.php:867
+msgid "Evening / Sunset Slot"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:202
+#: includes/Notifications/BookingEmailer.php:315
+msgid "Daily"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:203
+#: includes/Payments/WooCommerceGateway.php:611
+#: assets/admin/src/routes/Bookings.js:23
+#: assets/admin/src/routes/Calendar.js:11
+#: assets/admin/src/routes/Guests.js:12
+msgid "Multi-Day"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:207
+#: assets/admin/src/routes/Bookings.js:106
+msgid "Date"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:211
+msgid "Start Time"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:215
+msgid "Duration (hours)"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:219
+msgid "Nights"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:270
+msgid "Your details will be collected on the checkout page."
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:288
+#: includes/Frontend/Shortcode.php:290
+msgid "Complete your booking"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:302
+#: assets/admin/src/routes/Guests.js:61
+msgid "Full Name"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:306
+#: includes/Rest/GuestsController.php:84
+#: assets/admin/src/routes/Calendar.js:33
+#: assets/admin/src/routes/Guests.js:62
+#: assets/admin/src/routes/Settings.js:554
+msgid "Email"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:310
+#: includes/Rest/GuestsController.php:85
+#: assets/admin/src/routes/Calendar.js:34
+#: assets/admin/src/routes/Guests.js:63
+msgid "Phone"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:326
+msgid "I accept the terms and conditions."
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:330
+msgid "Confirm Booking"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:341
+msgid "Almost done - enter your card details below to complete payment."
+msgstr ""
+
+#. translators: %s: the shared location of every yacht in the fleet, e.g. "Dubai Marina".
+#: includes/Frontend/Shortcode.php:413
+#, php-format
+msgid "All %s"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:414
+msgid "All Locations"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:420
+#: templates/single-yacht.php:214
+msgid "Charter type"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:421
+msgid "Day charter"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:422
+msgid "Hourly charter"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:429
+msgid "Where"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:443
+#: includes/Frontend/Shortcode.php:515
+#: assets/admin/src/routes/Settings.js:182
+msgid "Dates"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:444
+#: includes/Frontend/Shortcode.php:516
+msgid "(sets season rates)"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:453
+#: includes/Frontend/Shortcode.php:523
+msgid "Fewer guests"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:455
+#: includes/Frontend/Shortcode.php:525
+msgid "More guests"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:461
+#: includes/Frontend/Shortcode.php:529
+#: assets/admin/src/routes/Addons.js:106
+#: assets/admin/src/routes/Addons.js:146
+msgid "Price"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:463
+#: includes/Frontend/Shortcode.php:531
+msgid "Any price"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:471
+msgid "Search yachts"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:473
+#: includes/Frontend/Shortcode.php:540
+msgid "Search"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:538
+msgid "Search the fleet"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:546
+msgid "Filter yachts by class"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:547
+#: assets/admin/src/routes/YachtsList.js:180
+msgid "All"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:557
+msgid "Switch view"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:558
+#: assets/admin/src/routes/YachtsList.js:207
+#: assets/admin/src/routes/YachtsList.js:208
+msgid "Grid view"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:561
+#: assets/admin/src/routes/YachtsList.js:198
+#: assets/admin/src/routes/YachtsList.js:199
+msgid "List view"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:568
+msgid "Load More Yachts"
+msgstr ""
+
+#. translators: %d: total number of photos.
+#. translators: %d: number of photos in the gallery.
+#: includes/Frontend/Shortcode.php:637
+#: templates/single-yacht.php:120
+#, php-format
+msgid "View Photos (%d)"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:660
+#: templates/single-yacht.php:429
+msgid "Previous photo"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:662
+#: templates/single-yacht.php:434
+msgid "Next photo"
+msgstr ""
+
+#. translators: %d: maximum number of guests.
+#: includes/Frontend/Shortcode.php:674
+#, php-format
+msgid "%d guests max"
+msgstr ""
+
+#. translators: %s: yacht length in metres.
+#. translators: %s: length in metres.
+#: includes/Frontend/Shortcode.php:677
+#: includes/Frontend/Shortcode.php:810
+#: templates/single-yacht.php:157
+#, php-format
+msgid "%s m"
+msgstr ""
+
+#. translators: %d: number of cabins.
+#: includes/Frontend/Shortcode.php:680
+#, php-format
+msgid "%d cabin"
+msgid_plural "%d cabins"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of crew.
+#: includes/Frontend/Shortcode.php:683
+#, php-format
+msgid "%d crew"
+msgid_plural "%d crew"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: yacht name.
+#: includes/Frontend/Shortcode.php:697
+#, php-format
+msgid "The %s Experience"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:703
+msgid "Included in every charter"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:714
+#: templates/single-yacht.php:299
+msgid "Occasions this yacht fits best"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:725
+#: templates/single-yacht.php:211
+msgid "Charter Rates"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:746
+#: templates/single-yacht.php:184
+#: assets/admin/src/routes/YachtWizard.js:735
+msgid "Location"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:753
+#: assets/admin/src/routes/YachtWizard.js:349
+msgid "Frequently Asked Questions"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:770
+#: assets/admin/src/routes/YachtWizard.js:378
+#: assets/admin/src/routes/YachtWizard.js:737
+msgid "Related Yachts"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:772
+msgid "Previous yachts"
+msgstr ""
+
+#. translators: %d: number of guests.
+#. translators: %d: number of guests
+#: includes/Frontend/Shortcode.php:807
+#: includes/Payments/WooCommerceGateway.php:277
+#: assets/admin/src/routes/Bookings.js:33
+#: assets/admin/src/routes/Guests.js:99
+#: assets/admin/src/routes/YachtsList.js:296
+#: assets/admin/src/routes/YachtsList.js:369
+#, php-format,js-format
+msgid "%d guests"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:829
+msgid "Next yachts"
+msgstr ""
+
+#. translators: %s: formatted lowest price.
+#: includes/Frontend/Shortcode.php:839
+#: assets/admin/src/routes/YachtsList.js:280
+#: assets/admin/src/routes/YachtsList.js:381
+#, php-format,js-format
+msgid "From %s"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:865
+msgid "Half Day"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:868
+#: includes/Payments/WooCommerceGateway.php:610
+#: assets/admin/src/routes/Bookings.js:22
+#: assets/admin/src/routes/Calendar.js:10
+#: assets/admin/src/routes/Guests.js:11
+msgid "Full Day"
+msgstr ""
+
+#: includes/Frontend/Shortcode.php:869
+msgid "Multi-Day (per night)"
+msgstr ""
+
+#. translators: %s: currency symbol.
+#: includes/Frontend/Shortcode.php:1031
+#, php-format
+msgid "Under %s1,000 per hour"
+msgstr ""
+
+#. translators: %1$s: currency symbol.
+#: includes/Frontend/Shortcode.php:1033
+#, php-format
+msgid "%1$s1,000 to %1$s2,500 per hour"
+msgstr ""
+
+#. translators: %1$s: currency symbol.
+#: includes/Frontend/Shortcode.php:1035
+#, php-format
+msgid "%1$s2,500 to %1$s5,000 per hour"
+msgstr ""
+
+#. translators: %1$s: currency symbol.
+#: includes/Frontend/Shortcode.php:1037
+#, php-format
+msgid "%1$s5,000 to %1$s10,000 per hour"
+msgstr ""
+
+#. translators: %s: currency symbol.
+#: includes/Frontend/Shortcode.php:1039
+#, php-format
+msgid "%s10,000+ per hour"
+msgstr ""
+
+#. translators: %s: yacht name.
+#: includes/Frontend/Templates.php:133
+#, php-format
+msgid "Skip to %s content"
+msgstr ""
+
+#. translators: %d: number of days
+#: includes/functions.php:96
+#, php-format
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of hours
+#: includes/functions.php:101
+#, php-format
+msgid "%d hour"
+msgid_plural "%d hours"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of minutes
+#: includes/functions.php:106
+#, php-format
+msgid "%d minute"
+msgid_plural "%d minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/Install/Migrator.php:44
+msgid "Search Yacht"
+msgstr ""
+
+#: includes/Install/Migrator.php:60
+msgid "Booking Confirmation"
+msgstr ""
+
+#: includes/Install/Migrator.php:74
+msgid "Yacht List"
+msgstr ""
+
+#: includes/Notifications/BookingEmailer.php:174
+msgid "Your booking at {site_name} is confirmed"
+msgstr ""
+
+#: includes/Notifications/BookingEmailer.php:175
+msgid ""
+"<p>Hi {guest_name},</p>\n"
+"<p>Thank you for your booking. Here are the details:</p>\n"
+"<p><strong>{yacht_name}</strong><br />\n"
+"Booking reference: {booking_id}<br />\n"
+"Starts: {start_date} at {start_time}<br />\n"
+"Ends: {end_date} at {end_time}<br />\n"
+"Guests: {guest_count}</p>\n"
+"<p>Total: {total_price}<br />\n"
+"Paid: {amount_paid}<br />\n"
+"Balance due: {balance_due}</p>\n"
+"<p>You can view your booking here: {confirmation_url}</p>\n"
+"<p>We look forward to welcoming you aboard.</p>\n"
+"<p>{site_name}</p>"
+msgstr ""
+
+#: includes/Notifications/BookingEmailer.php:310
+msgid "John Doe"
+msgstr ""
+
+#: includes/Notifications/BookingEmailer.php:313
+msgid "Sample Yacht"
+msgstr ""
+
+#: includes/Notifications/BookingEmailer.php:316
+msgid "Full"
+msgstr ""
+
+#: includes/Notifications/BookingEmailer.php:322
+msgid "Catering package"
+msgstr ""
+
+#: includes/Notifications/BookingEmailer.php:330
+msgid "Pending"
+msgstr ""
+
+#: includes/Notifications/BookingEmailer.php:331
+#: assets/admin/src/components/PaymentSettingsCard.js:7
+msgid "Offline"
+msgstr ""
+
+#: includes/Notifications/BookingEmailer.php:332
+msgid "Unpaid"
+msgstr ""
+
+#: includes/Payments/OfflineGateway.php:27
+#: assets/admin/src/components/PaymentMethodFields.js:262
+#: assets/admin/src/routes/UserGuide.js:353
+msgid "Offline / Manual Payment"
+msgstr ""
+
+#: includes/Payments/PayPalGateway.php:30
+#: assets/admin/src/components/PaymentMethodFields.js:277
+#: assets/admin/src/components/PaymentSettingsCard.js:8
+#: assets/admin/src/routes/UserGuide.js:357
+msgid "PayPal"
+msgstr ""
+
+#: includes/Payments/PayPalGateway.php:45
+#: includes/Payments/StripeGateway.php:62
+#: includes/Payments/WooCommerceGateway.php:82
+msgid "Booking could not be found."
+msgstr ""
+
+#. translators: %d: booking id
+#: includes/Payments/PayPalGateway.php:59
+#: includes/Payments/StripeGateway.php:86
+#, php-format
+msgid "Deposit for Yacht Booking #%d"
+msgstr ""
+
+#. translators: %d: booking id
+#: includes/Payments/PayPalGateway.php:61
+#: includes/Payments/StripeGateway.php:88
+#, php-format
+msgid "Yacht Booking #%d"
+msgstr ""
+
+#: includes/Payments/StripeGateway.php:45
+#: assets/admin/src/components/PaymentMethodFields.js:296
+#: assets/admin/src/components/PaymentSettingsCard.js:9
+#: assets/admin/src/routes/UserGuide.js:361
+msgid "Stripe"
+msgstr ""
+
+#: includes/Payments/StripeGateway.php:68
+msgid "Stripe is not configured."
+msgstr ""
+
+#: includes/Payments/StripeGateway.php:128
+msgid "Stripe did not return a client secret."
+msgstr ""
+
+#: includes/Payments/WooCommerceGateway.php:58
+#: assets/admin/src/components/PaymentMethodFields.js:212
+#: assets/admin/src/components/PaymentMethodFields.js:229
+#: assets/admin/src/routes/UserGuide.js:330
+msgid "WooCommerce Checkout"
+msgstr ""
+
+#: includes/Payments/WooCommerceGateway.php:76
+#: includes/Rest/SettingsController.php:326
+#: includes/Rest/SettingsController.php:356
+msgid "WooCommerce is not active."
+msgstr ""
+
+#: includes/Payments/WooCommerceGateway.php:88
+msgid "Could not prepare the WooCommerce product for this yacht."
+msgstr ""
+
+#: includes/Payments/WooCommerceGateway.php:141
+#: includes/Rest/BookingsController.php:243
+msgid "This slot is not available."
+msgstr ""
+
+#: includes/Payments/WooCommerceGateway.php:229
+#: includes/Payments/WooCommerceGateway.php:274
+msgid "Charter Start"
+msgstr ""
+
+#: includes/Payments/WooCommerceGateway.php:515
+#: includes/Rest/BookingsController.php:173
+msgid "Please choose a valid yacht."
+msgstr ""
+
+#: includes/Payments/WooCommerceGateway.php:524
+#: includes/Payments/WooCommerceGateway.php:545
+#: includes/Rest/BookingsController.php:196
+msgid "Please choose a valid date and time."
+msgstr ""
+
+#: includes/Payments/WooCommerceGateway.php:609
+#: assets/admin/src/routes/Bookings.js:21
+#: assets/admin/src/routes/Calendar.js:9
+#: assets/admin/src/routes/Guests.js:10
+msgid "Evening Slot"
+msgstr ""
+
+#: includes/Payments/WooCommerceGateway.php:617
+#: assets/admin/src/routes/Bookings.js:30
+#: assets/admin/src/routes/YachtWizard.js:573
+#: assets/admin/src/routes/YachtWizard.js:731
+msgid "Shared"
+msgstr ""
+
+#: includes/Payments/WooCommerceProduct.php:130
+msgid "Yacht Charter"
+msgstr ""
+
+#: includes/PostTypes/Yacht.php:108
+#: templates/single-yacht.php:86
+#: assets/admin/src/components/Shell.js:9
+#: assets/admin/src/routes/YachtsList.js:141
+msgid "Yachts"
+msgstr ""
+
+#: includes/PostTypes/Yacht.php:110
+#: assets/admin/src/routes/Dashboard.js:117
+#: assets/admin/src/routes/YachtsList.js:153
+#: assets/admin/src/routes/YachtsList.js:238
+#: assets/admin/src/routes/YachtWizard.js:221
+msgid "Add New Yacht"
+msgstr ""
+
+#: includes/PostTypes/Yacht.php:111
+#: assets/admin/src/routes/YachtWizard.js:221
+msgid "Edit Yacht"
+msgstr ""
+
+#: includes/PostTypes/Yacht.php:112
+msgid "View Yacht"
+msgstr ""
+
+#: includes/PostTypes/Yacht.php:113
+msgid "Search Yachts"
+msgstr ""
+
+#: includes/PostTypes/Yacht.php:114
+msgid "No yachts found"
+msgstr ""
+
+#: includes/PostTypes/Yacht.php:115
+msgid "No yachts found in Trash"
+msgstr ""
+
+#: includes/Rest/AddonsController.php:85
+#: assets/admin/src/routes/Addons.js:39
+msgid "Please give the add-on a name."
+msgstr ""
+
+#: includes/Rest/AddonsController.php:97
+#: includes/Rest/AddonsController.php:109
+msgid "Add-on not found."
+msgstr ""
+
+#: includes/Rest/BookingsController.php:82
+#: includes/Rest/BookingsController.php:102
+#: includes/Rest/BookingsController.php:346
+msgid "Booking not found."
+msgstr ""
+
+#: includes/Rest/BookingsController.php:92
+msgid "No booking matches that check-in code."
+msgstr ""
+
+#: includes/Rest/BookingsController.php:166
+msgid "Please wait a moment before submitting another booking."
+msgstr ""
+
+#: includes/Rest/BookingsController.php:208
+msgid "Please provide your name, email and phone number."
+msgstr ""
+
+#: includes/Rest/BookingsController.php:222
+msgid "Please choose an available payment method."
+msgstr ""
+
+#: includes/Rest/BookingsController.php:336
+msgid "Invalid booking or status."
+msgstr ""
+
+#: includes/Rest/Controller.php:26
+msgid "You do not have permission to do this."
+msgstr ""
+
+#: includes/Rest/GuestsController.php:83
+#: assets/admin/src/routes/Addons.js:102
+#: assets/admin/src/routes/Addons.js:144
+msgid "Name"
+msgstr ""
+
+#: includes/Rest/PricingRulesController.php:71
+msgid "Pricing rule not found."
+msgstr ""
+
+#: includes/Rest/ReportsController.php:40
+msgid "Untitled yacht"
+msgstr ""
+
+#: includes/Rest/SettingsController.php:112
+msgid "Please enter a valid email address."
+msgstr ""
+
+#: includes/Rest/SettingsController.php:123
+msgid "Test emails can only be sent to your own account address or the site admin address."
+msgstr ""
+
+#: includes/Rest/SettingsController.php:158
+msgid "TEST"
+msgstr ""
+
+#: includes/Rest/SettingsController.php:169
+msgid "Failed to send test email. Check your mail configuration."
+msgstr ""
+
+#. translators: %s: email address the test was sent to.
+#: includes/Rest/SettingsController.php:176
+#, php-format
+msgid "Test email sent to %s."
+msgstr ""
+
+#: includes/Rest/SettingsController.php:199
+msgid "You do not have permission to install plugins."
+msgstr ""
+
+#: includes/Rest/SettingsController.php:228
+msgid "Could not download or extract WooCommerce."
+msgstr ""
+
+#: includes/Rest/SettingsController.php:233
+msgid "You do not have permission to activate plugins."
+msgstr ""
+
+#: includes/Rest/SettingsController.php:239
+msgid "WooCommerce could not be activated."
+msgstr ""
+
+#: includes/Rest/SettingsController.php:363
+msgid "Unknown WooCommerce payment gateway."
+msgstr ""
+
+#: includes/Rest/YachtsController.php:145
+msgid "Please choose a date and time."
+msgstr ""
+
+#: includes/Rest/YachtsController.php:234
+msgid "Please provide a month as YYYY-MM."
+msgstr ""
+
+#: includes/Rest/YachtsController.php:385
+#: includes/Rest/YachtsController.php:389
+#: includes/Rest/YachtsController.php:451
+#: includes/Rest/YachtsController.php:488
+msgid "Yacht not found."
+msgstr ""
+
+#: includes/Rest/YachtsController.php:428
+msgid "Untitled Yacht"
+msgstr ""
+
+#: includes/Rest/YachtsController.php:504
+msgid "Sample yachts have already been imported."
+msgstr ""
+
+#: includes/Rest/YachtsController.php:568
+msgid "Ocean Breeze"
+msgstr ""
+
+#: includes/Rest/YachtsController.php:569
+msgid "A sleek 42ft motor yacht perfect for sunset cruises and small celebrations along the coast."
+msgstr ""
+
+#: includes/Rest/YachtsController.php:594
+msgid "Sapphire Horizon"
+msgstr ""
+
+#: includes/Rest/YachtsController.php:595
+msgid "A spacious 68ft luxury cruiser with a sundeck lounge, ideal for corporate charters and weddings."
+msgstr ""
+
+#: includes/Rest/YachtsController.php:620
+msgid "Island Serenade"
+msgstr ""
+
+#: includes/Rest/YachtsController.php:621
+msgid "A breezy 36ft catamaran built for laid-back island hopping and small bachelorette groups."
+msgstr ""
+
+#: includes/Rest/YachtsController.php:646
+msgid "Golden Mirage"
+msgstr ""
+
+#: includes/Rest/YachtsController.php:647
+msgid "A striking 55ft superyacht with a jacuzzi deck, built for high-end business entertaining."
+msgstr ""
+
+#: includes/Rest/YachtsController.php:672
+msgid "Aegean Muse"
+msgstr ""
+
+#: includes/Rest/YachtsController.php:673
+msgid "A whitewashed 48ft sailing yacht drifting past the caldera - built for sunset proposals."
+msgstr ""
+
+#: includes/Rest/YachtsController.php:698
+msgid "Southern Star"
+msgstr ""
+
+#: includes/Rest/YachtsController.php:699
+msgid "A lively 60ft party yacht with a sound system and open deck, built for big celebrations - bookable as a full charter or by the seat."
+msgstr ""
+
+#: includes/Rest/YachtsController.php:742
+msgid "Please provide a date as YYYY-MM-DD."
+msgstr ""
+
+#: includes/Settings.php:57
+#: templates/single-yacht.php:35
+msgid "Ready when you are"
+msgstr ""
+
+#: includes/Settings.php:58
+#: templates/single-yacht.php:36
+#: assets/admin/src/routes/YachtWizard.js:795
+msgid "Book the {yacht_name} today"
+msgstr ""
+
+#: includes/Settings.php:59
+#: templates/single-yacht.php:37
+#: assets/admin/src/routes/YachtWizard.js:804
+msgid "Dates fill fast - lock in your preferred slot with an instant booking request."
+msgstr ""
+
+#: includes/Settings.php:61
+#: templates/single-yacht.php:39
+msgid "Browse all yachts"
+msgstr ""
+
+#: includes/Taxonomies/YachtClass.php:16
+msgid "Yacht Classes"
+msgstr ""
+
+#: includes/Taxonomies/YachtClass.php:17
+#: assets/admin/src/routes/YachtWizard.js:388
+msgid "Yacht Class"
+msgstr ""
+
+#: includes/Taxonomies/YachtClass.php:18
+msgid "Search Classes"
+msgstr ""
+
+#: includes/Taxonomies/YachtClass.php:19
+msgid "All Classes"
+msgstr ""
+
+#: includes/Taxonomies/YachtClass.php:20
+msgid "Edit Class"
+msgstr ""
+
+#: includes/Taxonomies/YachtClass.php:21
+msgid "Add New Class"
+msgstr ""
+
+#: includes/Taxonomies/YachtClass.php:22
+msgid "Classes"
+msgstr ""
+
+#: includes/Taxonomies/YachtClass.php:28
+msgid "Comfort"
+msgstr ""
+
+#: includes/Taxonomies/YachtClass.php:29
+msgid "Comfort Plus"
+msgstr ""
+
+#: includes/Taxonomies/YachtClass.php:30
+msgid "Business"
+msgstr ""
+
+#: includes/Taxonomies/YachtClass.php:31
+msgid "First Class"
+msgstr ""
+
+#: includes/Taxonomies/YachtClass.php:32
+msgid "Party"
+msgstr ""
+
+#: includes/Taxonomies/YachtOccasion.php:16
+#: includes/Taxonomies/YachtOccasion.php:22
+msgid "Occasions"
+msgstr ""
+
+#: includes/Taxonomies/YachtOccasion.php:17
+#: assets/admin/src/routes/YachtWizard.js:401
+msgid "Occasion"
+msgstr ""
+
+#: includes/Taxonomies/YachtOccasion.php:18
+msgid "Search Occasions"
+msgstr ""
+
+#: includes/Taxonomies/YachtOccasion.php:19
+msgid "All Occasions"
+msgstr ""
+
+#: includes/Taxonomies/YachtOccasion.php:20
+msgid "Edit Occasion"
+msgstr ""
+
+#: includes/Taxonomies/YachtOccasion.php:21
+msgid "Add New Occasion"
+msgstr ""
+
+#: includes/Taxonomies/YachtOccasion.php:28
+msgid "Birthday"
+msgstr ""
+
+#: includes/Taxonomies/YachtOccasion.php:29
+msgid "Anniversary / Proposal"
+msgstr ""
+
+#: includes/Taxonomies/YachtOccasion.php:30
+msgid "Corporate"
+msgstr ""
+
+#: includes/Taxonomies/YachtOccasion.php:31
+msgid "Bachelorette"
+msgstr ""
+
+#: includes/Taxonomies/YachtOccasion.php:32
+msgid "Wedding"
+msgstr ""
+
+#: includes/Taxonomies/YachtOccasion.php:33
+msgid "Sunset Cocktail"
+msgstr ""
+
+#: magepeople-yacht-booking-system.php:39
+msgid "Yacht Booking System: the Composer autoloader is missing. Run \"composer install\" (or \"composer dump-autoload\") in the plugin directory."
+msgstr ""
+
+#: templates/single-yacht.php:83
+msgid "Breadcrumb"
+msgstr ""
+
+#: templates/single-yacht.php:84
+msgid "Home"
+msgstr ""
+
+#: templates/single-yacht.php:92
+msgid "Photo gallery"
+msgstr ""
+
+#: templates/single-yacht.php:134
+msgid "Available now"
+msgstr ""
+
+#: templates/single-yacht.php:145
+msgid "Specifications"
+msgstr ""
+
+#: templates/single-yacht.php:156
+msgid "Length"
+msgstr ""
+
+#: templates/single-yacht.php:163
+#: assets/admin/src/routes/YachtWizard.js:423
+#: assets/admin/src/routes/YachtWizard.js:728
+msgid "Cabins"
+msgstr ""
+
+#: templates/single-yacht.php:170
+msgid "Crew"
+msgstr ""
+
+#: templates/single-yacht.php:177
+msgid "Build year"
+msgstr ""
+
+#: templates/single-yacht.php:195
+msgid "Overview"
+msgstr ""
+
+#. translators: %s: yacht name.
+#: templates/single-yacht.php:196
+#, php-format
+msgid "The %s experience"
+msgstr ""
+
+#: templates/single-yacht.php:210
+msgid "Pricing"
+msgstr ""
+
+#: templates/single-yacht.php:221
+msgid "Full charter"
+msgstr ""
+
+#: templates/single-yacht.php:228
+msgid "Shared · per seat"
+msgstr ""
+
+#: templates/single-yacht.php:283
+msgid "On board"
+msgstr ""
+
+#: templates/single-yacht.php:284
+msgid "Amenities & features"
+msgstr ""
+
+#: templates/single-yacht.php:298
+msgid "Perfect for"
+msgstr ""
+
+#: templates/single-yacht.php:316
+msgid "Where you cruise"
+msgstr ""
+
+#: templates/single-yacht.php:317
+msgid "Location & boarding point"
+msgstr ""
+
+#: templates/single-yacht.php:326
+msgid "Similar yachts"
+msgstr ""
+
+#: templates/single-yacht.php:327
+msgid "You might also like"
+msgstr ""
+
+#: templates/single-yacht.php:336
+msgid " guests"
+msgstr ""
+
+#: templates/single-yacht.php:355
+msgid "from"
+msgstr ""
+
+#: templates/single-yacht.php:357
+msgid "/ hour · VAT excluded"
+msgstr ""
+
+#: templates/single-yacht.php:369
+msgid "Frequently asked"
+msgstr ""
+
+#. translators: %s: yacht name.
+#: templates/single-yacht.php:370
+#, php-format
+msgid "Questions about the %s"
+msgstr ""
+
+#: templates/single-yacht.php:389
+msgid "Get an instant quote"
+msgstr ""
+
+#: templates/single-yacht.php:394
+msgid "GOOGLE"
+msgstr ""
+
+#: templates/single-yacht.php:395
+msgid "INSURED"
+msgstr ""
+
+#: templates/single-yacht.php:396
+msgid "SUPPORT"
+msgstr ""
+
+#: templates/single-yacht.php:419
+msgid "per hour"
+msgstr ""
+
+#: templates/single-yacht.php:427
+msgid "Photo viewer"
+msgstr ""
 
 #: assets/admin/src/components/DateField.js:5
 msgid "January"
@@ -90,31 +1568,32 @@ msgstr ""
 msgid "Sa"
 msgstr ""
 
-#: assets/admin/src/components/DateField.js:136
+#: assets/admin/src/components/DateField.js:111
+#: assets/admin/src/components/DateField.js:139
 msgid "Choose date"
 msgstr ""
 
-#: assets/admin/src/components/DateField.js:138
+#: assets/admin/src/components/DateField.js:141
 msgid "Previous month"
 msgstr ""
 
-#: assets/admin/src/components/DateField.js:144
+#: assets/admin/src/components/DateField.js:147
 msgid "Month"
 msgstr ""
 
-#: assets/admin/src/components/DateField.js:153
+#: assets/admin/src/components/DateField.js:156
 msgid "Year"
 msgstr ""
 
-#: assets/admin/src/components/DateField.js:160
+#: assets/admin/src/components/DateField.js:163
 msgid "Next month"
 msgstr ""
 
-#: assets/admin/src/components/DateField.js:208
+#: assets/admin/src/components/DateField.js:211
 msgid "Today"
 msgstr ""
 
-#: assets/admin/src/components/DateField.js:218
+#: assets/admin/src/components/DateField.js:221
 #: assets/admin/src/components/TimeField.js:231
 msgid "Clear"
 msgstr ""
@@ -184,109 +1663,167 @@ msgid "Select Image"
 msgstr ""
 
 #: assets/admin/src/components/MediaPicker.js:46
-#: assets/admin/src/components/RepeatableRows.js:43
+#: assets/admin/src/components/RelatedYachtsPicker.js:63
+#: assets/admin/src/components/RepeatableRows.js:51
 #: assets/admin/src/components/TagSelect.js:65
-#: assets/admin/src/routes/Settings.js:62
 msgid "Remove"
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:79
-msgid "WooCommerce is installed and active. Cash on Delivery is enabled by default - turn on more methods below. Refresh the page to see it reflected everywhere in wp-admin."
+#: assets/admin/src/components/PaymentMethodFields.js:23
+msgid "Choose whether to use your own payment methods or WooCommerce checkout."
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:90
-msgid "Choose either your own payment methods or WooCommerce checkout - not both."
+#: assets/admin/src/components/PaymentMethodFields.js:24
+msgid "Enable and configure the ones you want - only the matching settings are shown."
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:94
-#: includes/Payments/OfflineGateway.php:27
-msgid "Offline / Manual Payment"
+#: assets/admin/src/components/PaymentMethodFields.js:25
+msgid "That's it - guests can now pay. You can switch anytime; the change saves instantly."
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:99
-msgid "Instructions shown to the guest"
+#: assets/admin/src/components/PaymentMethodFields.js:32
+msgid "How payments work here"
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:66
+#: assets/admin/src/routes/Addons.js:159
+msgid "Active"
 msgstr ""
 
 #: assets/admin/src/components/PaymentMethodFields.js:109
-#: assets/admin/src/components/PaymentSettingsCard.js:8
-#: includes/Payments/PayPalGateway.php:30
-msgid "PayPal"
+#: assets/admin/src/components/WooCommerceGatewayList.js:65
+msgid "Enabled"
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:115
-msgid "PayPal Email"
+#: assets/admin/src/components/PaymentMethodFields.js:109
+#: assets/admin/src/components/WooCommerceGatewayList.js:65
+msgid "Disabled"
 msgstr ""
 
 #: assets/admin/src/components/PaymentMethodFields.js:118
-msgid "Mode"
+msgid "Configure"
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:120
-msgid "Sandbox"
+#: assets/admin/src/components/PaymentMethodFields.js:185
+msgid "WooCommerce is installed and active. Cash on Delivery is enabled by default - turn on more methods below. Refresh the page to see it reflected everywhere in wp-admin."
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:121
-msgid "Live"
+#: assets/admin/src/components/PaymentMethodFields.js:198
+msgid "Step 1 - Choose your payment flow"
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:128
-#: assets/admin/src/components/PaymentSettingsCard.js:9
-#: includes/Payments/StripeGateway.php:32
-msgid "Stripe"
+#: assets/admin/src/components/PaymentMethodFields.js:199
+msgid "Pick exactly one flow to take payments. Your choice is saved with the rest of this form, and only its matching settings are shown below."
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:134
-msgid "Publishable Key"
+#: assets/admin/src/components/PaymentMethodFields.js:202
+msgid "Payment flow"
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:138
-msgid "Secret Key"
+#: assets/admin/src/components/PaymentMethodFields.js:205
+#: assets/admin/src/components/PaymentMethodFields.js:229
+#: assets/admin/src/routes/UserGuide.js:325
+msgid "Custom Payment Methods"
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:139
-msgid "A key is already saved. Leave blank to keep it."
+#: assets/admin/src/components/PaymentMethodFields.js:206
+msgid "Offline, PayPal, and Stripe - run directly by this plugin, no WooCommerce required."
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:144
-msgid "Webhook Secret"
+#: assets/admin/src/components/PaymentMethodFields.js:213
+msgid "Bookings go through the WooCommerce cart, checkout, and orders."
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:145
-msgid "A secret is already saved. Leave blank to keep it."
-msgstr ""
-
-#: assets/admin/src/components/PaymentMethodFields.js:153
-msgid "or"
-msgstr ""
-
-#: assets/admin/src/components/PaymentMethodFields.js:158
-#: assets/admin/src/components/PaymentMethodFields.js:167
-#: includes/Payments/WooCommerceGateway.php:58
-msgid "WooCommerce Checkout"
-msgstr ""
-
-#: assets/admin/src/components/PaymentMethodFields.js:171
-msgid "Install WooCommerce to accept payments through it. Cash on Delivery will be enabled automatically once it is active - you can turn on more methods afterward."
-msgstr ""
-
-#: assets/admin/src/components/PaymentMethodFields.js:174
+#: assets/admin/src/components/PaymentMethodFields.js:219
 msgid "Installing…"
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:174
+#: assets/admin/src/components/PaymentMethodFields.js:219
 msgid "Install & Activate WooCommerce"
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:181
+#: assets/admin/src/components/PaymentMethodFields.js:227
+msgid "You're configuring:"
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:236
+msgid "WooCommerce Payment Methods"
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:247
+msgid "Open in WooCommerce"
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:256
+msgid "WooCommerce isn't active yet - use the Install & Activate button above, then reopen this tab."
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:263
+msgid "The guest arranges payment with you directly."
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:267
+msgid "Instructions shown to the guest"
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:278
+msgid "Accept payments via PayPal."
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:283
+msgid "PayPal Email"
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:286
+msgid "Mode"
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:288
+msgid "Sandbox"
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:289
+msgid "Live"
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:297
+msgid "Accept payments via credit or debit card."
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:303
+msgid "Publishable Key"
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:306
+msgid "Doesn't look like a Stripe publishable key (should start with \"pk_\") - the card form on the booking page won't load until this matches one from your Stripe Dashboard."
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:307
+msgid "From your Stripe Dashboard → Developers → API keys. Required for the card form guests fill in - Stripe stays off on the front end without it."
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:313
+msgid "Secret Key"
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:314
+msgid "A key is already saved. Leave blank to keep it."
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:319
+msgid "Webhook Secret"
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:320
+msgid "A secret is already saved. Leave blank to keep it."
+msgstr ""
+
+#: assets/admin/src/components/PaymentMethodFields.js:327
 msgid "Default Payment Method"
 msgstr ""
 
-#: assets/admin/src/components/PaymentMethodFields.js:188
+#: assets/admin/src/components/PaymentMethodFields.js:334
 msgid "Enable a payment method above first"
-msgstr ""
-
-#: assets/admin/src/components/PaymentSettingsCard.js:7
-msgid "Offline"
 msgstr ""
 
 #: assets/admin/src/components/PaymentSettingsCard.js:22
@@ -314,17 +1851,6 @@ msgstr ""
 msgid "Currently active"
 msgstr ""
 
-#: assets/admin/src/components/PaymentSettingsCard.js:53
-#: assets/admin/src/components/PaymentSettingsModal.js:44
-#: assets/admin/src/routes/Bookings.js:84
-#: assets/admin/src/routes/Dashboard.js:31
-#: assets/admin/src/routes/Guests.js:49
-#: assets/admin/src/routes/Settings.js:316
-#: assets/admin/src/routes/YachtWizard.js:199
-#: includes/Frontend/Shortcode.php:46
-msgid "Loading…"
-msgstr ""
-
 #: assets/admin/src/components/PaymentSettingsCard.js:63
 msgid "Configure Payments"
 msgstr ""
@@ -335,7 +1861,8 @@ msgstr ""
 
 #: assets/admin/src/components/PaymentSettingsModal.js:52
 #: assets/admin/src/components/TagSelect.js:113
-#: assets/admin/src/components/TestEmailModal.js:61
+#: assets/admin/src/components/TestEmailModal.js:63
+#: assets/admin/src/routes/Addons.js:132
 msgid "Cancel"
 msgstr ""
 
@@ -375,71 +1902,72 @@ msgstr ""
 msgid "Update"
 msgstr ""
 
-#: assets/admin/src/components/RepeatableRows.js:48
+#: assets/admin/src/components/RelatedYachtsPicker.js:73
+msgid "Search yachts…"
+msgstr ""
+
+#: assets/admin/src/components/RelatedYachtsPicker.js:97
+msgid "No matching yachts."
+msgstr ""
+
+#: assets/admin/src/components/RelatedYachtsPicker.js:105
+msgid "Leave empty to automatically show other yachts that share this one's class instead."
+msgstr ""
+
+#: assets/admin/src/components/RepeatableRows.js:56
 msgid "+ Add Row"
 msgstr ""
 
-#: assets/admin/src/components/Shell.js:7
-#: assets/admin/src/routes/Dashboard.js:24
+#: assets/admin/src/components/Shell.js:8
 msgid "Dashboard"
 msgstr ""
 
-#: assets/admin/src/components/Shell.js:8
-#: assets/admin/src/routes/YachtsList.js:141
-#: includes/PostTypes/Yacht.php:105
-#: templates/single-yacht.php:86
-msgid "Yachts"
-msgstr ""
-
-#: assets/admin/src/components/Shell.js:9
-#: assets/admin/src/routes/Bookings.js:74
+#: assets/admin/src/components/Shell.js:10
+#: assets/admin/src/routes/Bookings.js:85
+#: assets/admin/src/routes/UserGuide.js:445
 msgid "Bookings"
 msgstr ""
 
-#: assets/admin/src/components/Shell.js:10
+#: assets/admin/src/components/Shell.js:11
 #: assets/admin/src/routes/Calendar.js:98
+#: assets/admin/src/routes/UserGuide.js:446
 msgid "Calendar"
 msgstr ""
 
-#. translators: %d: number of guests
-#: assets/admin/src/components/Shell.js:11
-#: assets/admin/src/routes/Guests.js:43
-#: includes/Frontend/Shortcode.php:50
-#: includes/Frontend/Shortcode.php:173
-#: includes/Frontend/Shortcode.php:240
-#: includes/Frontend/Shortcode.php:329
-#: includes/Payments/WooCommerceGateway.php:236
-#: includes/Payments/WooCommerceGateway.php:276
-#: templates/single-yacht.php:149
-msgid "Guests"
+#: assets/admin/src/components/Shell.js:13
+#: assets/admin/src/routes/Addons.js:87
+#: assets/admin/src/routes/YachtWizard.js:674
+msgid "Add-ons"
 msgstr ""
 
-#: assets/admin/src/components/Shell.js:12
-#: assets/admin/src/routes/Settings.js:328
+#: assets/admin/src/components/Shell.js:19
+#: assets/admin/src/routes/Settings.js:594
 msgid "Settings"
 msgstr ""
 
-#: assets/admin/src/components/Shell.js:34
-#: includes/Admin/Menu.php:23
-#: includes/Admin/Menu.php:24
-msgid "Yacht Booking"
+#: assets/admin/src/components/Shell.js:20
+#: assets/admin/src/routes/UserGuide.js:101
+msgid "User Guide"
 msgstr ""
 
-#: assets/admin/src/components/Shell.js:58
+#: assets/admin/src/components/Shell.js:84
+#: assets/admin/src/routes/Bookings.js:119
+#: assets/admin/src/routes/Bookings.js:207
+#: assets/admin/src/routes/ProFeature.js:24
+msgid "Pro"
+msgstr ""
+
+#: assets/admin/src/components/Shell.js:94
 msgid "Back to WordPress"
 msgstr ""
 
-#: assets/admin/src/components/Shell.js:68
+#: assets/admin/src/components/Shell.js:103
 msgid "Toggle navigation"
-msgstr ""
-
-#: assets/admin/src/components/Shell.js:72
-#: assets/admin/src/routes/Settings.js:325
-msgid "Yacht Booking System"
 msgstr ""
 
 #. translators: %s: name of the term that was added.
 #: assets/admin/src/components/TagSelect.js:51
+#, js-format
 msgid "\"%s\" added."
 msgstr ""
 
@@ -449,11 +1977,13 @@ msgstr ""
 
 #. translators: %s: taxonomy label, e.g. "Class".
 #: assets/admin/src/components/TagSelect.js:97
+#, js-format
 msgid "+ Add New %s"
 msgstr ""
 
 #. translators: %s: taxonomy label, e.g. "Class".
 #: assets/admin/src/components/TagSelect.js:102
+#, js-format
 msgid "Add New %s"
 msgstr ""
 
@@ -466,20 +1996,24 @@ msgid "Test email sent."
 msgstr ""
 
 #: assets/admin/src/components/TestEmailModal.js:41
-#: assets/admin/src/routes/Settings.js:224
-#: assets/admin/src/routes/YachtWizard.js:612
+#: assets/admin/src/routes/Settings.js:499
+#: assets/admin/src/routes/YachtWizard.js:758
 msgid "Send Test Email"
 msgstr ""
 
-#: assets/admin/src/components/TestEmailModal.js:46
+#: assets/admin/src/components/TestEmailModal.js:47
 msgid "Sends the current subject and body - including unsaved changes - with sample data in place of the dynamic tags."
 msgstr ""
 
-#: assets/admin/src/components/TestEmailModal.js:50
+#: assets/admin/src/components/TestEmailModal.js:48
+msgid "Sends your saved booking confirmation email, with sample data in place of the dynamic tags."
+msgstr ""
+
+#: assets/admin/src/components/TestEmailModal.js:52
 msgid "Send To"
 msgstr ""
 
-#: assets/admin/src/components/TestEmailModal.js:64
+#: assets/admin/src/components/TestEmailModal.js:66
 msgid "Send Test"
 msgstr ""
 
@@ -539,265 +2073,433 @@ msgstr ""
 msgid "WooCommerce has no registered payment gateways yet."
 msgstr ""
 
-#: assets/admin/src/components/WooCommerceGatewayList.js:73
-msgid "Manage gateway details (API keys, instructions…) in WooCommerce Settings →"
+#: assets/admin/src/proFeatures.js:19
+#: assets/admin/src/routes/Bookings.js:112
+#: assets/admin/src/routes/Bookings.js:118
+msgid "Check-in"
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:6
-#: assets/admin/src/routes/Guests.js:16
-msgid "Pending payment"
+#: assets/admin/src/proFeatures.js:21
+msgid "Board guests from a tablet at the quayside by scanning or typing their ticket code, see who is aboard right now, and keep a filterable history of every boarding."
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:7
-#: assets/admin/src/routes/Guests.js:17
-#: assets/admin/src/routes/Settings.js:178
-msgid "Processing"
+#: assets/admin/src/proFeatures.js:25
+msgid "Coupons"
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:8
-#: assets/admin/src/routes/Guests.js:18
-msgid "On hold"
+#: assets/admin/src/proFeatures.js:27
+msgid "Discount codes with percentage or fixed amounts, minimum spend, usage limits, validity dates and per-yacht restrictions - applied on the booking form and recorded against the booking."
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:9
-#: assets/admin/src/routes/Guests.js:19
-#: assets/admin/src/routes/Settings.js:180
-msgid "Completed"
+#: assets/admin/src/proFeatures.js:31
+msgid "Emails"
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:10
-#: assets/admin/src/routes/Dashboard.js:44
-#: assets/admin/src/routes/Guests.js:20
-msgid "Cancelled"
+#: assets/admin/src/proFeatures.js:33
+msgid "Edit the wording of every email, add a new-booking alert for your team, send payment receipts and cancellation notices, and keep a log of everything that went out."
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:11
-#: assets/admin/src/routes/Guests.js:21
-msgid "Refunded"
+#: assets/admin/src/proFeatures.js:37
+msgid "Documents"
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:12
-#: assets/admin/src/routes/Guests.js:22
-msgid "Failed"
+#: assets/admin/src/proFeatures.js:39
+msgid "Branded PDF vouchers and invoices for every booking, and export your bookings to CSV or PDF with whatever filters the list is showing."
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:16
-#: assets/admin/src/routes/Calendar.js:6
-#: assets/admin/src/routes/Guests.js:7
-#: includes/Frontend/Shortcode.php:148
-#: includes/Frontend/Shortcode.php:615
-#: includes/Payments/WooCommerceGateway.php:517
-msgid "Hourly"
+#: assets/admin/src/proFeatures.js:43
+msgid "Booking details"
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:17
-#: assets/admin/src/routes/Calendar.js:7
-#: assets/admin/src/routes/Guests.js:8
-#: includes/Frontend/Shortcode.php:149
-#: includes/Payments/WooCommerceGateway.php:518
-msgid "Half-Day"
+#: assets/admin/src/proFeatures.js:47
+msgid "Open any booking to see everything about it in one panel: the full price breakdown with add-ons, discount, tax, deposit and balance, the payment reference and WooCommerce order, check-in stamps, ticket and invoice downloads, and private notes for your team."
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:18
-#: assets/admin/src/routes/Calendar.js:8
-#: assets/admin/src/routes/Guests.js:9
-#: includes/Frontend/Shortcode.php:150
-#: includes/Frontend/Shortcode.php:617
-#: includes/Payments/WooCommerceGateway.php:519
-msgid "Morning Slot"
+#: assets/admin/src/routes/Addons.js:51
+msgid "Add-on saved."
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:19
-#: assets/admin/src/routes/Calendar.js:9
-#: assets/admin/src/routes/Guests.js:10
-#: includes/Payments/WooCommerceGateway.php:520
-msgid "Evening Slot"
+#: assets/admin/src/routes/Addons.js:68
+msgid "Delete this add-on? Bookings that already include it keep what they were charged."
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:20
-#: assets/admin/src/routes/Calendar.js:10
-#: assets/admin/src/routes/Guests.js:11
-#: includes/Frontend/Shortcode.php:619
-#: includes/Payments/WooCommerceGateway.php:521
-msgid "Full Day"
+#: assets/admin/src/routes/Addons.js:88
+msgid "Optional extras guests can add to a charter. Assign them to a yacht in that yacht’s Pricing step."
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:21
-#: assets/admin/src/routes/Calendar.js:11
-#: assets/admin/src/routes/Guests.js:12
-#: includes/Frontend/Shortcode.php:153
-#: includes/Payments/WooCommerceGateway.php:522
-msgid "Multi-Day"
+#: assets/admin/src/routes/Addons.js:98
+msgid "Edit add-on"
 msgstr ""
 
-#. translators: %d: number of seats booked.
-#: assets/admin/src/routes/Bookings.js:28
-#: assets/admin/src/routes/YachtWizard.js:467
-#: assets/admin/src/routes/YachtWizard.js:597
-#: includes/Payments/WooCommerceGateway.php:528
-msgid "Shared"
+#: assets/admin/src/routes/Addons.js:98
+msgid "New add-on"
 msgstr ""
 
-#. translators: %d: number of seats booked.
-#: assets/admin/src/routes/Bookings.js:28
-#: assets/admin/src/routes/Guests.js:86
-msgid "%d seats"
+#: assets/admin/src/routes/Addons.js:112
+#: assets/admin/src/routes/Addons.js:145
+#: assets/admin/src/routes/YachtWizard.js:312
+msgid "Description"
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:31
-#: assets/admin/src/routes/YachtWizard.js:466
-#: assets/admin/src/routes/YachtWizard.js:597
-msgid "Full Charter"
+#: assets/admin/src/routes/Addons.js:114
+msgid "Shown under the add-on on the booking form."
 msgstr ""
 
-#. translators: %d: number of guests
-#: assets/admin/src/routes/Bookings.js:31
-#: assets/admin/src/routes/Guests.js:89
-#: assets/admin/src/routes/YachtsList.js:296
-#: assets/admin/src/routes/YachtsList.js:369
-#: includes/Payments/WooCommerceGateway.php:276
-msgid "%d guests"
+#: assets/admin/src/routes/Addons.js:121
+msgid "Available for booking"
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:53
-msgid "Delete this booking permanently? This cannot be undone."
+#: assets/admin/src/routes/Addons.js:126
+msgid "Save changes"
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:75
-msgid "All bookings across every yacht."
+#: assets/admin/src/routes/Addons.js:126
+msgid "+ Add add-on"
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:78
-msgid "All Statuses"
+#: assets/admin/src/routes/Addons.js:139
+msgid "No add-ons yet."
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:86
-msgid "No bookings found."
-msgstr ""
-
-#: assets/admin/src/routes/Bookings.js:92
-#: assets/admin/src/routes/Guests.js:59
-#: includes/Frontend/Shortcode.php:134
-#: includes/PostTypes/Yacht.php:106
-msgid "Yacht"
-msgstr ""
-
-#: assets/admin/src/routes/Bookings.js:93
-#: assets/admin/src/routes/Calendar.js:32
-msgid "Guest"
-msgstr ""
-
-#: assets/admin/src/routes/Bookings.js:94
-#: assets/admin/src/routes/Calendar.js:36
-#: assets/admin/src/routes/Settings.js:49
-#: assets/admin/src/routes/Settings.js:73
-msgid "Type"
-msgstr ""
-
-#: assets/admin/src/routes/Bookings.js:95
-#: includes/Frontend/Shortcode.php:157
-#: includes/Frontend/Shortcode.php:236
-msgid "Date"
-msgstr ""
-
-#: assets/admin/src/routes/Bookings.js:96
-msgid "Ends At"
-msgstr ""
-
-#: assets/admin/src/routes/Bookings.js:97
-#: assets/admin/src/routes/Calendar.js:37
-msgid "Duration"
-msgstr ""
-
-#: assets/admin/src/routes/Bookings.js:98
-#: assets/admin/src/routes/Calendar.js:38
-#: assets/admin/src/routes/Guests.js:65
-msgid "Total"
-msgstr ""
-
-#: assets/admin/src/routes/Bookings.js:99
-msgid "Order"
-msgstr ""
-
-#: assets/admin/src/routes/Bookings.js:100
+#: assets/admin/src/routes/Addons.js:147
+#: assets/admin/src/routes/Bookings.js:123
 #: assets/admin/src/routes/Calendar.js:39
 msgid "Status"
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:101
+#: assets/admin/src/routes/Addons.js:148
+#: assets/admin/src/routes/Bookings.js:124
+#: assets/admin/src/routes/Settings.js:184
 msgid "Actions"
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:117
-msgid "Order #"
+#: assets/admin/src/routes/Addons.js:159
+msgid "Inactive"
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:139
-msgid "Deleting…"
+#: assets/admin/src/routes/Addons.js:164
+#: assets/admin/src/routes/YachtsList.js:313
+#: assets/admin/src/routes/YachtsList.js:387
+msgid "Edit"
 msgstr ""
 
-#: assets/admin/src/routes/Bookings.js:139
+#: assets/admin/src/routes/Addons.js:168
 #: assets/admin/src/routes/YachtsList.js:324
 #: assets/admin/src/routes/YachtsList.js:397
 #: assets/admin/src/routes/YachtsList.js:398
 msgid "Delete"
 msgstr ""
 
+#: assets/admin/src/routes/Bookings.js:8
+#: assets/admin/src/routes/Dashboard.js:14
+#: assets/admin/src/routes/Guests.js:16
+msgid "Pending payment"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:9
+#: assets/admin/src/routes/Dashboard.js:19
+#: assets/admin/src/routes/Guests.js:17
+#: assets/admin/src/routes/Settings.js:441
+msgid "Processing"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:10
+#: assets/admin/src/routes/Dashboard.js:24
+#: assets/admin/src/routes/Guests.js:18
+msgid "On hold"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:11
+#: assets/admin/src/routes/Dashboard.js:29
+#: assets/admin/src/routes/Guests.js:19
+#: assets/admin/src/routes/Settings.js:443
+msgid "Completed"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:12
+#: assets/admin/src/routes/Dashboard.js:34
+#: assets/admin/src/routes/Guests.js:20
+msgid "Cancelled"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:13
+#: assets/admin/src/routes/Guests.js:21
+msgid "Refunded"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:14
+#: assets/admin/src/routes/Guests.js:22
+msgid "Failed"
+msgstr ""
+
+#. translators: %d: number of seats booked.
+#: assets/admin/src/routes/Bookings.js:30
+#: assets/admin/src/routes/Guests.js:96
+#, js-format
+msgid "%d seats"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:33
+#: assets/admin/src/routes/YachtWizard.js:572
+#: assets/admin/src/routes/YachtWizard.js:731
+msgid "Full Charter"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:64
+msgid "Delete this booking permanently? This cannot be undone."
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:86
+msgid "All bookings across every yacht."
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:89
+msgid "All Statuses"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:97
+msgid "No bookings found."
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:105
+#: assets/admin/src/routes/Calendar.js:36
+msgid "Type"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:107
+msgid "Ends At"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:108
+#: assets/admin/src/routes/Calendar.js:37
+msgid "Duration"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:110
+#: assets/admin/src/routes/Guests.js:58
+msgid "Booking No"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:116
+msgid "Check-in - available in Pro"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:149
+#: assets/admin/src/routes/Guests.js:87
+#, js-format
+msgid "Order #%d"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:156
+msgid "Ashore"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:158
+msgid "Aboard"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:183
+msgid "View details"
+msgstr ""
+
+#. translators: %s: booking reference, e.g. YB-000123.
+#: assets/admin/src/routes/Bookings.js:186
+#, js-format
+msgid "View details for booking %s"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:197
+msgid "View details - available in Pro"
+msgstr ""
+
+#. translators: %s: booking reference, e.g. YB-000123.
+#: assets/admin/src/routes/Bookings.js:200
+#, js-format
+msgid "View details for booking %s - available in Pro"
+msgstr ""
+
+#. translators: 1: action, e.g. "Download ticket", 2: booking reference.
+#: assets/admin/src/routes/Bookings.js:225
+#, js-format
+msgid "%1$s for booking %2$s"
+msgstr ""
+
+#: assets/admin/src/routes/Bookings.js:237
+msgid "Delete booking"
+msgstr ""
+
+#. translators: %s: booking reference, e.g. YB-000123.
+#: assets/admin/src/routes/Bookings.js:240
+#, js-format
+msgid "Delete booking %s"
+msgstr ""
+
 #. translators: %d: number of seats booked.
 #: assets/admin/src/routes/Calendar.js:17
+#, js-format
 msgid "Shared (%d seats)"
 msgstr ""
 
-#. translators: %d: number of seats booked.
+#. translators: %d: number of guests.
 #: assets/admin/src/routes/Calendar.js:18
+#, js-format
 msgid "Full Charter (%d guests)"
-msgstr ""
-
-#: assets/admin/src/routes/Calendar.js:33
-#: assets/admin/src/routes/Guests.js:62
-#: assets/admin/src/routes/Settings.js:288
-#: includes/Frontend/Shortcode.php:187
-#: includes/Rest/GuestsController.php:80
-msgid "Email"
-msgstr ""
-
-#: assets/admin/src/routes/Calendar.js:34
-#: assets/admin/src/routes/Guests.js:63
-#: includes/Frontend/Shortcode.php:191
-#: includes/Rest/GuestsController.php:81
-msgid "Phone"
 msgstr ""
 
 #: assets/admin/src/routes/Calendar.js:35
 msgid "Time"
 msgstr ""
 
-#: assets/admin/src/routes/Dashboard.js:17
+#: assets/admin/src/routes/Dashboard.js:74
 msgid "Failed to load stats."
 msgstr ""
 
-#: assets/admin/src/routes/Dashboard.js:25
-msgid "A quick look at today and what is coming up."
+#: assets/admin/src/routes/Dashboard.js:96
+msgid "Yacht operations overview"
 msgstr ""
 
-#: assets/admin/src/routes/Dashboard.js:36
+#: assets/admin/src/routes/Dashboard.js:99
+msgid "Welcome to your booking command center"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:105
+msgid "Track today’s charters, manage your fleet, and keep every guest journey on course."
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:125
+msgid "Open Calendar"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:139
+msgid "Loading dashboard…"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:148
+msgid "Business snapshot"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:151
+msgid "Live numbers from your bookings and fleet."
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:158
+msgid "View all bookings"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:167
 msgid "Today's Bookings"
 msgstr ""
 
-#: assets/admin/src/routes/Dashboard.js:40
+#: assets/admin/src/routes/Dashboard.js:169
+msgid "Charters starting today"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:177
 msgid "Upcoming Bookings"
 msgstr ""
 
-#: assets/admin/src/routes/Dashboard.js:48
+#: assets/admin/src/routes/Dashboard.js:179
+msgid "Scheduled from now"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:187
 msgid "Active Yachts"
 msgstr ""
 
-#: assets/admin/src/routes/Dashboard.js:52
+#: assets/admin/src/routes/Dashboard.js:189
+msgid "Published and bookable"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:197
 msgid "Revenue This Month"
 msgstr ""
 
-#: assets/admin/src/routes/Dashboard.js:56
-msgid "Revenue To Date"
+#. translators: %d: percentage of all-time revenue earned this month.
+#: assets/admin/src/routes/Dashboard.js:204
+#, js-format
+msgid "%d%% of all-time revenue"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:218
+msgid "Upcoming charters"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:221
+msgid "Your next active bookings in departure order."
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:228
+msgid "Full calendar"
+msgstr ""
+
+#. translators: %d: number of guests on the booking.
+#: assets/admin/src/routes/Dashboard.js:250
+#, js-format
+msgid "%d guest"
+msgid_plural "%d guests"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/admin/src/routes/Dashboard.js:273
+msgid "Your schedule is clear"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:279
+msgid "New confirmed charters will appear here automatically."
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:289
+msgid "Manage yachts"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:300
+msgid "Booking health"
+msgstr ""
+
+#. translators: %d: total number of bookings.
+#: assets/admin/src/routes/Dashboard.js:305
+#, js-format
+msgid "%d total bookings"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:346
+msgid "Quick actions"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:349
+msgid "Jump straight into daily tasks."
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:361
+msgid "Add a yacht"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:364
+msgid "Grow your bookable fleet"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:375
+msgid "Manage bookings"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:381
+msgid "Review guests and statuses"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:392
+msgid "Booking settings"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:398
+msgid "Payments, pricing and email"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:409
+msgid "Open user guide"
+msgstr ""
+
+#: assets/admin/src/routes/Dashboard.js:415
+msgid "Get help with setup"
 msgstr ""
 
 #: assets/admin/src/routes/Guests.js:44
@@ -812,17 +2514,8 @@ msgstr ""
 msgid "SI."
 msgstr ""
 
-#: assets/admin/src/routes/Guests.js:58
-msgid "Order No"
-msgstr ""
-
 #: assets/admin/src/routes/Guests.js:60
 msgid "Booking"
-msgstr ""
-
-#: assets/admin/src/routes/Guests.js:61
-#: includes/Frontend/Shortcode.php:183
-msgid "Full Name"
 msgstr ""
 
 #: assets/admin/src/routes/Guests.js:64
@@ -834,623 +2527,943 @@ msgid "Order Status"
 msgstr ""
 
 #. translators: %d: total number of guest bookings
-#: assets/admin/src/routes/Guests.js:112
+#: assets/admin/src/routes/Guests.js:122
+#, js-format
 msgid "%d guest booking(s) found."
 msgstr ""
 
-#: assets/admin/src/routes/Settings.js:41
-msgid "Off-Days & Basic Pricing Rules"
+#: assets/admin/src/routes/ProFeature.js:26
+msgid "Available in Yacht Booking System Pro."
 msgstr ""
 
-#: assets/admin/src/routes/Settings.js:42
-msgid "Applies to all yachts unless a yacht-specific rule is added later."
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:48
-#: assets/admin/src/routes/Settings.js:70
-msgid "Label"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:50
-#: includes/Frontend/Shortcode.php:323
-msgid "Dates"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:51
-msgid "Effect"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:61
-msgid "Blocked"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:75
-msgid "Off-Day (block)"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:76
-msgid "Weekday/Weekend"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:77
-msgid "Seasonal"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:80
-msgid "From Date"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:83
-msgid "To Date"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:88
-msgid "Adjustment"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:90
-msgid "Percent"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:91
-msgid "Fixed Amount"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:92
-msgid "Block"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:95
-msgid "Value"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:102
-msgid "+ Add Rule"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:111
-msgid "Currency & Tax"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:113
-msgid "Currency Code"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:116
-msgid "Currency Symbol"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:119
-msgid "Tax Rate (%)"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:126
-msgid "Details Page - \"Ready When You Are\" CTA"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:128
-msgid "The booking call-to-action shown near the bottom of every yacht details page. Use {yacht_name} in the heading to insert the yacht's name - a yacht can override the heading/text from its own Review step."
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:130
-msgid "Eyebrow"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:133
-#: assets/admin/src/routes/YachtWizard.js:644
-msgid "Heading"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:136
-#: assets/admin/src/routes/YachtWizard.js:653
-msgid "Text"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:140
-msgid "Primary Button Label"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:143
-msgid "Secondary Button Label"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:155
-msgid "Payment Methods"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:164
-#: assets/admin/src/routes/Settings.js:289
-msgid "Data & Privacy"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:165
-msgid "Anonymize guest data after (months)"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:165
-msgid "0 disables automatic anonymization."
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:170
-msgid "Remove all plugin data when uninstalled"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:177
-msgid "Pending Payment"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:179
-msgid "On Hold"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:209
-msgid "Sender Identity"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:211
-msgid "From Name"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:211
-msgid "Defaults to your site name if left blank."
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:214
-msgid "From Email"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:214
-msgid "Defaults to the site admin email if left blank."
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:222
-#: assets/admin/src/routes/YachtWizard.js:607
-msgid "Confirmation Email"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:228
-msgid "This is the default email sent for every yacht. A yacht can override it in its own edit screen (Step 4)."
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:232
-msgid "Send booking confirmation emails"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:234
-#: assets/admin/src/routes/YachtWizard.js:615
-msgid "Email Subject"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:237
-#: assets/admin/src/routes/YachtWizard.js:622
-msgid "Email Body"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:249
-msgid "Send Confirmation On"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:251
-msgid "The booking status(es) that trigger the confirmation email."
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:285
-msgid "General"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:285
-msgid "Currency and tax"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:286
-msgid "Payments"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:286
-msgid "Accepted payment methods"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:287
-msgid "Pricing Rules"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:287
-msgid "Off-days and seasonal adjustments"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:288
-msgid "Booking confirmation emails"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:289
-msgid "Retention and uninstall behavior"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:352
-msgid "Save Changes"
-msgstr ""
-
-#: assets/admin/src/routes/Settings.js:357
-msgid "Settings saved."
-msgstr ""
-
-#: assets/admin/src/routes/YachtWizard.js:21
-msgid "Basic Info"
-msgstr ""
-
-#: assets/admin/src/routes/YachtWizard.js:22
-#: assets/admin/src/routes/YachtWizard.js:387
-msgid "Specs & Capacity"
-msgstr ""
-
-#: assets/admin/src/routes/YachtWizard.js:23
-msgid "Pricing & Availability"
-msgstr ""
-
-#: assets/admin/src/routes/YachtWizard.js:24
-msgid "Review & Publish"
-msgstr ""
-
-#: assets/admin/src/routes/YachtWizard.js:111
-msgid "Please give this yacht a name."
-msgstr ""
-
-#: assets/admin/src/routes/YachtWizard.js:153
-msgid "Please fix the highlighted field before continuing."
-msgstr ""
-
-#: assets/admin/src/routes/YachtWizard.js:176
-msgid "Yacht published."
-msgstr ""
-
-#: assets/admin/src/routes/YachtWizard.js:177
-msgid "Draft saved."
-msgstr ""
-
-#: assets/admin/src/routes/YachtWizard.js:206
-#: includes/PostTypes/Yacht.php:108
-msgid "Edit Yacht"
-msgstr ""
-
-#: assets/admin/src/routes/YachtWizard.js:206
-#: assets/admin/src/routes/YachtsList.js:153
-#: assets/admin/src/routes/YachtsList.js:238
-#: includes/PostTypes/Yacht.php:107
-msgid "Add New Yacht"
-msgstr ""
-
-#: assets/admin/src/routes/YachtWizard.js:210
-msgid "Yacht setup steps"
-msgstr ""
-
-#: assets/admin/src/routes/YachtWizard.js:255
+#: assets/admin/src/routes/ProFeature.js:33
+#: assets/admin/src/routes/YachtWizard.js:273
 msgid "← Back"
 msgstr ""
 
-#. translators: 1: current step, 2: total steps
-#: assets/admin/src/routes/YachtWizard.js:261
-msgid "Step %1$d of %2$d"
+#. translators: %s: name of the Pro feature, e.g. "Check-in".
+#: assets/admin/src/routes/ProFeature.js:42
+#, js-format
+msgid "%s is a Pro feature"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:269
-msgid "Next →"
+#: assets/admin/src/routes/ProFeature.js:48
+msgid "Install and activate the Yacht Booking System Pro add-on to turn this on. Nothing you have already set up changes."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:287
-msgid "Basic Information"
+#: assets/admin/src/routes/ProFeature.js:49
+msgid "Install and activate the Yacht Booking System Pro add-on to turn this screen on. Nothing you have already set up changes."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:288
-msgid "The name and story guests see first."
+#: assets/admin/src/routes/Settings.js:22
+msgid "Sun"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:290
-msgid "Yacht Name"
+#: assets/admin/src/routes/Settings.js:23
+msgid "Mon"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:294
-msgid "Description"
+#: assets/admin/src/routes/Settings.js:24
+msgid "Tue"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:303
-msgid "Build Year"
+#: assets/admin/src/routes/Settings.js:25
+msgid "Wed"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:306
-msgid "Marina / Pier Name"
+#: assets/admin/src/routes/Settings.js:26
+msgid "Thu"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:313
-msgid "Departure Point"
+#: assets/admin/src/routes/Settings.js:27
+msgid "Fri"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:314
-msgid "Search for the marina or pier, or drop the pin manually."
+#: assets/admin/src/routes/Settings.js:28
+msgid "Sat"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:331
-#: includes/Frontend/Shortcode.php:573
-msgid "Frequently Asked Questions"
+#: assets/admin/src/routes/Settings.js:32
+msgid "Off-day"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:332
-#: assets/admin/src/routes/YachtWizard.js:355
-msgid "Shown on the yacht listing page."
+#: assets/admin/src/routes/Settings.js:33
+#: assets/admin/src/routes/Settings.js:253
+msgid "Weekday / weekend"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:344
-msgid "Featured Image"
+#: assets/admin/src/routes/Settings.js:34
+#: assets/admin/src/routes/Settings.js:254
+#: assets/admin/src/routes/UserGuide.js:396
+msgid "Seasonal"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:355
-msgid "Gallery"
+#: assets/admin/src/routes/Settings.js:73
+#: assets/admin/src/routes/Settings.js:240
+msgid "All yachts"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:359
-#: includes/Taxonomies/YachtClass.php:17
-msgid "Yacht Class"
+#: assets/admin/src/routes/Settings.js:80
+msgid "Every day"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:361
-#: includes/Frontend/Shortcode.php:244
-msgid "Class"
+#: assets/admin/src/routes/Settings.js:92
+msgid "every yacht"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:370
-msgid "Occasion Tags"
+#: assets/admin/src/routes/Settings.js:96
+msgid "every day"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:372
-#: includes/Frontend/Shortcode.php:253
-#: includes/Taxonomies/YachtOccasion.php:17
-msgid "Occasion"
+#: assets/admin/src/routes/Settings.js:99
+msgid "Blocks booking"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:388
-msgid "How many guests, and what comes with every charter."
+#. translators: %s: signed percentage, e.g. "+15%".
+#. translators: %s: signed amount, e.g. "+120".
+#: assets/admin/src/routes/Settings.js:103
+#: assets/admin/src/routes/Settings.js:108
+#, js-format
+msgid "Adjusts the price by %s"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:391
-msgid "Capacity (guests)"
+#. translators: 1: start date or "any", 2: end date or "any".
+#: assets/admin/src/routes/Settings.js:115
+#, js-format
+msgid "between %1$s and %2$s"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:394
-#: assets/admin/src/routes/YachtWizard.js:594
-#: templates/single-yacht.php:163
-msgid "Cabins"
+#: assets/admin/src/routes/Settings.js:116
+#: assets/admin/src/routes/Settings.js:117
+msgid "any date"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:397
-msgid "Crew Size"
+#: assets/admin/src/routes/Settings.js:119
+msgid "on any date"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:400
-msgid "Length (ft)"
+#. translators: 1: effect, 2: yacht scope, 3: weekdays, 4: date range.
+#: assets/admin/src/routes/Settings.js:123
+#, js-format
+msgid "%1$s on %2$s, %3$s, %4$s."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:405
-msgid "Included in Every Charter"
+#: assets/admin/src/routes/Settings.js:133
+msgid "Blocked"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:410
-msgid "+ Add Item"
+#: assets/admin/src/routes/Settings.js:151
+msgid "Pricing rules"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:411
-msgid "e.g. Bottled water, life jackets…"
+#: assets/admin/src/routes/Settings.js:153
+msgid "Block dates, or raise and lower prices for a season, a weekend, or one yacht. When two rules match the same date the more specific one wins, then the higher priority."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:419
-msgid "Hourly Rate"
+#. translators: %d: number of rules.
+#: assets/admin/src/routes/Settings.js:160
+#, js-format
+msgid "%d active"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:420
-msgid "Half-Day Rate"
+#: assets/admin/src/routes/Settings.js:171
+msgid "No rules yet. Every yacht is bookable on every date at its normal rate."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:421
-msgid "Morning Slot Rate"
+#: assets/admin/src/routes/Settings.js:179
+msgid "Rule"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:422
-msgid "Evening / Sunset Slot Rate"
+#: assets/admin/src/routes/Settings.js:180
+#: assets/admin/src/routes/Settings.js:238
+msgid "Applies to"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:423
-msgid "Daily Rate"
+#: assets/admin/src/routes/Settings.js:181
+msgid "Days"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:424
-msgid "Multi-Day Rate (per day)"
+#: assets/admin/src/routes/Settings.js:183
+msgid "Effect"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:450
-msgid "Base Rates"
+#: assets/admin/src/routes/Settings.js:191
+#: assets/admin/src/routes/Settings.js:211
+msgid "(untitled)"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:453
-msgid "This yacht runs both full and shared charters - set a separate price grid for each."
+#: assets/admin/src/routes/Settings.js:200
+msgid "Any date"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:454
-msgid "Leave a rate blank to disable that booking type for this yacht."
+#: assets/admin/src/routes/Settings.js:207
+msgid "Remove rule"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:458
-#: assets/admin/src/routes/YachtWizard.js:596
-msgid "Booking Mode"
+#. translators: %s: rule label.
+#: assets/admin/src/routes/Settings.js:210
+#, js-format
+msgid "Remove rule %s"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:461
-msgid "Two price grids are shown below - one for full charters, one for shared per-seat bookings."
+#: assets/admin/src/routes/Settings.js:226
+msgid "Add a rule"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:462
-msgid "Full charter, shared by seat, or both."
+#: assets/admin/src/routes/Settings.js:229
+msgid "Label"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:468
-#: assets/admin/src/routes/YachtWizard.js:597
-msgid "Both"
+#: assets/admin/src/routes/Settings.js:229
+msgid "Just for you - e.g. \"Christmas week\"."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:473
-msgid "Full Charter Prices"
+#: assets/admin/src/routes/Settings.js:233
+msgid "Summer weekend surcharge"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:473
-msgid "Prices"
+#: assets/admin/src/routes/Settings.js:238
+msgid "A rule for one yacht beats a fleet-wide rule for the same date."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:479
-msgid "Shared Prices (per seat)"
+#: assets/admin/src/routes/Settings.js:247
+msgid "Rule type"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:486
-msgid "Time Configuration"
+#: assets/admin/src/routes/Settings.js:247
+msgid "Off-days block booking; the others move the price."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:487
-msgid "The clock-time window each fixed-schedule booking type runs within."
+#: assets/admin/src/routes/Settings.js:252
+msgid "Off-day (block booking)"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:490
-msgid "Daily Charter Start"
+#: assets/admin/src/routes/Settings.js:260
+msgid "From date"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:493
-msgid "Daily Charter End"
+#: assets/admin/src/routes/Settings.js:260
+msgid "Leave blank for no start limit."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:499
-msgid "Half-Day Slot Start"
+#: assets/admin/src/routes/Settings.js:264
+msgid "To date"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:502
-msgid "Half-Day Slot End"
+#: assets/admin/src/routes/Settings.js:264
+msgid "Leave blank for no end limit."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:508
-msgid "Morning Slot Start"
+#: assets/admin/src/routes/Settings.js:269
+msgid "Adjustment"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:511
-msgid "Morning Slot End"
+#: assets/admin/src/routes/Settings.js:272
+#: assets/admin/src/routes/Settings.js:416
+#: assets/admin/src/routes/YachtWizard.js:666
+msgid "Percent"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:517
-msgid "Evening / Sunset Slot Start"
+#: assets/admin/src/routes/Settings.js:273
+#: assets/admin/src/routes/Settings.js:412
+#: assets/admin/src/routes/YachtWizard.js:662
+msgid "Fixed amount"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:520
-msgid "Evening / Sunset Slot End"
+#: assets/admin/src/routes/Settings.js:274
+msgid "Block booking"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:527
-msgid "Booking Rules"
+#: assets/admin/src/routes/Settings.js:280
+msgid "Adjustment value"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:528
-msgid "Notice period, spacing between charters, and duration limits."
+#: assets/admin/src/routes/Settings.js:286
+msgid "Negative values discount, positive values surcharge."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:531
-msgid "Minimum Notice (hours)"
+#: assets/admin/src/routes/Settings.js:292
+msgid "Days of week"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:534
-msgid "Buffer Between Bookings (minutes)"
+#: assets/admin/src/routes/Settings.js:305
+msgid "Leave all unticked to apply on every day in the date range."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:537
-msgid "Min Duration (minutes, hourly)"
+#: assets/admin/src/routes/Settings.js:310
+msgid "+ Add rule"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:540
-msgid "Max Duration (minutes, hourly)"
+#: assets/admin/src/routes/Settings.js:323
+msgid "Currency & Tax"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:546
-msgid "Off-Days"
+#: assets/admin/src/routes/Settings.js:325
+msgid "Currency Code"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:546
-msgid "Dates this yacht cannot be booked."
+#: assets/admin/src/routes/Settings.js:328
+msgid "Currency Symbol"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:551
-msgid "+ Add Off-Day"
+#: assets/admin/src/routes/Settings.js:331
+msgid "Tax Rate (%)"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:552
-msgid "Off-Day date"
+#: assets/admin/src/routes/Settings.js:338
+msgid "Details Page - \"Ready When You Are\" CTA"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:587
-msgid "(Untitled Yacht)"
+#: assets/admin/src/routes/Settings.js:340
+msgid "The booking call-to-action shown near the bottom of every yacht details page. Use {yacht_name} in the heading to insert the yacht's name - a yacht can override the heading/text from its own Review step."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:588
-msgid "Review the details, then publish to make this yacht bookable on the frontend."
+#: assets/admin/src/routes/Settings.js:342
+msgid "Eyebrow"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:593
-msgid "Capacity"
+#: assets/admin/src/routes/Settings.js:345
+#: assets/admin/src/routes/YachtWizard.js:790
+msgid "Heading"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:600
-msgid " (shared)"
+#: assets/admin/src/routes/Settings.js:348
+#: assets/admin/src/routes/YachtWizard.js:799
+msgid "Text"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:601
-#: includes/Frontend/Shortcode.php:536
-#: templates/single-yacht.php:184
-msgid "Location"
+#: assets/admin/src/routes/Settings.js:352
+msgid "Primary Button Label"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:608
-msgid "Overrides the global confirmation email (Settings → Email) for this yacht only. Leave the body blank to use the global email instead."
+#: assets/admin/src/routes/Settings.js:355
+msgid "Secondary Button Label"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:615
-msgid "Leave blank to use the global subject when a yacht-specific body is set."
+#: assets/admin/src/routes/Settings.js:367
+msgid "Payment Methods"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:633
-msgid "Booking CTA"
+#: assets/admin/src/routes/Settings.js:376
+#: assets/admin/src/routes/Settings.js:555
+msgid "Data & Privacy"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:634
-msgid "The \"Ready When You Are\" section on this yacht's details page. Text overrides the global version (Settings → General) - leave blank to use it."
+#: assets/admin/src/routes/Settings.js:377
+msgid "Anonymize guest data after (months)"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:642
-msgid "Show this section on the yacht's details page"
+#: assets/admin/src/routes/Settings.js:377
+msgid "0 disables automatic anonymization."
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:644
-msgid "Use {yacht_name} to insert the yacht's name."
+#: assets/admin/src/routes/Settings.js:382
+msgid "Remove all plugin data when uninstalled"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:649
-#: includes/Settings.php:46
-#: templates/single-yacht.php:36
-msgid "Book the {yacht_name} today"
+#: assets/admin/src/routes/Settings.js:397
+msgid "Deposits"
 msgstr ""
 
-#: assets/admin/src/routes/YachtWizard.js:658
-#: includes/Settings.php:47
-#: templates/single-yacht.php:37
-msgid "Dates fill fast - lock in your preferred slot with an instant booking request."
+#: assets/admin/src/routes/Settings.js:399
+msgid "Take part of the charter now and settle the balance later. The payment method is only asked for the deposit; the booking still records the full total, and the guest sees the balance on their confirmation."
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:404
+msgid "Take a deposit instead of the full amount"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:409
+msgid "Deposit type"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:411
+#: assets/admin/src/routes/YachtWizard.js:661
+msgid "Percentage of the total"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:416
+#: assets/admin/src/routes/YachtWizard.js:666
+msgid "Amount"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:417
+msgid "A deposit at or above the total is treated as paying in full."
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:429
+msgid "Offer add-ons on the booking form"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:432
+msgid "Turning this off hides extras from the front end immediately. Bookings already taken keep the extras they were charged for."
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:440
+msgid "Pending Payment"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:442
+msgid "On Hold"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:462
+msgid "New Booking Alerts"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:464
+msgid "Tells you when a booking comes in. Separate from the guest confirmation, so turning guest emails off does not also silence this. Edit the wording under Emails."
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:468
+msgid "Email me when a new booking is made"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:471
+msgid "Send alerts to"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:472
+msgid "Comma-separated. Leave blank to use the site admin email."
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:484
+msgid "Sender Identity"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:486
+msgid "From Name"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:486
+msgid "Defaults to your site name if left blank."
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:489
+msgid "From Email"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:489
+msgid "Defaults to the site admin email if left blank."
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:497
+msgid "Guest Emails"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:504
+msgid "Send booking emails to guests"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:507
+msgid "What each email says is edited under Yacht Booking → Emails, alongside the payment-received and cancellation emails. A yacht can override its own confirmation wording in its edit screen (Step 4)."
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:510
+msgid "Edit email templates"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:517
+msgid "Send Confirmation On"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:519
+msgid "The booking status(es) that trigger the confirmation email."
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:550
+msgid "General"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:550
+msgid "Currency and tax"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:551
+msgid "Payments"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:551
+msgid "Accepted payment methods"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:552
+msgid "Pricing Rules"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:552
+msgid "Off-days and seasonal adjustments"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:553
+msgid "Deposits & Extras"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:553
+msgid "Part payment and add-ons"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:554
+msgid "Booking confirmation emails"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:555
+msgid "Retention and uninstall behavior"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:591
+msgid "Yacht Booking System"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:618
+msgid "Save Changes"
+msgstr ""
+
+#: assets/admin/src/routes/Settings.js:623
+msgid "Settings saved."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:33
+msgid "View full size"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:70
+#: assets/admin/src/routes/UserGuide.js:123
+msgid "Shortcodes"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:71
+#: assets/admin/src/routes/UserGuide.js:239
+msgid "Adding a Yacht"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:72
+#: assets/admin/src/routes/UserGuide.js:285
+msgid "Settings: General"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:73
+#: assets/admin/src/routes/UserGuide.js:303
+msgid "Settings: Payments"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:74
+#: assets/admin/src/routes/UserGuide.js:381
+msgid "Settings: Pricing Rules"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:75
+#: assets/admin/src/routes/UserGuide.js:400
+msgid "Settings: Email"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:76
+#: assets/admin/src/routes/UserGuide.js:419
+msgid "Settings: Data & Privacy"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:77
+#: assets/admin/src/routes/UserGuide.js:437
+msgid "Bookings, Calendar & Guests"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:78
+#: assets/admin/src/routes/UserGuide.js:451
+msgid "Troubleshooting"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:103
+msgid "How the pieces of this plugin fit together - the shortcodes that put a fleet on your site, and what every setting on the Settings screen actually does. Written for the person who's about to use it, not the person who built it."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:112
+msgid "On this page"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:125
+msgid "Three shortcodes cover the whole front end. Add them to any page or post the normal WordPress way - paste into the block editor as a Shortcode block, or into a Classic Editor / widget text area."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:131
+msgid "You don't have to build these pages yourself: activating the plugin creates a \"Search Yacht\" page with the search shortcode already on it, and importing the sample fleet (Yachts → the \"Import Sample Yachts\" button, or on a fresh install) creates a \"Yacht List\" page the same way. Both are safe to rename, move, or delete - the plugin only ever creates them once and won't make a duplicate."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:139
+msgid "The search widget: a Day charter / Hourly charter toggle above a Where / Dates / Guests / Price bar, with results loading in below it as a grid of yacht cards. The toggle re-prices every result off that charter type's own rate, so switching from Day to Hourly shows what an hourly booking of that yacht actually costs, not just its cheapest rate. This is what visitors see the moment they land on the \"Search Yacht\" page the plugin sets up for you."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:146
+msgid "The [mageyabo_yacht_search] shortcode on the front end, showing the charter-type toggle, the Where/Dates/Guests/Price bar, and the results grid underneath."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:147
+msgid "The Search Yacht page, exactly as [mageyabo_yacht_search] renders it - toggle, search bar, and matching yachts below."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:149
+msgid "Every field, and the toggle itself, can be hidden - all default to shown:"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:153
+#: assets/admin/src/routes/UserGuide.js:185
+#: assets/admin/src/routes/UserGuide.js:218
+msgid "Attribute"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:154
+msgid "Hides"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:158
+msgid "The Day charter / Hourly charter toggle"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:159
+msgid "The location dropdown"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:160
+msgid "The date field"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:161
+msgid "The guest count stepper"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:162
+msgid "The price-range dropdown"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:166
+msgid "Example - a bare Dates/Guests/Price bar with no location filter or charter-type switch:"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:172
+msgid "The fleet page: class-filter tabs, a grid/list view toggle, and photo-count-badged cards with a \"From\" price that follows whichever charter type is selected. Good as its own page - the plugin sets one up for you, named \"Yacht List\" - or embedded partway down a page (a \"Similar Yachts\" style block) with the filter bar turned off."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:179
+msgid "The [mageyabo_yacht_list] shortcode, showing the class-filter tabs, the grid/list toggle, and a grid of yacht cards each with a photo-count badge and starting price."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:180
+msgid "The Yacht List page - every published yacht, filterable by class, switchable between grid and list view."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:186
+msgid "Default"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:187
+#: assets/admin/src/routes/UserGuide.js:219
+msgid "Does"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:194
+msgid "Set to \"no\" to hide the Dates/Guests/Price bar and class tabs, and show just the grid."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:199
+msgid "How many yachts load before the visitor has to click \"Load More Yachts\"."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:204
+msgid "Example - a bare 6-card grid, no filter bar:"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:210
+msgid "The booking form on its own. You'll rarely need to place this by hand - it already appears automatically as the sticky sidebar on every yacht's own details page - but it's here for a dedicated \"Book Now\" page, or to embed a specific yacht's form somewhere else."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:225
+msgid "Leave it out (or \"0\") to show a \"Select a yacht\" dropdown first. Set it to a yacht's post ID to lock the form to that one yacht - no dropdown."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:230
+msgid "Find a yacht's ID by opening it to edit (Yachts → click its name) and reading the number after edit=# in the address bar."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:234
+msgid "A yacht details page, with the photo gallery, name, class badge and specs on the left and the booking form in a sticky sidebar on the right."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:235
+msgid "A single yacht's details page - the gallery and description sit in your theme's normal layout, with the booking form ([mageyabo_booking_form] itself) pinned in the sidebar."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:241
+msgid "Yachts → Add New Yacht opens a 4-step wizard, shown down the left of the screen as a row of clickable steps - jump straight to any step you've already reached instead of clicking Next repeatedly to get back to it. Only step 1 is required to save a draft; you can publish right away and fill in the rest later, or leave it as a draft while you gather photos and pricing."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:248
+msgid "Step 1 of the Add New Yacht wizard: Basic Information, a departure-point map, an FAQ builder, and a sidebar with Publish, Payment Settings, Featured Image, Gallery, Related Yachts, Class and Occasion Tags cards."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:249
+msgid "Step 1 - Basic Info. The right-hand sidebar is where the featured image, gallery, and Related Yachts picker live."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:254
+msgid "Step"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:255
+msgid "Covers"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:260
+msgid "1. Basic Info"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:261
+msgid "Name, description, build year, departure marina (searchable map), FAQ - plus, in the sidebar, Featured Image, Gallery, Related Yachts, Class, and Occasion Tags."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:264
+msgid "2. Specs & Capacity"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:265
+msgid "Guest capacity, cabins, crew size, length, and the \"Included in Every Charter\" list guests see on the details page."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:268
+msgid "3. Pricing & Availability"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:269
+msgid "Booking Mode (Full Charter / Shared by seat / Both), a price for each booking type you want to offer (leave a rate blank to turn that booking type off), the clock-time window each fixed-schedule type runs within, notice/buffer/duration rules, and off-days."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:272
+msgid "4. Review & Publish"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:273
+msgid "A summary of everything above, plus an optional per-yacht override of the confirmation email and the details page's \"Book the {yacht_name} today\" call-to-action."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:278
+msgid "Related Yachts (step 1 sidebar) is what fills the \"Related Yachts\" carousel at the bottom of a yacht's details page. Leave it empty and the plugin picks a few automatically from yachts sharing the same Class - set it and your picks are used instead, in the order you chose them."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:286
+msgid "The site-wide defaults every yacht inherits unless it says otherwise. Two things live here:"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:289
+msgid "The Settings: General tab, showing Currency Code, Currency Symbol and Tax Rate fields, and the Ready When You Are call-to-action fields below."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:290
+msgid "Settings → General: currency/tax, and the default \"Ready When You Are\" booking call-to-action."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:293
+msgid "Currency & Tax - the currency code and symbol shown on every price throughout the site (search results, list cards, the booking form, confirmation emails), and a flat tax rate added on top of a booking's total."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:295
+msgid "The \"Ready When You Are\" call-to-action - the eyebrow, heading, body text and two button labels for the banner near the bottom of every yacht details page. Use {yacht_name} in the heading or text to insert that yacht's name automatically. A yacht can override this wording entirely from its own Review & Publish step; what you set here is just the fallback for yachts that don't bother to."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:305
+msgid "This is a two-step decision: which payment flow you use, then which method(s) inside that flow are switched on."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:312
+msgid "The Settings: Payments tab, showing the Custom Payment Methods vs WooCommerce Checkout flow cards, a \"You're configuring\" banner, and the Offline, PayPal and Stripe method cards each with an enable toggle and a Configure link."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:313
+msgid "Settings → Payments, configured for Custom Payment Methods with Offline, PayPal and Stripe all enabled."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:316
+msgid "Step 1 - the flow"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:318
+msgid "Two cards, exactly one selected at a time - click a card to switch. The \"You're configuring:\" banner underneath always confirms which one is currently active, so the fields below it are never ambiguous."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:327
+msgid "Offline, PayPal, and Stripe, run directly by this plugin - no WooCommerce needed."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:332
+msgid "Bookings go through WooCommerce's own cart, checkout, and orders instead. If WooCommerce isn't active yet, this card shows its own \"Install & Activate WooCommerce\" button - clicking it installs, activates, and switches you into this flow in one step."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:336
+msgid "These two are mutually exclusive on purpose - a booking is only ever paid for one way, so switching flows resets the other side rather than risk both trying to handle the same booking."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:342
+msgid "Step 2 - the methods"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:343
+msgid "If you picked Custom Payment Methods:"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:347
+msgid "Method"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:348
+msgid "What its fields do"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:354
+msgid "No API keys - just an \"Instructions\" note the guest sees at checkout (e.g. how to pay by bank transfer). Good default while you're setting everything else up."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:358
+msgid "Your PayPal email, and Sandbox (testing, no real money moves) or Live."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:362
+msgid "Publishable Key and Secret Key from your Stripe Dashboard, plus a Webhook Secret if you've set up a Stripe webhook for this site. Once a key is saved, its field shows a note instead of the key itself - leave it blank to keep the saved one."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:367
+msgid "Each method is a card: the switch enables/disables it, the badge shows its current state, and \"Configure\" opens its fields without needing it switched on first - handy for filling in Stripe keys ahead of time, then flipping it on when you're ready. Turning a method on also opens its fields automatically, since that's usually exactly why you turned it on. Whichever methods are enabled populate the \"Default Payment Method\" dropdown at the bottom - that's what a guest sees pre-selected at checkout."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:372
+msgid "If you picked WooCommerce Checkout:"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:374
+msgid "A \"WooCommerce Payment Methods\" panel lists every gateway WooCommerce itself knows about (Cash on Delivery, Direct Bank Transfer, plus anything a WooCommerce extension you've installed adds) with the same quick switch and status badge. Flipping one here is the same as flipping it in WooCommerce's own Settings → Payments screen - they read and write the exact same option. For a gateway's own detailed settings (API keys, instructions, fees), use the \"Open in WooCommerce\" link, which takes you straight to WooCommerce's native settings for it."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:383
+msgid "Off-days and simple across-the-fleet pricing adjustments, applied to every yacht unless a yacht-specific rule is added later. Add as many rules as you need with \"+ Add Rule\" - each one is a label, a type, and a from/to date range. Three types:"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:390
+msgid "The Settings: Pricing Rules tab, showing an empty rule row with Label, Type, From Date and To Date fields and an \"+ Add Rule\" button."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:391
+msgid "Settings → Pricing Rules: fleet-wide off-days and weekday/seasonal price adjustments."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:394
+msgid "Off-Day"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:394
+msgid "blocks a date (or date range) from being booked at all - a maintenance day, a public holiday, a private event."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:395
+msgid "Weekday/Weekend"
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:395
+msgid "a percent or fixed-amount adjustment for particular days of the week."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:396
+msgid "the same kind of adjustment, but for a date range instead of a weekday - a summer peak-season surcharge, for example."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:402
+msgid "Everything to do with the confirmation email a guest receives, and who it appears to come from."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:409
+msgid "The Settings: Email tab, showing Sender Identity fields, a Confirmation Email subject and rich-text body editor with a \"Send Test Email\" button, a \"Send Confirmation On\" checklist of booking statuses, and a Dynamic Variables panel of clickable placeholders."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:410
+msgid "Settings → Email: sender identity, the confirmation email template, and the dynamic variables it can insert."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:413
+msgid "Sender Identity - the From name/address on confirmation emails. Leave either blank to fall back to your site name / admin email."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:414
+msgid "Confirmation Email - the default subject and body sent when a booking is confirmed. Insert booking details (guest name, dates, total price, and so on) with the variable buttons on the right; \"Send Test Email\" lets you preview it in your own inbox before it goes near a real guest. A yacht can override this from its own Review & Publish step."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:415
+msgid "Send Confirmation On - which booking status(es) trigger the email. Most sites want this to match whatever status their payment method marks a paid booking with."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:421
+msgid "Two small switches that decide how long a guest's personal details stick around, and what happens to the plugin's data if it's ever removed."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:428
+msgid "The Settings: Data & Privacy tab, showing an \"Anonymize guest data after (months)\" number field set to 0, and an unchecked \"Remove all plugin data when uninstalled\" checkbox."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:429
+msgid "Settings → Data & Privacy: retention and uninstall behavior, both off by default."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:432
+msgid "Anonymize guest data after (months) - guest name/email/phone on old bookings are scrubbed after this many months. Set to 0 to keep guest data indefinitely."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:433
+msgid "Remove all plugin data when uninstalled - leave this off unless you're sure; switching it on means deleting the plugin also deletes every yacht, booking, and guest record it created."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:438
+msgid "Three views of the same underlying bookings, each suited to a different question."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:441
+msgid "The Bookings admin screen, a table listing each booking's yacht, guest, charter type, dates, duration, total, order and status, with a Delete action and an \"All Statuses\" filter."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:442
+msgid "Bookings - every booking across the whole fleet, newest first, filterable by status."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:445
+msgid "every booking made through any of the shortcodes above, in one flat list, with its status and payment state. \"Delete\" here removes the booking record itself - use it for test/duplicate bookings, not as a way to cancel a real one (change its status instead, so the guest's history stays intact)."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:446
+msgid "the same bookings laid out by date, per yacht - the fastest way to see what's free this week or spot a scheduling clash before you confirm a new request."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:447
+msgid "everyone who has ever booked, with their contact details and booking history in one place - this is the data the Data & Privacy retention setting eventually anonymizes once it's old enough."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:453
+msgid "\"Book Now\" isn't clickable / no price shows: check that the yacht has at least one price set for the booking type being requested (Yachts → edit the yacht → Pricing & Availability), and that a payment method is enabled (Settings → Payments)."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:454
+msgid "A yacht isn't showing up in the search or list shortcode: make sure it's Published, not a Draft, and that any Class/Occasion/location filter a visitor has selected actually matches it."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:455
+msgid "Confirmation emails aren't arriving: use \"Send Test Email\" on Settings → Email first to rule out a hosting/SMTP problem, then check that \"Send Confirmation On\" includes the status your payment method actually sets."
+msgstr ""
+
+#: assets/admin/src/routes/UserGuide.js:456
+msgid "Switched to WooCommerce Checkout and nothing is enabled: that's expected right after installing WooCommerce - open the \"WooCommerce Payment Methods\" panel and switch at least one gateway (Cash on Delivery is the quickest to test with) on."
 msgstr ""
 
 #. translators: %d: number of sample yachts imported.
 #: assets/admin/src/routes/YachtsList.js:87
+#, js-format
 msgid "%d sample yachts imported."
 msgstr ""
 
 #. translators: %s: yacht name.
 #: assets/admin/src/routes/YachtsList.js:117
+#, js-format
 msgid "Delete \"%s\"? This cannot be undone."
 msgstr ""
 
@@ -1472,30 +3485,14 @@ msgstr ""
 msgid "Search yachts by name…"
 msgstr ""
 
-#: assets/admin/src/routes/YachtsList.js:180
-#: includes/Frontend/Shortcode.php:355
-msgid "All"
-msgstr ""
-
 #: assets/admin/src/routes/YachtsList.js:182
 msgid "Drafts"
 msgstr ""
 
 #. translators: %d: number of yachts listed.
 #: assets/admin/src/routes/YachtsList.js:189
+#, js-format
 msgid "%d yacht(s)"
-msgstr ""
-
-#: assets/admin/src/routes/YachtsList.js:198
-#: assets/admin/src/routes/YachtsList.js:199
-#: includes/Frontend/Shortcode.php:369
-msgid "List view"
-msgstr ""
-
-#: assets/admin/src/routes/YachtsList.js:207
-#: assets/admin/src/routes/YachtsList.js:208
-#: includes/Frontend/Shortcode.php:366
-msgid "Grid view"
 msgstr ""
 
 #: assets/admin/src/routes/YachtsList.js:233
@@ -1514,14 +3511,6 @@ msgstr ""
 msgid "Clear filters"
 msgstr ""
 
-#. translators: %s: formatted lowest price.
-#: assets/admin/src/routes/YachtsList.js:280
-#: assets/admin/src/routes/YachtsList.js:381
-#: includes/Frontend/Shortcode.php:561
-#: includes/Frontend/Shortcode.php:590
-msgid "From %s"
-msgstr ""
-
 #: assets/admin/src/routes/YachtsList.js:285
 #: assets/admin/src/routes/YachtsList.js:356
 msgid "(untitled yacht)"
@@ -1532,15 +3521,370 @@ msgstr ""
 msgid "No location set"
 msgstr ""
 
-#: assets/admin/src/routes/YachtsList.js:313
-#: assets/admin/src/routes/YachtsList.js:387
-msgid "Edit"
+#: assets/admin/src/routes/YachtWizard.js:22
+msgid "Basic Info"
 msgstr ""
 
-#: assets/admin/src/routes/YachtsList.js:318
-#: assets/admin/src/routes/YachtsList.js:390
-#: includes/Frontend/Shortcode.php:62
-msgid "View"
+#: assets/admin/src/routes/YachtWizard.js:23
+#: assets/admin/src/routes/YachtWizard.js:416
+msgid "Specs & Capacity"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:24
+msgid "Pricing & Availability"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:25
+msgid "Review & Publish"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:115
+msgid "Please give this yacht a name."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:166
+msgid "Please fix the highlighted field before continuing."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:191
+msgid "Yacht published."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:192
+msgid "Draft saved."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:225
+msgid "Yacht setup steps"
+msgstr ""
+
+#. translators: 1: current step, 2: total steps
+#: assets/admin/src/routes/YachtWizard.js:279
+#, js-format
+msgid "Step %1$d of %2$d"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:287
+msgid "Next →"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:305
+msgid "Basic Information"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:306
+msgid "The name and story guests see first."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:308
+msgid "Yacht Name"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:321
+msgid "Build Year"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:324
+msgid "Marina / Pier Name"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:331
+msgid "Departure Point"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:332
+msgid "Search for the marina or pier, or drop the pin manually."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:350
+#: assets/admin/src/routes/YachtWizard.js:373
+msgid "Shown on the yacht listing page."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:362
+msgid "Featured Image"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:373
+msgid "Gallery"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:379
+msgid "Shown as a carousel on this yacht's details page."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:390
+msgid "Class"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:399
+msgid "Occasion Tags"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:417
+msgid "How many guests, and what comes with every charter."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:420
+msgid "Capacity (guests)"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:426
+msgid "Crew Size"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:429
+msgid "Length (ft)"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:434
+msgid "Included in Every Charter"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:439
+msgid "+ Add Item"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:440
+msgid "e.g. Bottled water, life jackets…"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:448
+msgid "Hourly Rate"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:449
+msgid "Half-Day Rate"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:450
+msgid "Morning Slot Rate"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:451
+msgid "Evening / Sunset Slot Rate"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:452
+msgid "Daily Rate"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:453
+msgid "Multi-Day Rate (per day)"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:506
+msgid "Add-ons updated."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:514
+msgid "Save this yacht as a draft first, then come back to pick which add-ons it offers."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:526
+msgid "No add-ons exist yet. Create them under Yacht Booking → Add-ons, then assign them here."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:538
+msgid "inactive"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:543
+msgid "Save add-on selection"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:556
+msgid "Base Rates"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:559
+msgid "This yacht runs both full and shared charters - set a separate price grid for each."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:560
+msgid "Leave a rate blank to disable that booking type for this yacht."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:564
+#: assets/admin/src/routes/YachtWizard.js:730
+msgid "Booking Mode"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:567
+msgid "Two price grids are shown below - one for full charters, one for shared per-seat bookings."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:568
+msgid "Full charter, shared by seat, or both."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:574
+#: assets/admin/src/routes/YachtWizard.js:731
+msgid "Both"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:579
+msgid "Full Charter Prices"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:579
+msgid "Prices"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:585
+msgid "Shared Prices (per seat)"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:592
+msgid "Time Configuration"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:593
+msgid "The clock-time window each fixed-schedule booking type runs within."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:596
+msgid "Daily Charter Start"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:599
+msgid "Daily Charter End"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:605
+msgid "Half-Day Slot Start"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:608
+msgid "Half-Day Slot End"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:614
+msgid "Morning Slot Start"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:617
+msgid "Morning Slot End"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:623
+msgid "Evening / Sunset Slot Start"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:626
+msgid "Evening / Sunset Slot End"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:633
+msgid "Booking Rules"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:634
+msgid "Notice period, spacing between charters, and duration limits."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:637
+msgid "Minimum Notice (hours)"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:640
+msgid "Buffer Between Bookings (minutes)"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:643
+msgid "Min Duration (minutes, hourly)"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:646
+msgid "Max Duration (minutes, hourly)"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:654
+msgid "What this yacht asks for up front. Leave it inheriting to follow the fleet-wide setting under Settings → Deposits & Extras."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:659
+msgid "Use the global setting"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:660
+msgid "No deposit - pay in full"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:675
+msgid "The optional extras guests can add when booking this yacht."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:680
+msgid "Off-Days"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:680
+msgid "Dates this yacht cannot be booked."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:685
+msgid "+ Add Off-Day"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:686
+msgid "Off-Day date"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:721
+msgid "(Untitled Yacht)"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:722
+msgid "Review the details, then publish to make this yacht bookable on the frontend."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:727
+msgid "Capacity"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:734
+msgid " (shared)"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:744
+msgid "None picked — shown automatically by class instead."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:753
+msgid "Confirmation Email"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:754
+msgid "Overrides the global confirmation email (Settings → Email) for this yacht only. Leave the body blank to use the global email instead."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:761
+msgid "Email Subject"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:761
+msgid "Leave blank to use the global subject when a yacht-specific body is set."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:768
+msgid "Email Body"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:779
+msgid "Booking CTA"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:780
+msgid "The \"Ready When You Are\" section on this yacht's details page. Text overrides the global version (Settings → General) - leave blank to use it."
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:788
+msgid "Show this section on the yacht's details page"
+msgstr ""
+
+#: assets/admin/src/routes/YachtWizard.js:790
+msgid "Use {yacht_name} to insert the yacht's name."
 msgstr ""
 
 #: assets/frontend/src/block/index.js:8
@@ -1557,876 +3901,4 @@ msgstr ""
 
 #: assets/frontend/src/block/index.js:23
 msgid "Yacht ID (leave 0 to let visitors choose)"
-msgstr ""
-
-#: includes/Admin/Menu.php:121
-msgid "Yacht Booking System: run \"npm install && npm run build\" in the plugin directory to compile the admin app."
-msgstr ""
-
-#: includes/Booking/AvailabilityService.php:65
-msgid "Not enough remaining capacity for this time slot."
-msgstr ""
-
-#. translators: %d: maximum guest capacity.
-#: includes/Booking/AvailabilityService.php:74
-msgid "This yacht can take a maximum of %d guests."
-msgstr ""
-
-#: includes/Booking/AvailabilityService.php:90
-msgid "Shared seats are already booked for this time - only shared bookings are available for this slot."
-msgstr ""
-
-#: includes/Booking/AvailabilityService.php:91
-msgid "This yacht is already booked for the selected time."
-msgstr ""
-
-#: includes/Booking/AvailabilityService.php:110
-#: includes/Booking/AvailabilityService.php:119
-#: includes/Booking/PricingEngine.php:65
-msgid "This date is not available for booking."
-msgstr ""
-
-#: includes/Booking/AvailabilityService.php:137
-msgid "This booking does not meet the minimum notice period required."
-msgstr ""
-
-#: includes/Booking/AvailabilityService.php:155
-msgid "This booking is shorter than the minimum allowed duration."
-msgstr ""
-
-#: includes/Booking/AvailabilityService.php:158
-msgid "This booking is longer than the maximum allowed duration."
-msgstr ""
-
-#: includes/Booking/AvailabilityService.php:194
-msgid "This time is too close to another booking for this yacht."
-msgstr ""
-
-#: includes/Booking/BookingRepository.php:275
-msgid "Another booking for this yacht is being processed. Please try again."
-msgstr ""
-
-#: includes/Booking/GuestRepository.php:199
-msgid "Anonymized Guest"
-msgstr ""
-
-#: includes/Booking/PricingEngine.php:133
-msgid "Unknown booking type."
-msgstr ""
-
-#: includes/Booking/PricingEngine.php:140
-msgid "This booking type is not available for this yacht."
-msgstr ""
-
-#: includes/Capabilities.php:99
-msgid "Yacht Manager"
-msgstr ""
-
-#: includes/Capabilities.php:100
-msgid "Yacht Staff"
-msgstr ""
-
-#: includes/Frontend/Newsletter.php:41
-msgid "Please provide a valid email address."
-msgstr ""
-
-#: includes/Frontend/Newsletter.php:48
-msgid "Please wait a moment before subscribing again."
-msgstr ""
-
-#: includes/Frontend/Newsletter.php:82
-msgid "Stay in the loop"
-msgstr ""
-
-#: includes/Frontend/Newsletter.php:83
-msgid "Your email address"
-msgstr ""
-
-#: includes/Frontend/Newsletter.php:98
-msgid "Subscribe"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:45
-#: includes/Frontend/Shortcode.php:136
-msgid "Select a yacht"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:47
-#: includes/Frontend/Shortcode.php:214
-#: includes/Frontend/Shortcode.php:217
-#: includes/Settings.php:48
-#: templates/single-yacht.php:38
-#: templates/single-yacht.php:424
-msgid "Book Now"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:48
-msgid "Not available for the selected time."
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:49
-msgid "Near me"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:51
-msgid "seats left"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:52
-#: includes/Rest/BookingsController.php:135
-msgid "Please accept the terms and conditions."
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:53
-msgid "No yachts matched your search."
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:54
-msgid "Search failed. Please try again."
-msgstr ""
-
-#. translators: %d: number of yachts found.
-#: includes/Frontend/Shortcode.php:55
-msgid "%d yacht available"
-msgstr ""
-
-#. translators: %d: number of yachts found.
-#: includes/Frontend/Shortcode.php:56
-msgid "%d yachts available"
-msgstr ""
-
-#. translators: %d: number of yachts found.
-#: includes/Frontend/Shortcode.php:57
-msgid "Contact for pricing"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:58
-msgid "photos"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:59
-msgid "From"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:60
-msgid "hour"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:61
-msgid "guests"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:63
-msgid "Thank you - your booking request has been received."
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:64
-msgid "Thanks for subscribing!"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:65
-msgid "Something went wrong. Please try again."
-msgstr ""
-
-#. translators: %s: currency symbol.
-#: includes/Frontend/Shortcode.php:305
-msgid "Under %s1,000 per hour"
-msgstr ""
-
-#. translators: %1$s: currency symbol.
-#: includes/Frontend/Shortcode.php:307
-msgid "%1$s1,000 to %1$s2,500 per hour"
-msgstr ""
-
-#. translators: %1$s: currency symbol.
-#: includes/Frontend/Shortcode.php:309
-msgid "%1$s2,500 to %1$s5,000 per hour"
-msgstr ""
-
-#. translators: %1$s: currency symbol.
-#: includes/Frontend/Shortcode.php:311
-msgid "%1$s5,000 to %1$s10,000 per hour"
-msgstr ""
-
-#. translators: %s: currency symbol.
-#: includes/Frontend/Shortcode.php:313
-msgid "%s10,000+ per hour"
-msgstr ""
-
-#. translators: %d: maximum number of guests.
-#: includes/Frontend/Shortcode.php:464
-msgid "%d guests max"
-msgstr ""
-
-#. translators: %s: yacht length in metres.
-#: includes/Frontend/Shortcode.php:467
-#: templates/single-yacht.php:157
-msgid "%s m"
-msgstr ""
-
-#. translators: %s: yacht name.
-#: includes/Frontend/Shortcode.php:487
-msgid "The %s Experience"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:616
-msgid "Half Day"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:151
-#: includes/Frontend/Shortcode.php:618
-msgid "Evening / Sunset Slot"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:620
-msgid "Multi-Day (per night)"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:123
-msgid "How do you want to book?"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:125
-msgid "Full Charter - whole yacht"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:126
-msgid "Shared - per seat"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:128
-msgid "Once shared seats are booked for a time slot, that slot can only take further shared bookings."
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:146
-#: includes/Payments/WooCommerceGateway.php:232
-#: includes/Payments/WooCommerceGateway.php:274
-msgid "Booking Type"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:152
-#: includes/Notifications/BookingEmailer.php:148
-msgid "Daily"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:161
-msgid "Start Time"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:165
-msgid "Duration (hours)"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:169
-msgid "Nights"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:197
-msgid "Payment Method"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:204
-msgid "I accept the terms and conditions."
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:208
-msgid "Your details will be collected on the checkout page."
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:246
-#: includes/Frontend/Shortcode.php:255
-msgid "Any"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:262
-msgid "Max Price"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:267
-msgid "Near Me"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:270
-#: includes/PostTypes/Yacht.php:110
-msgid "Search Yachts"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:324
-msgid "(sets season rates)"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:337
-msgid "Price"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:339
-msgid "Any price"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:348
-msgid "Search"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:376
-msgid "Load More Yachts"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:493
-msgid "Included in every charter"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:504
-#: templates/single-yacht.php:299
-msgid "Occasions this yacht fits best"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:515
-#: templates/single-yacht.php:211
-msgid "Charter Rates"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:546
-msgid "Similar Yachts"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:331
-msgid "Fewer guests"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:333
-msgid "More guests"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:346
-msgid "Search the fleet"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:354
-msgid "Filter yachts by class"
-msgstr ""
-
-#: includes/Frontend/Shortcode.php:365
-msgid "Switch view"
-msgstr ""
-
-#. translators: %d: number of cabins.
-#: includes/Frontend/Shortcode.php:470
-msgid "%d cabin"
-msgid_plural "%d cabins"
-msgstr[0] ""
-msgstr[1] ""
-
-#. translators: %d: number of crew.
-#: includes/Frontend/Shortcode.php:473
-msgid "%d crew"
-msgid_plural "%d crew"
-msgstr[0] ""
-msgstr[1] ""
-
-#. translators: %s: yacht name.
-#: includes/Frontend/Templates.php:83
-msgid "Skip to %s content"
-msgstr ""
-
-#: includes/Notifications/BookingEmailer.php:149
-msgid "Full"
-msgstr ""
-
-#: includes/Notifications/BookingEmailer.php:156
-msgid "Pending"
-msgstr ""
-
-#: includes/Notifications/BookingEmailer.php:143
-msgid "John Doe"
-msgstr ""
-
-#: includes/Notifications/BookingEmailer.php:146
-msgid "Sample Yacht"
-msgstr ""
-
-#: includes/Payments/PayPalGateway.php:45
-#: includes/Payments/StripeGateway.php:47
-#: includes/Payments/WooCommerceGateway.php:82
-msgid "Booking could not be found."
-msgstr ""
-
-#. translators: %d: booking id
-#: includes/Payments/PayPalGateway.php:54
-#: includes/Payments/StripeGateway.php:68
-msgid "Yacht Booking #%d"
-msgstr ""
-
-#: includes/Payments/StripeGateway.php:53
-msgid "Stripe is not configured."
-msgstr ""
-
-#: includes/Payments/StripeGateway.php:95
-msgid "Stripe did not return a checkout URL."
-msgstr ""
-
-#: includes/Payments/WooCommerceGateway.php:76
-#: includes/Rest/SettingsController.php:319
-#: includes/Rest/SettingsController.php:349
-msgid "WooCommerce is not active."
-msgstr ""
-
-#: includes/Payments/WooCommerceGateway.php:88
-msgid "Could not prepare the WooCommerce product for this yacht."
-msgstr ""
-
-#: includes/Payments/WooCommerceGateway.php:141
-#: includes/Rest/BookingsController.php:154
-msgid "This slot is not available."
-msgstr ""
-
-#: includes/Payments/WooCommerceGateway.php:228
-#: includes/Payments/WooCommerceGateway.php:273
-msgid "Charter Start"
-msgstr ""
-
-#: includes/Payments/WooCommerceGateway.php:456
-#: includes/Rest/BookingsController.php:96
-msgid "Please choose a valid yacht."
-msgstr ""
-
-#: includes/Payments/WooCommerceGateway.php:465
-#: includes/Payments/WooCommerceGateway.php:486
-#: includes/Rest/BookingsController.php:119
-msgid "Please choose a valid date and time."
-msgstr ""
-
-#: includes/Payments/WooCommerceProduct.php:130
-msgid "Yacht Charter"
-msgstr ""
-
-#: includes/PostTypes/Yacht.php:109
-msgid "View Yacht"
-msgstr ""
-
-#: includes/PostTypes/Yacht.php:111
-msgid "No yachts found"
-msgstr ""
-
-#: includes/PostTypes/Yacht.php:112
-msgid "No yachts found in Trash"
-msgstr ""
-
-#: includes/Rest/BookingsController.php:131
-msgid "Please provide your name, email and phone number."
-msgstr ""
-
-#: includes/Rest/BookingsController.php:145
-msgid "Please choose an available payment method."
-msgstr ""
-
-#: includes/Rest/BookingsController.php:226
-msgid "Invalid booking or status."
-msgstr ""
-
-#: includes/Rest/BookingsController.php:236
-msgid "Booking not found."
-msgstr ""
-
-#: includes/Rest/Controller.php:26
-msgid "You do not have permission to do this."
-msgstr ""
-
-#: includes/Rest/GuestsController.php:79
-msgid "Name"
-msgstr ""
-
-#: includes/Rest/PricingRulesController.php:71
-msgid "Pricing rule not found."
-msgstr ""
-
-#: includes/Rest/SettingsController.php:112
-msgid "Please enter a valid email address."
-msgstr ""
-
-#: includes/Rest/SettingsController.php:123
-msgid "Test emails can only be sent to your own account address or the site admin address."
-msgstr ""
-
-#: includes/Rest/SettingsController.php:151
-msgid "TEST"
-msgstr ""
-
-#: includes/Rest/SettingsController.php:162
-msgid "Failed to send test email. Check your mail configuration."
-msgstr ""
-
-#. translators: %s: email address the test was sent to.
-#: includes/Rest/SettingsController.php:169
-msgid "Test email sent to %s."
-msgstr ""
-
-#: includes/Rest/SettingsController.php:192
-msgid "You do not have permission to install plugins."
-msgstr ""
-
-#: includes/Rest/SettingsController.php:221
-msgid "Could not download or extract WooCommerce."
-msgstr ""
-
-#: includes/Rest/SettingsController.php:226
-msgid "You do not have permission to activate plugins."
-msgstr ""
-
-#: includes/Rest/SettingsController.php:232
-msgid "WooCommerce could not be activated."
-msgstr ""
-
-#: includes/Rest/SettingsController.php:356
-msgid "Unknown WooCommerce payment gateway."
-msgstr ""
-
-#: includes/Rest/YachtsController.php:132
-msgid "Please choose a date and time."
-msgstr ""
-
-#: includes/Rest/YachtsController.php:170
-msgid "Please provide a month as YYYY-MM."
-msgstr ""
-
-#: includes/Rest/YachtsController.php:299
-#: includes/Rest/YachtsController.php:303
-#: includes/Rest/YachtsController.php:365
-#: includes/Rest/YachtsController.php:402
-msgid "Yacht not found."
-msgstr ""
-
-#: includes/Rest/YachtsController.php:342
-msgid "Untitled Yacht"
-msgstr ""
-
-#: includes/Rest/YachtsController.php:418
-msgid "Sample yachts have already been imported."
-msgstr ""
-
-#: includes/Rest/YachtsController.php:476
-msgid "Ocean Breeze"
-msgstr ""
-
-#: includes/Rest/YachtsController.php:477
-msgid "A sleek 42ft motor yacht perfect for sunset cruises and small celebrations along the coast."
-msgstr ""
-
-#: includes/Rest/YachtsController.php:502
-msgid "Sapphire Horizon"
-msgstr ""
-
-#: includes/Rest/YachtsController.php:503
-msgid "A spacious 68ft luxury cruiser with a sundeck lounge, ideal for corporate charters and weddings."
-msgstr ""
-
-#: includes/Rest/YachtsController.php:528
-msgid "Island Serenade"
-msgstr ""
-
-#: includes/Rest/YachtsController.php:529
-msgid "A breezy 36ft catamaran built for laid-back island hopping and small bachelorette groups."
-msgstr ""
-
-#: includes/Rest/YachtsController.php:554
-msgid "Golden Mirage"
-msgstr ""
-
-#: includes/Rest/YachtsController.php:555
-msgid "A striking 55ft superyacht with a jacuzzi deck, built for high-end business entertaining."
-msgstr ""
-
-#: includes/Rest/YachtsController.php:580
-msgid "Aegean Muse"
-msgstr ""
-
-#: includes/Rest/YachtsController.php:581
-msgid "A whitewashed 48ft sailing yacht drifting past the caldera - built for sunset proposals."
-msgstr ""
-
-#: includes/Rest/YachtsController.php:606
-msgid "Southern Star"
-msgstr ""
-
-#: includes/Rest/YachtsController.php:607
-msgid "A lively 60ft party yacht with a sound system and open deck, built for big celebrations - bookable as a full charter or by the seat."
-msgstr ""
-
-#: includes/Rest/YachtsController.php:650
-msgid "Please provide a date as YYYY-MM-DD."
-msgstr ""
-
-#: includes/Settings.php:45
-#: templates/single-yacht.php:35
-msgid "Ready when you are"
-msgstr ""
-
-#: includes/Settings.php:49
-#: templates/single-yacht.php:39
-msgid "Browse all yachts"
-msgstr ""
-
-#: includes/Taxonomies/YachtClass.php:16
-msgid "Yacht Classes"
-msgstr ""
-
-#: includes/Taxonomies/YachtClass.php:18
-msgid "Search Classes"
-msgstr ""
-
-#: includes/Taxonomies/YachtClass.php:19
-msgid "All Classes"
-msgstr ""
-
-#: includes/Taxonomies/YachtClass.php:20
-msgid "Edit Class"
-msgstr ""
-
-#: includes/Taxonomies/YachtClass.php:21
-msgid "Add New Class"
-msgstr ""
-
-#: includes/Taxonomies/YachtClass.php:22
-msgid "Classes"
-msgstr ""
-
-#: includes/Taxonomies/YachtClass.php:28
-msgid "Comfort"
-msgstr ""
-
-#: includes/Taxonomies/YachtClass.php:29
-msgid "Comfort Plus"
-msgstr ""
-
-#: includes/Taxonomies/YachtClass.php:30
-msgid "Business"
-msgstr ""
-
-#: includes/Taxonomies/YachtClass.php:31
-msgid "First Class"
-msgstr ""
-
-#: includes/Taxonomies/YachtClass.php:32
-msgid "Party"
-msgstr ""
-
-#: includes/Taxonomies/YachtOccasion.php:16
-#: includes/Taxonomies/YachtOccasion.php:22
-msgid "Occasions"
-msgstr ""
-
-#: includes/Taxonomies/YachtOccasion.php:18
-msgid "Search Occasions"
-msgstr ""
-
-#: includes/Taxonomies/YachtOccasion.php:19
-msgid "All Occasions"
-msgstr ""
-
-#: includes/Taxonomies/YachtOccasion.php:20
-msgid "Edit Occasion"
-msgstr ""
-
-#: includes/Taxonomies/YachtOccasion.php:21
-msgid "Add New Occasion"
-msgstr ""
-
-#: includes/Taxonomies/YachtOccasion.php:28
-msgid "Birthday"
-msgstr ""
-
-#: includes/Taxonomies/YachtOccasion.php:29
-msgid "Anniversary / Proposal"
-msgstr ""
-
-#: includes/Taxonomies/YachtOccasion.php:30
-msgid "Corporate"
-msgstr ""
-
-#: includes/Taxonomies/YachtOccasion.php:31
-msgid "Bachelorette"
-msgstr ""
-
-#: includes/Taxonomies/YachtOccasion.php:32
-msgid "Wedding"
-msgstr ""
-
-#: includes/Taxonomies/YachtOccasion.php:33
-msgid "Sunset Cocktail"
-msgstr ""
-
-#. translators: %d: number of days
-#: includes/functions.php:96
-msgid "%d day"
-msgid_plural "%d days"
-msgstr[0] ""
-msgstr[1] ""
-
-#. translators: %d: number of hours
-#: includes/functions.php:101
-msgid "%d hour"
-msgid_plural "%d hours"
-msgstr[0] ""
-msgstr[1] ""
-
-#. translators: %d: number of minutes
-#: includes/functions.php:106
-msgid "%d minute"
-msgid_plural "%d minutes"
-msgstr[0] ""
-msgstr[1] ""
-
-#: magepeople-yacht-booking-system.php:39
-msgid "Yacht Booking System: the Composer autoloader is missing. Run \"composer install\" (or \"composer dump-autoload\") in the plugin directory."
-msgstr ""
-
-#. translators: %d: number of photos in the gallery.
-#: templates/single-yacht.php:120
-msgid "View Photos (%d)"
-msgstr ""
-
-#. translators: %s: yacht name.
-#: templates/single-yacht.php:196
-msgid "The %s experience"
-msgstr ""
-
-#: templates/single-yacht.php:336
-msgid " guests"
-msgstr ""
-
-#. translators: %s: yacht name.
-#: templates/single-yacht.php:370
-msgid "Questions about the %s"
-msgstr ""
-
-#: templates/single-yacht.php:84
-msgid "Home"
-msgstr ""
-
-#: templates/single-yacht.php:134
-msgid "Available now"
-msgstr ""
-
-#: templates/single-yacht.php:156
-msgid "Length"
-msgstr ""
-
-#: templates/single-yacht.php:170
-msgid "Crew"
-msgstr ""
-
-#: templates/single-yacht.php:177
-msgid "Build year"
-msgstr ""
-
-#: templates/single-yacht.php:195
-msgid "Overview"
-msgstr ""
-
-#: templates/single-yacht.php:210
-msgid "Pricing"
-msgstr ""
-
-#: templates/single-yacht.php:221
-msgid "Full charter"
-msgstr ""
-
-#: templates/single-yacht.php:228
-msgid "Shared · per seat"
-msgstr ""
-
-#: templates/single-yacht.php:283
-msgid "On board"
-msgstr ""
-
-#: templates/single-yacht.php:284
-msgid "Amenities & features"
-msgstr ""
-
-#: templates/single-yacht.php:298
-msgid "Perfect for"
-msgstr ""
-
-#: templates/single-yacht.php:316
-msgid "Where you cruise"
-msgstr ""
-
-#: templates/single-yacht.php:317
-msgid "Location & boarding point"
-msgstr ""
-
-#: templates/single-yacht.php:326
-msgid "Similar yachts"
-msgstr ""
-
-#: templates/single-yacht.php:327
-msgid "You might also like"
-msgstr ""
-
-#: templates/single-yacht.php:355
-msgid "from"
-msgstr ""
-
-#: templates/single-yacht.php:357
-msgid "/ hour · VAT excluded"
-msgstr ""
-
-#: templates/single-yacht.php:369
-msgid "Frequently asked"
-msgstr ""
-
-#: templates/single-yacht.php:389
-msgid "Get an instant quote"
-msgstr ""
-
-#: templates/single-yacht.php:394
-msgid "GOOGLE"
-msgstr ""
-
-#: templates/single-yacht.php:395
-msgid "INSURED"
-msgstr ""
-
-#: templates/single-yacht.php:396
-msgid "SUPPORT"
-msgstr ""
-
-#: templates/single-yacht.php:419
-msgid "per hour"
-msgstr ""
-
-#: templates/single-yacht.php:83
-msgid "Breadcrumb"
-msgstr ""
-
-#: templates/single-yacht.php:92
-msgid "Photo gallery"
-msgstr ""
-
-#: templates/single-yacht.php:145
-msgid "Specifications"
-msgstr ""
-
-#: templates/single-yacht.php:214
-msgid "Charter type"
-msgstr ""
-
-#: templates/single-yacht.php:427
-msgid "Photo viewer"
-msgstr ""
-
-#: templates/single-yacht.php:428
-msgid "Close"
-msgstr ""
-
-#: templates/single-yacht.php:429
-msgid "Previous photo"
-msgstr ""
-
-#: templates/single-yacht.php:434
-msgid "Next photo"
-msgstr ""
-
-
-#: includes/Rest/BookingsController.php:89
-msgid "Please wait a moment before submitting another booking."
 msgstr ""

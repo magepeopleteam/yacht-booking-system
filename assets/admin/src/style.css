@@ -9,7 +9,6 @@
 body.ybs-shell {
 	--ybs-wpbar: 32px;
 	--ybs-rail: 236px;
-	--ybs-topbar: 56px;
 	--ybs-primary: #f97316;
 	--ybs-primary-dark: #ea580c;
 	--ybs-primary-soft: #fff4ec;
@@ -184,27 +183,6 @@ body.ybs-shell #wpbody-content > .wrap {
 	margin-left: 0;
 }
 
-.ybs-shell-topbar {
-	position: sticky;
-	top: var( --ybs-wpbar );
-	z-index: 9980;
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	min-height: var( --ybs-topbar );
-	padding: 9px 24px;
-	background: var( --ybs-surface );
-	border-bottom: 1px solid var( --ybs-border );
-}
-
-.ybs-shell__brand-mini {
-	color: var( --ybs-ink-soft );
-	font-size: 12.5px;
-	font-weight: 600;
-	letter-spacing: .02em;
-	text-transform: uppercase;
-}
-
 .ybs-shell__burger {
 	display: none;
 	align-items: center;
@@ -250,7 +228,16 @@ body.ybs-shell #wpbody-content > .wrap {
 	}
 
 	.ybs-shell__burger {
+		position: fixed;
+		right: 18px;
+		bottom: 18px;
+		z-index: 9984;
 		display: inline-flex;
+		width: 44px;
+		height: 44px;
+		background: var( --ybs-primary );
+		box-shadow: 0 10px 25px rgba( 15, 23, 42, .24 );
+		color: #fff;
 	}
 }
 
@@ -359,31 +346,485 @@ body.ybs-shell #wpbody-content > .wrap {
 
 .ybs-stat-grid {
 	display: grid;
-	grid-template-columns: repeat( auto-fit, minmax( 200px, 1fr ) );
+	grid-template-columns: repeat( 4, minmax( 0, 1fr ) );
 	gap: 16px;
 	margin-bottom: 24px;
 }
 
 .ybs-stat-card {
+	position: relative;
+	overflow: hidden;
 	background: var( --ybs-surface );
 	border: 1px solid var( --ybs-border );
-	border-radius: 12px;
-	padding: 18px 20px;
+	border-radius: 14px;
+	padding: 18px;
+	box-shadow: 0 8px 24px rgba( 15, 23, 42, .05 );
+	transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.ybs-stat-card:hover {
+	transform: translateY( -2px );
+	box-shadow: 0 12px 30px rgba( 15, 23, 42, .09 );
+}
+
+.ybs-stat-card.is-orange { --stat-color: #f97316; --stat-soft: #fff1e8; }
+.ybs-stat-card.is-blue { --stat-color: #2563eb; --stat-soft: #eaf2ff; }
+.ybs-stat-card.is-green { --stat-color: #059669; --stat-soft: #e7f8f2; }
+.ybs-stat-card.is-purple { --stat-color: #7c3aed; --stat-soft: #f2ebff; }
+
+.ybs-stat-card__top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.ybs-stat-card__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	height: 38px;
+	border-radius: 10px;
+	background: var( --stat-soft, var( --ybs-primary-soft ) );
+	color: var( --stat-color, var( --ybs-primary ) );
+	font-size: 19px;
 }
 
 .ybs-stat-card__label {
+	margin-top: 1px;
 	color: var( --ybs-ink-soft );
-	font-size: 12.5px;
+	font-size: 11.5px;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: .03em;
 }
 
 .ybs-stat-card__value {
-	margin-top: 8px;
+	margin-top: 14px;
 	font-size: 28px;
-	font-weight: 700;
+	font-weight: 750;
 	color: var( --ybs-ink );
+	letter-spacing: -.025em;
+}
+
+.ybs-stat-card__detail {
+	margin-top: 7px;
+	color: var( --ybs-ink-faded );
+	font-size: 12px;
+}
+
+/* ----------------------------------------------------------- Dashboard */
+
+.ybs-dashboard {
+	max-width: 1600px;
+	margin: 0 auto;
+}
+
+.ybs-dashboard-hero {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 210px;
+	margin-bottom: 26px;
+	overflow: hidden;
+	border-radius: 18px;
+	background:
+		radial-gradient( circle at 82% 15%, rgba( 249, 115, 22, .34 ), transparent 30% ),
+		linear-gradient( 125deg, #151a2b 0%, #202a46 60%, #293653 100% );
+	box-shadow: 0 18px 45px rgba( 15, 23, 42, .14 );
+}
+
+.ybs-dashboard-hero__content {
+	position: relative;
+	z-index: 2;
+	max-width: 700px;
+	padding: 32px 38px;
+}
+
+.ybs-dashboard-hero__eyebrow {
+	display: inline-flex;
+	align-items: center;
+	margin-bottom: 10px;
+	color: #fdba74;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+}
+
+.ybs-dashboard-hero h2 {
+	max-width: 620px;
+	margin: 0;
+	color: #fff;
+	font-size: clamp( 25px, 2.3vw, 34px );
+	font-weight: 750;
+	letter-spacing: -.025em;
+	line-height: 1.16;
+}
+
+.ybs-dashboard-hero p {
+	max-width: 600px;
+	margin: 11px 0 0;
+	color: #cbd5e1;
+	font-size: 14px;
+}
+
+.ybs-dashboard-hero__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 22px;
+}
+
+.ybs-dashboard-hero .ybs-btn {
+	padding: 9px 17px;
+}
+
+.ybs-dashboard-hero .ybs-btn.is-hero-secondary {
+	border-color: rgba( 255, 255, 255, .24 );
+	background: rgba( 255, 255, 255, .08 );
+	color: #fff;
+}
+
+.ybs-dashboard-hero .ybs-btn.is-hero-secondary:hover {
+	background: rgba( 255, 255, 255, .15 );
+}
+
+.ybs-dashboard-hero__art {
+	position: relative;
+	align-self: stretch;
+	width: 30%;
+	min-width: 280px;
+}
+
+.ybs-dashboard-hero__art > .dashicons {
+	position: absolute;
+	top: 42px;
+	right: 78px;
+	z-index: 2;
+	width: 88px;
+	height: 88px;
+	color: rgba( 255, 255, 255, .92 );
+	font-size: 88px;
+	filter: drop-shadow( 0 10px 22px rgba( 0, 0, 0, .18 ) );
+}
+
+.ybs-dashboard-hero__wave {
+	position: absolute;
+	right: -45px;
+	bottom: -82px;
+	width: 390px;
+	height: 190px;
+	border: 2px solid rgba( 255, 255, 255, .18 );
+	border-radius: 50%;
+	box-shadow: 0 -22px 0 rgba( 249, 115, 22, .13 ), 0 -44px 0 rgba( 255, 255, 255, .06 );
+}
+
+.ybs-dashboard-section-heading,
+.ybs-dashboard-panel__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.ybs-dashboard-section-heading {
+	margin: 0 0 14px;
+}
+
+.ybs-dashboard-section-heading h3,
+.ybs-dashboard-panel__head h3 {
+	margin: 0;
+	color: var( --ybs-ink );
+	font-size: 16px;
+	font-weight: 700;
+}
+
+.ybs-dashboard-section-heading p,
+.ybs-dashboard-panel__head p {
+	margin: 3px 0 0;
+	color: var( --ybs-ink-soft );
+	font-size: 12px;
+}
+
+.ybs-dashboard-section-heading > a,
+.ybs-dashboard-panel__head > a {
+	color: var( --ybs-primary-dark );
+	font-size: 12.5px;
+	font-weight: 650;
+	text-decoration: none;
+}
+
+.ybs-dashboard-grid {
+	display: grid;
+	grid-template-columns: minmax( 0, 1.65fr ) minmax( 320px, .75fr );
+	gap: 18px;
+	align-items: start;
+}
+
+.ybs-dashboard-sidebar {
+	display: grid;
+	gap: 18px;
+}
+
+.ybs-dashboard-panel {
+	overflow: hidden;
+	border: 1px solid var( --ybs-border );
+	border-radius: 14px;
+	background: var( --ybs-surface );
+	box-shadow: 0 8px 24px rgba( 15, 23, 42, .045 );
+}
+
+.ybs-dashboard-panel__head {
+	min-height: 70px;
+	padding: 16px 18px;
+	border-bottom: 1px solid var( --ybs-border );
+}
+
+.ybs-dashboard-total {
+	color: var( --ybs-success );
+	font-size: 16px;
+	font-weight: 750;
+}
+
+.ybs-upcoming-list {
+	display: grid;
+}
+
+.ybs-upcoming-item {
+	display: grid;
+	grid-template-columns: 38px minmax( 170px, 1fr ) minmax( 120px, .65fr ) auto auto;
+	gap: 12px;
+	align-items: center;
+	padding: 15px 18px;
+	border-bottom: 1px solid var( --ybs-border );
+}
+
+.ybs-upcoming-item:last-child {
+	border-bottom: 0;
+}
+
+.ybs-upcoming-item:hover {
+	background: #fbfcfe;
+}
+
+.ybs-upcoming-item__date {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-upcoming-item__date .dashicons {
+	font-size: 17px;
+}
+
+.ybs-upcoming-item__main,
+.ybs-upcoming-item__guest {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+}
+
+.ybs-upcoming-item strong {
+	overflow: hidden;
+	color: var( --ybs-ink );
+	font-size: 12.5px;
+	font-weight: 650;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ybs-upcoming-item__main span,
+.ybs-upcoming-item__guest span {
+	overflow: hidden;
+	margin-top: 2px;
+	color: var( --ybs-ink-faded );
+	font-size: 11.5px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ybs-upcoming-item__price {
+	color: var( --ybs-ink );
+	font-size: 12.5px;
+	font-weight: 700;
+	white-space: nowrap;
+}
+
+.ybs-dashboard-empty {
+	display: flex;
+	align-items: center;
+	min-height: 300px;
+	flex-direction: column;
+	justify-content: center;
+	padding: 38px 24px;
+	text-align: center;
+}
+
+.ybs-dashboard-empty > .dashicons {
+	width: 46px;
+	height: 46px;
+	margin-bottom: 12px;
+	color: var( --ybs-primary );
+	font-size: 46px;
+}
+
+.ybs-dashboard-empty strong {
+	font-size: 15px;
+}
+
+.ybs-dashboard-empty p {
+	margin: 5px 0 16px;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-status-list {
+	display: grid;
+	gap: 13px;
+	padding: 17px 18px 20px;
+}
+
+.ybs-status-row__meta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 6px;
+	color: var( --ybs-ink-soft );
+	font-size: 12px;
+}
+
+.ybs-status-row__meta strong {
+	color: var( --ybs-ink );
+}
+
+.ybs-status-row__track {
+	height: 6px;
+	overflow: hidden;
+	border-radius: 6px;
+	background: #eef2f6;
+}
+
+.ybs-status-row__track span {
+	display: block;
+	min-width: 0;
+	height: 100%;
+	border-radius: inherit;
+}
+
+.ybs-status-row__track .is-orange { background: #f97316; }
+.ybs-status-row__track .is-blue { background: #2563eb; }
+.ybs-status-row__track .is-purple { background: #7c3aed; }
+.ybs-status-row__track .is-green { background: #059669; }
+.ybs-status-row__track .is-red { background: #dc2626; }
+
+.ybs-quick-actions {
+	display: grid;
+	grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
+	gap: 1px;
+	background: var( --ybs-border );
+}
+
+.ybs-quick-actions > a {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+	padding: 14px;
+	background: #fff;
+	color: var( --ybs-ink );
+	text-decoration: none;
+}
+
+.ybs-quick-actions > a:hover {
+	background: var( --ybs-primary-soft );
+}
+
+.ybs-quick-actions > a > .dashicons {
+	flex: 0 0 30px;
+	width: 30px;
+	height: 30px;
+	padding: 6px;
+	border-radius: 8px;
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+	font-size: 16px;
+}
+
+.ybs-quick-actions > a > span:last-child {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+}
+
+.ybs-quick-actions strong {
+	font-size: 12px;
+	font-weight: 650;
+}
+
+.ybs-quick-actions small {
+	overflow: hidden;
+	margin-top: 1px;
+	color: var( --ybs-ink-faded );
+	font-size: 10.5px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+@media screen and ( max-width: 1280px ) {
+	.ybs-stat-grid {
+		grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
+	}
+
+	.ybs-dashboard-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.ybs-dashboard-sidebar {
+		grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
+	}
+}
+
+@media screen and ( max-width: 782px ) {
+	.ybs-dashboard-hero__content {
+		padding: 27px 24px;
+	}
+
+	.ybs-dashboard-hero__art {
+		display: none;
+	}
+
+	.ybs-dashboard-sidebar {
+		grid-template-columns: 1fr;
+	}
+
+	.ybs-upcoming-item {
+		grid-template-columns: 38px minmax( 0, 1fr ) auto;
+	}
+
+	.ybs-upcoming-item__guest,
+	.ybs-upcoming-item__price {
+		display: none;
+	}
+}
+
+@media screen and ( max-width: 520px ) {
+	.ybs-stat-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.ybs-dashboard-section-heading > a {
+		display: none;
+	}
+
+	.ybs-quick-actions {
+		grid-template-columns: 1fr;
+	}
 }
 
 /* --------------------------------------------------------------- Tables */
@@ -740,6 +1181,9 @@ select.ybs-badge:focus {
 .ybs-notice.is-error { background: #fee2e2; color: #991b1b; }
 .ybs-notice.is-success { background: #dcfce7; color: #166534; }
 .ybs-notice.is-info { background: var( --ybs-primary-soft ); color: var( --ybs-primary-dark ); }
+/* Amber rather than red: a screen whose settings are inert is something to
+   explain, not an error the operator has to clear. */
+.ybs-notice.is-warning { background: #fef3c7; color: #92400e; }
 
 /* --------------------------------------------------------------- Wizard */
 
@@ -2746,8 +3190,23 @@ select.ybs-badge:focus {
 	margin: 0;
 }
 
-.ybs-date-input,
-.ybs-time-input {
+.ybs-repeatable-row > .ybs-date-input-wrap {
+	min-width: 0;
+	flex: 1 1 auto;
+}
+
+/*
+ * Matching on the type attribute here is load-bearing, not decoration.
+ * wp-admin's forms.css styles `input[type="date"]` / `input[type="time"]`
+ * directly, so a bare class (0,1,0) loses to core's (0,1,1): core's
+ * `padding: 0 12px` collapses the 38px gutter these fields reserve for the
+ * ::before icon below, dropping the icon straight on top of the text. Core
+ * also paints `input[readonly]` #f0f0f0, and both fields are readonly by
+ * design (the popover is the only way to pick a value), which greys out
+ * every one of them. Adding the attribute scores (0,2,1) and wins both.
+ */
+.ybs-date-input[type="date"],
+.ybs-time-input[type="time"] {
 	width: 100%;
 	height: 42px;
 	padding: 9px 12px 9px 38px;
@@ -2758,6 +3217,16 @@ select.ybs-badge:focus {
 	font-size: 13px;
 	color: var( --ybs-ink );
 	cursor: pointer;
+}
+
+/*
+ * The browser's own calendar/clock button would sit on top of the popover
+ * trigger and open a second, native picker - these inputs are driven by
+ * DateField/TimeField instead.
+ */
+.ybs-date-input[type="date"]::-webkit-calendar-picker-indicator,
+.ybs-time-input[type="time"]::-webkit-calendar-picker-indicator {
+	display: none;
 }
 
 .ybs-date-input-wrap::before,
@@ -2775,8 +3244,10 @@ select.ybs-badge:focus {
 .ybs-date-input-wrap::before { content: "\f145"; }
 .ybs-time-input-wrap::before { content: "\f469"; }
 
-.ybs-date-input:focus,
-.ybs-time-input:focus {
+/* Core's `input[type="date"]:focus` is (0,2,1) and would otherwise replace
+   the orange ring with wp-admin blue. */
+.ybs-date-input[type="date"]:focus,
+.ybs-time-input[type="time"]:focus {
 	outline: none;
 	border-color: var( --ybs-primary );
 	box-shadow: 0 0 0 3px rgba( 249, 115, 22, .16 );
@@ -2790,6 +3261,7 @@ select.ybs-badge:focus {
 	left: 0;
 	z-index: 100200;
 	width: 320px;
+	max-width: calc( 100vw - 48px );
 	padding: 14px;
 	background: #fff;
 	border: 1px solid var( --ybs-border );
@@ -3257,4 +3729,406 @@ select.ybs-badge:focus {
 .ybs-cal-tooltip__row span:last-child {
 	text-align: right;
 	overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------------------
+ * Bookings rows that open the details panel. The panel itself is the Pro
+ * add-on's, and so is its stylesheet; rows are only clickable when it is
+ * installed.
+ * ---------------------------------------------------------------------- */
+
+.ybs-row-clickable {
+	cursor: pointer;
+}
+
+.ybs-row-clickable:hover {
+	background: var( --ybs-primary-soft );
+}
+
+/* ------------------------------------------------------------------------
+ * Shared form bits: the weekday picker on pricing rules, and the checkbox
+ * grids used by coupons (yacht scope) and the wizard (add-on assignment).
+ * ---------------------------------------------------------------------- */
+
+.ybs-weekday-picker {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+/* Toggle pills, not a row of loose checkboxes. The input stays in the DOM
+   and focusable - it is what the label toggles and what a screen reader
+   reads - it just isn't what you look at. */
+.ybs-weekday-picker label {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 52px;
+	padding: 7px 12px;
+	border: 1px solid var( --ybs-border );
+	border-radius: var( --ybs-radius-pill );
+	background: var( --ybs-surface );
+	color: var( --ybs-ink-soft );
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	user-select: none;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.ybs-weekday-picker input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: 0;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.ybs-weekday-picker label:hover {
+	border-color: var( --ybs-primary );
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-weekday-picker label.is-on {
+	border-color: var( --ybs-primary );
+	background: var( --ybs-primary );
+	color: #fff;
+}
+
+/* The visual checkbox is gone, so the label carries the focus ring. */
+.ybs-weekday-picker label:focus-within {
+	outline: 2px solid var( --ybs-primary );
+	outline-offset: 2px;
+}
+
+.ybs-checkbox-grid {
+	display: grid;
+	grid-template-columns: repeat( auto-fill, minmax( 200px, 1fr ) );
+	gap: 6px 16px;
+	margin-bottom: 12px;
+}
+
+.ybs-checkbox-grid label {
+	font-size: 13px;
+}
+
+.ybs-pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	margin-top: 16px;
+	color: var( --ybs-ink-soft );
+	font-size: 13px;
+}
+
+.ybs-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+/* ------------------------------------------------------------------------
+ * Icon-only row actions (the Bookings list's Actions column).
+ *
+ * Sized to the 36px touch target the rest of the admin uses rather than to
+ * the glyph, so the hit area does not shrink just because the label is gone.
+ * ---------------------------------------------------------------------- */
+
+.ybs-row-actions {
+	display: flex;
+	gap: 6px;
+}
+
+.ybs-icon-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	padding: 0;
+	border: 1px solid var( --ybs-border );
+	border-radius: var( --ybs-radius );
+	background: var( --ybs-surface );
+	color: var( --ybs-ink-soft );
+	cursor: pointer;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+/* The same control as a link - an add-on's document download. */
+a.ybs-icon-btn {
+	text-decoration: none;
+}
+
+.ybs-icon-btn .dashicons {
+	width: 18px;
+	height: 18px;
+	font-size: 18px;
+	line-height: 1;
+}
+
+.ybs-icon-btn:hover:not( :disabled ) {
+	border-color: var( --ybs-primary );
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+}
+
+/* Keyboard users get the same affordance the mouse does - without a visible
+   label there is nothing else to tell them which control has focus. */
+.ybs-icon-btn:focus-visible {
+	outline: 2px solid var( --ybs-primary );
+	outline-offset: 1px;
+}
+
+.ybs-icon-btn.is-danger:hover:not( :disabled ) {
+	border-color: var( --ybs-danger );
+	background: #fee2e2;
+	color: var( --ybs-danger );
+}
+
+.ybs-icon-btn:disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+/* A Pro-only column with the add-on missing: the heading links to what the
+   feature does, and its cells fade back. */
+.ybs-th-locked {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: inherit;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.ybs-th-locked:hover,
+.ybs-th-locked:focus {
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-pro-tag {
+	padding: 1px 5px;
+	border-radius: 999px;
+	background: var( --ybs-primary );
+	color: #fff;
+	font-size: 9px;
+	font-weight: 700;
+	line-height: 1.4;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.ybs-table td.ybs-td-locked {
+	color: var( --ybs-ink-faded );
+}
+
+/* A Pro-only action with the add-on missing: the same button, faded, with a
+   corner tag. Still clickable - it leads to what the feature does. */
+.ybs-icon-btn.is-locked {
+	position: relative;
+	border-style: dashed;
+}
+
+.ybs-icon-btn.is-locked .dashicons {
+	opacity: 0.5;
+}
+
+.ybs-icon-btn.is-locked:hover .dashicons {
+	opacity: 1;
+}
+
+.ybs-icon-btn__pro {
+	position: absolute;
+	top: -7px;
+	right: -8px;
+	padding: 1px 4px;
+	border-radius: 999px;
+	background: var( --ybs-primary );
+	color: #fff;
+	font-size: 8px;
+	font-weight: 700;
+	line-height: 1.3;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	pointer-events: none;
+}
+
+.ybs-spin {
+	animation: ybs-spin 1s linear infinite;
+}
+
+@keyframes ybs-spin {
+	from { transform: rotate( 0deg ); }
+	to { transform: rotate( 360deg ); }
+}
+
+/* Respect a reduced-motion preference: the spinner is decoration, the
+   disabled state is what actually communicates "working". */
+@media ( prefers-reduced-motion: reduce ) {
+	.ybs-spin {
+		animation: none;
+	}
+}
+
+/* Check-in History: "Clear filters" sits next to the destructive
+   "Clear history", so they get a little breathing room between them. */
+.ybs-history-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+/* ClassicEditor's container. React renders this and nothing inside it - the
+   textarea and everything TinyMCE builds around it are created imperatively,
+   so React never tries to reconcile nodes TinyMCE has moved. */
+.ybs-classic-editor {
+	width: 100%;
+}
+
+.ybs-classic-editor textarea {
+	width: 100%;
+}
+
+
+/* ------------------------------------------------------------------------
+ * Pricing rules (Settings > Pricing Rules)
+ *
+ * The form was one flat `.ybs-field-row` with seven controls fighting for
+ * the same line. Grouped into rows of three on a grid instead, so each
+ * field keeps a usable width and its hint stays readable.
+ * ---------------------------------------------------------------------- */
+
+.ybs-rule-grid {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 220px, 1fr ) );
+	gap: 0 16px;
+	align-items: start;
+}
+
+/* The adjustment is one idea - type and amount sit together rather than
+   reading as two unrelated fields. */
+.ybs-rule-adjust {
+	display: flex;
+	gap: 8px;
+}
+
+.ybs-rule-adjust select {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.ybs-rule-adjust input {
+	flex: 0 0 110px;
+}
+
+.ybs-rule-foot {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	margin-top: 8px;
+	padding-top: 16px;
+	border-top: 1px solid var( --ybs-border );
+}
+
+/* Says in plain words what the rule about to be saved will actually do -
+   specificity and the empty-weekday default are easy to get wrong. */
+.ybs-rule-summary {
+	flex: 1 1 260px;
+	margin: 0;
+	color: var( --ybs-ink-soft );
+	font-size: 13px;
+	font-style: italic;
+}
+
+.ybs-count-pill {
+	flex: 0 0 auto;
+	align-self: flex-start;
+	padding: 4px 10px;
+	border-radius: var( --ybs-radius-pill );
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.ybs-muted {
+	color: var( --ybs-ink-faded );
+}
+
+/* ------------------------------------------------- Locked Pro entries */
+
+/*
+ * Shown only while the Pro add-on is absent. Deliberately understated: the
+ * point is to say what the screen would be, not to nag - an operator who has
+ * decided against the add-on still has to use this rail every day.
+ */
+
+.ybs-shell-rail__menu li.is-pro > a {
+	opacity: .72;
+}
+
+.ybs-shell-rail__menu li.is-pro > a:hover {
+	opacity: 1;
+}
+
+.ybs-shell-rail__pro {
+	margin-left: auto;
+	padding: 1px 6px;
+	border-radius: 999px;
+	background: var( --ybs-primary );
+	color: #fff;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+}
+
+/* The rail collapses to icons only on narrow screens, where a badge beside a
+   hidden label has nothing to sit against. */
+@media ( max-width: 960px ) {
+	.ybs-shell-rail:not( .is-open ) .ybs-shell-rail__pro {
+		display: none;
+	}
+}
+
+.ybs-pro-badge {
+	margin-left: 8px;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	vertical-align: middle;
+}
+
+.ybs-pro-card {
+	max-width: 620px;
+	padding: 32px;
+	text-align: center;
+}
+
+.ybs-pro-card .dashicons {
+	width: 40px;
+	height: 40px;
+	margin-bottom: 8px;
+	color: var( --ybs-primary );
+	font-size: 40px;
+}
+
+.ybs-pro-card h3 {
+	margin: 0 0 8px;
+}
+
+.ybs-pro-card p {
+	margin: 0 auto 12px;
+	max-width: 46ch;
+	color: var( --ybs-ink-soft );
 }

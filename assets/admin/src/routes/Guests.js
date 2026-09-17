@@ -55,7 +55,7 @@ export default function Guests() {
 					<thead>
 						<tr>
 							<th>{__('SI.', 'magepeople-yacht-booking-system')}</th>
-							<th>{__('Order No', 'magepeople-yacht-booking-system')}</th>
+							<th>{__('Booking No', 'magepeople-yacht-booking-system')}</th>
 							<th>{__('Yacht', 'magepeople-yacht-booking-system')}</th>
 							<th>{__('Booking', 'magepeople-yacht-booking-system')}</th>
 							<th>{__('Full Name', 'magepeople-yacht-booking-system')}</th>
@@ -70,14 +70,24 @@ export default function Guests() {
 						{data.items.map((row, index) => (
 							<tr key={row.id}>
 								<td>{index + 1}</td>
+								{/*
+								 * The booking's own reference, always. A WooCommerce
+								 * order number only exists when the booking went
+								 * through WooCommerce checkout - a booking taken on
+								 * the built-in gateways (or entered by hand) has no
+								 * Woo order, and used to show a bare dash here as if
+								 * it were somehow incomplete.
+								 */}
 								<td>
+									<strong>{row.reference}</strong>
 									{row.order_id ? (
-										<a href={row.order_url} target="_blank" rel="noreferrer">
-											#{row.order_id}
-										</a>
-									) : (
-										<span>—</span>
-									)}
+										<>
+											<br />
+											<a href={row.order_url} target="_blank" rel="noreferrer">
+												<small>{sprintf(__('Order #%d', 'magepeople-yacht-booking-system'), row.order_id)}</small>
+											</a>
+										</>
+									) : null}
 								</td>
 								<td><strong>{row.yacht_name || '—'}</strong></td>
 								<td>
