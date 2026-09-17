@@ -373,33 +373,23 @@
 .ybs-notice.is-error { background: #fee2e2; color: #991b1b; }
 .ybs-notice.is-success { background: #dcfce7; color: #166534; }
 
+/* A plain info notice - nothing price-specific. It used to carry the quote
+   box's own layout (a baseline flex row) and an `::before` reading
+   "Estimated total", which meant every other is-info notice on the front end
+   got that label too, and the quote's breakdown rows were laid out side by
+   side instead of stacked. Both now live on `.ybs-bf-price` itself, and the
+   label is rendered as real text so it can be translated. */
 .ybs-notice.is-info {
-	display: flex;
-	align-items: baseline;
-	justify-content: space-between;
-	gap: 8px;
 	background: var( --ybs-primary-soft );
 	border: 1px solid #fed7aa;
 	color: var( --ybs-primary-dark );
-	font-size: 18px;
-	font-weight: 800;
 }
 
-.ybs-notice.is-info::before {
-	content: 'Estimated total';
-	font-size: 11px;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: .04em;
-	color: var( --ybs-primary );
-	opacity: .8;
-}
-
-/* `.is-info` (`.ybs-bf-price`) is toggled via the `hidden` attribute in
-   booking-form.js, not a class - since the rule above now sets its own
-   `display`, it would otherwise out-specificity the UA stylesheet's plain
-   `[hidden]{display:none}` and stay visible. */
-.ybs-notice.is-info[hidden] {
+/* `.ybs-bf-price` is toggled via the `hidden` attribute in booking-form.js,
+   not a class - since it sets its own `display`, it would otherwise
+   out-specificity the UA stylesheet's plain `[hidden]{display:none}` and
+   stay visible. */
+.ybs-bf-price[hidden] {
 	display: none;
 }
 
@@ -1387,17 +1377,15 @@ body.ybs-yp-lightbox-open {
 	border: none;
 }
 
-/* The live, selection-driven quote is the single price shown once the
-   visitor picks booking details - styled to stand out since it now
-   replaces the static rate summary that used to sit above it. */
+/* The live, selection-driven quote, styled to stand out since it replaces
+   the static rate summary that used to sit above it. The emphasis belongs on
+   the total line, not on every line item - see `.ybs-bf-price__row.is-total`. */
 .ybs-yp-sidebar__form .ybs-bf-price {
 	margin: 4px 0 16px;
 	padding: 14px 16px;
 	border-radius: 12px;
 	background: var( --ybs-primary-soft );
 	color: var( --ybs-primary-dark );
-	font-size: 20px;
-	font-weight: 800;
 	border: none;
 }
 
@@ -2331,4 +2319,224 @@ select.ybs-search-bar__control {
 
 .ybs-search .ybs-search-results {
 	margin-top: 24px;
+}
+
+/* ------------------------------------------------------------------------
+ * Booking form: optional extras and the coupon field.
+ * ---------------------------------------------------------------------- */
+
+.ybs-bf-addons {
+	margin: 16px 0;
+}
+
+.ybs-bf-addons__title {
+	display: block;
+	margin-bottom: 8px;
+	color: var( --ybs-ink-soft );
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.ybs-bf-addons__list {
+	display: grid;
+	gap: 6px;
+}
+
+.ybs-bf-addon {
+	display: grid;
+	grid-template-columns: auto 1fr auto auto;
+	gap: 8px;
+	align-items: center;
+	padding: 9px 12px;
+	border: 1.5px solid var( --ybs-border );
+	border-radius: var( --ybs-radius );
+	cursor: pointer;
+}
+
+.ybs-bf-addon:hover {
+	border-color: var( --ybs-primary );
+}
+
+.ybs-bf-addon__name {
+	font-size: 14px;
+}
+
+.ybs-bf-addon__price {
+	color: var( --ybs-ink-soft );
+	font-size: 13px;
+	white-space: nowrap;
+}
+
+.ybs-bf-addon__qty {
+	width: 64px;
+}
+
+/* Full-width under the row above it, so a long description wraps under the
+   name rather than squeezing the price column. */
+.ybs-bf-addon__description {
+	grid-column: 1 / -1;
+	color: var( --ybs-ink-faded );
+	font-size: 12px;
+}
+
+/* The quote, as a stacked breakdown rather than one number. Explicitly
+   `display: block` so it cannot inherit a row layout from whatever notice
+   class it is sharing. */
+.ybs-bf-price {
+	display: block;
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 1.45;
+}
+
+.ybs-bf-price__title {
+	display: block;
+	margin-bottom: 6px;
+	color: var( --ybs-primary );
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	opacity: 0.8;
+}
+
+.ybs-bf-price__row {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 12px;
+	padding: 3px 0;
+}
+
+/* The amount column, whatever element it is - line rows use <span>, the
+   total row uses <strong>. */
+.ybs-bf-price__row > :last-child {
+	flex: 0 0 auto;
+	white-space: nowrap;
+}
+
+/* The label column takes the slack and wraps, so a long add-on name never
+   pushes its price out of the box. */
+.ybs-bf-price__row > :first-child {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.ybs-bf-price__row.is-total {
+	margin-top: 6px;
+	padding-top: 8px;
+	border-top: 1px solid rgba( 234, 88, 12, 0.22 );
+	font-size: 17px;
+}
+
+.ybs-bf-price__deposit,
+.ybs-bf-price__seats {
+	margin-top: 8px;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.4;
+	opacity: 0.85;
+}
+
+.ybs-bf-success__link {
+	display: inline-block;
+	margin-top: 12px;
+	font-weight: 600;
+}
+
+/* ------------------------------------------------------------------------
+ * Booking confirmation page ([mageyabo_booking_confirmation]) - where both
+ * hosted gateways return the guest.
+ * ---------------------------------------------------------------------- */
+
+.ybs-confirmation {
+	max-width: 640px;
+	margin: 0 auto;
+}
+
+.ybs-confirmation__card {
+	margin-top: 16px;
+	padding: 20px;
+	border: 1px solid var( --ybs-border );
+	border-radius: var( --ybs-radius );
+	background: #fff;
+}
+
+.ybs-confirmation__head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.ybs-confirmation__head h3 {
+	margin: 0;
+}
+
+.ybs-confirmation__details {
+	display: grid;
+	grid-template-columns: minmax( 0, 1fr ) minmax( 0, 1fr );
+	gap: 6px 16px;
+	margin: 0;
+}
+
+.ybs-confirmation__details dt {
+	color: var( --ybs-ink-soft );
+	font-size: 13px;
+}
+
+.ybs-confirmation__details dd {
+	margin: 0;
+	text-align: right;
+	overflow-wrap: anywhere;
+}
+
+.ybs-confirmation__instructions {
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid var( --ybs-border );
+}
+
+.ybs-confirmation__instructions h4 {
+	margin: 0 0 6px;
+}
+
+.ybs-confirmation__ticket {
+	margin-top: 16px;
+	padding: 16px;
+	border: 1px dashed var( --ybs-border );
+	border-radius: var( --ybs-radius );
+	text-align: center;
+}
+
+.ybs-confirmation__ticket-label {
+	display: block;
+	margin-bottom: 6px;
+	color: var( --ybs-ink-soft );
+	font-size: 12px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.ybs-confirmation__ticket-code {
+	display: inline-block;
+	padding: 6px 12px;
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+	font-size: 16px;
+	letter-spacing: 0.08em;
+	overflow-wrap: anywhere;
+}
+
+@media screen and ( max-width: 600px ) {
+	.ybs-bf-addon {
+		grid-template-columns: auto 1fr auto;
+	}
+
+	.ybs-bf-addon__qty {
+		grid-column: 2 / -1;
+		width: 100%;
+	}
 }

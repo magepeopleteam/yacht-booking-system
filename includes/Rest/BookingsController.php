@@ -1,6 +1,7 @@
 <?php
 namespace MageYaBo\Rest;
 
+use MageYaBo\Booking\AddonRepository;
 use MageYaBo\Booking\AvailabilityService;
 use MageYaBo\Booking\BookingRepository;
 use MageYaBo\Booking\GuestRepository;
@@ -50,26 +51,102 @@ class BookingsController extends Controller {
 			self::NAMESPACE_,
 			'/bookings/(?P<id>\d+)',
 			array(
-				'methods'             => WP_REST_Server::DELETABLE,
-				'callback'            => array( __CLASS__, 'delete' ),
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( __CLASS__, 'show' ),
+					'permission_callback' => array( __CLASS__, 'can_manage_bookings' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( __CLASS__, 'delete' ),
+					'permission_callback' => array( __CLASS__, 'can_manage_bookings' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE_,
+			'/bookings/(?P<id>\d+)/notes',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( __CLASS__, 'update_notes' ),
 				'permission_callback' => array( __CLASS__, 'can_manage_bookings' ),
 			)
 		);
 	}
 
-	public static function index( WP_REST_Request $request ) {
-		$result = BookingRepository::list(
-			array(
-				'page'      => absint( $request->get_param( 'page' ) ),
-				'per_page'  => absint( $request->get_param( 'per_page' ) ),
-				'status'    => sanitize_key( (string) $request->get_param( 'status' ) ),
-				'yacht_id'  => absint( $request->get_param( 'yacht_id' ) ),
-				'date_from' => sanitize_text_field( (string) $request->get_param( 'date_from' ) ),
-				'date_to'   => sanitize_text_field( (string) $request->get_param( 'date_to' ) ),
-			)
+	public static function show( WP_REST_Request $request ) {
+		$booking = BookingRepository::find( (int) $request['id'] );
+
+		if ( ! $booking ) {
+			return new WP_Error( 'mageyabo_not_found', __( 'Booking not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
+		}
+
+		return rest_ensure_response( self::decorate_detail( $booking ) );
+	}
+
+	public static function show_by_token( WP_REST_Request $request ) {
+		$booking = BookingRepository::find_by_token( (string) $request->get_param( 'token' ) );
+
+		if ( ! $booking ) {
+			return new WP_Error( 'mageyabo_not_found', __( 'No booking matches that check-in code.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
+		}
+
+		return rest_ensure_response( self::decorate_detail( $booking ) );
+	}
+
+	public static function update_notes( WP_REST_Request $request ) {
+		$id = (int) $request['id'];
+
+		if ( ! BookingRepository::find( $id ) ) {
+			return new WP_Error( 'mageyabo_not_found', __( 'Booking not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
+		}
+
+		BookingRepository::update_notes( $id, (string) $request->get_param( 'notes' ) );
+
+		return rest_ensure_response( self::decorate_detail( BookingRepository::find( $id ) ) );
+	}
+
+	/**
+	 * The filter set behind the listing, read from one place so that anything
+	 * scoping itself the same way selects the same rows - the Pro add-on's
+	 * check-in history and its exports both come back through here.
+	 *
+	 * `date_column`, `orderby` and `order` name SQL identifiers rather than
+	 * values; the repository checks them against its own whitelist.
+	 *
+	 * `attendance` is passed through unread: this plugin has no such column,
+	 * but an add-on that does needs the value to reach its WHERE filter.
+	 */
+	public static function filter_args( WP_REST_Request $request ) {
+		return array(
+			'page'        => absint( $request->get_param( 'page' ) ),
+			'per_page'    => absint( $request->get_param( 'per_page' ) ),
+			'status'      => sanitize_key( (string) $request->get_param( 'status' ) ),
+			'yacht_id'    => absint( $request->get_param( 'yacht_id' ) ),
+			'date_from'   => sanitize_text_field( (string) $request->get_param( 'date_from' ) ),
+			'date_to'     => sanitize_text_field( (string) $request->get_param( 'date_to' ) ),
+			'date_column' => sanitize_key( (string) $request->get_param( 'date_column' ) ),
+			'orderby'     => sanitize_key( (string) $request->get_param( 'orderby' ) ),
+			'order'       => sanitize_key( (string) $request->get_param( 'order' ) ),
+			'attendance'  => sanitize_key( (string) $request->get_param( 'attendance' ) ),
+			'search'      => sanitize_text_field( (string) $request->get_param( 'search' ) ),
 		);
+	}
+
+	public static function index( WP_REST_Request $request ) {
+		$result = BookingRepository::list( self::filter_args( $request ) );
 
 		$result['items'] = array_map( array( __CLASS__, 'decorate' ), $result['items'] );
+
+		/**
+		 * Lets an add-on attach extra top-level data to a listing - a summary
+		 * over the same filters, say - without a second round trip.
+		 *
+		 * @param array           $result
+		 * @param WP_REST_Request $request
+		 */
+		$result = (array) apply_filters( 'mageyabo_bookings_index_response', $result, $request );
 
 		return rest_ensure_response( $result );
 	}
@@ -145,16 +222,36 @@ class BookingsController extends Controller {
 			return new WP_Error( 'mageyabo_invalid_payment_method', __( 'Please choose an available payment method.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
+		// Only the *selection* comes from the request - every price is read
+		// back out of the database inside PricingEngine, so a crafted payload
+		// cannot name its own add-on price or discount.
+		$addons = isset( $data['addons'] ) && is_array( $data['addons'] ) ? $data['addons'] : array();
+
+		// Everything the request asked for, handed to the pricing engine and to
+		// the insert as one bag. An add-on reads its own keys out of it - the
+		// Pro add-on takes `coupon_code` this way - without this controller
+		// having to know what any of them mean. Values are still only ever
+		// selections: prices are read from the database on the other side.
+		$options = array( 'addons' => $addons ) + $data;
+
 		$result = BookingRepository::with_yacht_lock(
 			$yacht_id,
-			static function () use ( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode, $guest, $payment_method ) {
+			static function () use ( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode, $guest, $payment_method, $addons, $options ) {
 				$availability = AvailabilityService::check( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode );
 
 				if ( ! $availability['available'] ) {
 					return new WP_Error( 'mageyabo_not_available', $availability['reason'] ?: __( 'This slot is not available.', 'magepeople-yacht-booking-system' ), array( 'status' => 409 ) );
 				}
 
-				$pricing = PricingEngine::calculate( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode );
+				$pricing = PricingEngine::calculate(
+					$yacht_id,
+					$booking_type,
+					$start,
+					$end,
+					$guest_count,
+					$booking_mode,
+					$options
+				);
 
 				if ( is_wp_error( $pricing ) ) {
 					return $pricing;
@@ -183,12 +280,21 @@ class BookingsController extends Controller {
 						'end_datetime'   => $end,
 						'guest_count'    => $guest_count,
 						'base_price'     => $pricing['base_price'] + $pricing['adjustment_total'],
+						'addons_total'   => $pricing['addons_total'],
+						'discount_total' => $pricing['discount_total'],
+						'deposit_amount' => $pricing['deposit_amount'],
 						'tax_total'      => $pricing['tax_total'],
 						'total_price'    => $pricing['total'],
 						'currency'       => Settings::get( 'currency_code', 'USD' ),
 						'payment_method' => $payment_method,
+						'options'        => $options,
 					)
 				);
+
+				// Written after the booking row exists, and still inside the
+				// yacht lock, so a booking can never be visible without the
+				// extras that were paid for.
+				AddonRepository::save_for_booking( $booking_id, $pricing['addon_lines'] );
 
 				return array(
 					'booking_id' => $booking_id,
@@ -210,11 +316,15 @@ class BookingsController extends Controller {
 			return $payment_start;
 		}
 
+		$created = BookingRepository::find( $result['booking_id'] );
+
 		return rest_ensure_response(
 			array(
-				'booking_id' => $result['booking_id'],
-				'pricing'    => $result['pricing'],
-				'payment'    => $payment_start,
+				'booking_id'       => $result['booking_id'],
+				'reference'        => mageyabo_booking_reference( $result['booking_id'] ),
+				'pricing'          => $result['pricing'],
+				'payment'          => $payment_start,
+				'confirmation_url' => mageyabo_confirmation_url( $result['booking_id'], $created['qr_token'] ?? '' ),
 			)
 		);
 	}
@@ -263,8 +373,9 @@ class BookingsController extends Controller {
 		$guest = GuestRepository::find( $booking['guest_id'] );
 		$yacht = get_post( $booking['yacht_id'] );
 
-		return array(
+		$item = array(
 			'id'             => (int) $booking['id'],
+			'reference'      => mageyabo_booking_reference( (int) $booking['id'] ),
 			'yacht_id'       => (int) $booking['yacht_id'],
 			'yacht_name'     => $yacht ? $yacht->post_title : '',
 			'guest_name'     => $guest['name'] ?? '',
@@ -285,7 +396,66 @@ class BookingsController extends Controller {
 			'payment_status' => $booking['payment_status'],
 			'woo_order_id'   => (int) $booking['woo_order_id'],
 			'woo_order_url'  => self::order_edit_url( (int) $booking['woo_order_id'] ),
+			'has_notes'      => '' !== trim( (string) $booking['notes'] ),
 		);
+
+		/**
+		 * One row of the bookings list, as the admin app receives it.
+		 *
+		 * Where an add-on adds its own per-booking data - the Pro add-on
+		 * attaches the check-in stamps and its document links here.
+		 *
+		 * @param array $item    The decorated row.
+		 * @param array $booking The raw database row.
+		 */
+		return (array) apply_filters( 'mageyabo_booking_row', $item, $booking );
+	}
+
+	/**
+	 * Everything stored about one booking: the full price breakdown, the
+	 * add-on lines, the payment reference and the operator's notes. This is
+	 * the payload behind the bookings list's details panel, and it is
+	 * capability-gated - `notes` and `transaction_ref` are staff-only.
+	 *
+	 * Public so an add-on can render a booking exactly as this plugin does -
+	 * the Pro add-on's check-in desk returns bookings through this.
+	 */
+	public static function decorate_detail( $booking ) {
+		$guest    = GuestRepository::find( $booking['guest_id'] ) ?: array();
+		$currency = $booking['currency'];
+
+		$deposit = (float) $booking['deposit_amount'];
+		$paid    = PricingEngine::amount_paid( $booking );
+
+		$detail = array_merge(
+			self::decorate( $booking ),
+			array(
+				'guest_id'         => (int) $booking['guest_id'],
+				'base_price'       => (float) $booking['base_price'],
+				'addons_total'     => (float) $booking['addons_total'],
+				'discount_total'   => (float) $booking['discount_total'],
+				'tax_total'        => (float) $booking['tax_total'],
+				'deposit_amount'   => $deposit,
+				'amount_paid'      => $paid,
+				'balance_due'      => PricingEngine::balance_due( $booking ),
+				'addon_lines'      => AddonRepository::for_booking( (int) $booking['id'] ),
+				'transaction_ref'  => (string) $booking['transaction_ref'],
+				'ticket_code'      => (string) $booking['qr_token'],
+				'confirmation_url' => mageyabo_confirmation_url( (int) $booking['id'], (string) $booking['qr_token'] ),
+				'notes'            => (string) $booking['notes'],
+				'created_at'       => $booking['created_at'],
+				'created_formatted' => mageyabo_format_datetime( $booking['created_at'] ),
+				'updated_formatted' => mageyabo_format_datetime( $booking['updated_at'] ),
+				'currency_symbol'  => Settings::get( 'currency_symbol', '$' ),
+				'currency_code'    => $currency,
+			)
+		);
+
+		/**
+		 * @param array $detail  The decorated booking.
+		 * @param array $booking The raw database row.
+		 */
+		return (array) apply_filters( 'mageyabo_booking_detail', $detail, $booking );
 	}
 
 }

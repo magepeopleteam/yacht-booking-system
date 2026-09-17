@@ -24,5 +24,7 @@ export const api = {
 	get: ( path, params ) => apiFetch( { path: withQuery( NAMESPACE + path, params ) } ),
 	post: ( path, data ) => apiFetch( { path: NAMESPACE + path, method: 'POST', data } ),
 	put: ( path, data ) => apiFetch( { path: NAMESPACE + path, method: 'PUT', data } ),
-	del: ( path ) => apiFetch( { path: NAMESPACE + path, method: 'DELETE' } ),
+	// Params are optional - a DELETE that acts on a filtered set (clearing
+	// check-in history, say) needs to carry those filters.
+	del: ( path, params ) => apiFetch( { path: withQuery( NAMESPACE + path, params ), method: 'DELETE' } ),
 };

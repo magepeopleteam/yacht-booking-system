@@ -151,7 +151,18 @@ class YachtsController extends Controller {
 			return new WP_Error( 'mageyabo_not_available', $availability['reason'], array( 'status' => 409 ) );
 		}
 
-		$pricing = \MageYaBo\Booking\PricingEngine::calculate( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode );
+		$pricing = \MageYaBo\Booking\PricingEngine::calculate(
+			$yacht_id,
+			$booking_type,
+			$start,
+			$end,
+			$guest_count,
+			$booking_mode,
+			array(
+				'addons'      => self::parse_addons_param( $request->get_param( 'addons' ) ),
+				'coupon_code' => sanitize_text_field( (string) $request->get_param( 'coupon_code' ) ),
+			)
+		);
 
 		if ( is_wp_error( $pricing ) ) {
 			return $pricing;
@@ -164,6 +175,46 @@ class YachtsController extends Controller {
 				'currency'     => \MageYaBo\Settings::get( 'currency_symbol', '$' ),
 			)
 		);
+	}
+
+	/**
+	 * The quote route is a GET, so the add-on selection arrives either as a
+	 * bracketed array (`addons[3]=2`) or, when the caller is building a plain
+	 * query string, as a compact `3:2,7:1` list. Both mean the same thing;
+	 * the prices are looked up server-side either way.
+	 *
+	 * @return array<int, int> addon id => quantity.
+	 */
+	private static function parse_addons_param( $raw ) {
+		if ( is_array( $raw ) ) {
+			$parsed = array();
+
+			foreach ( $raw as $addon_id => $quantity ) {
+				$parsed[ (int) $addon_id ] = max( 0, (int) $quantity );
+			}
+
+			return $parsed;
+		}
+
+		$raw = trim( (string) $raw );
+
+		if ( '' === $raw ) {
+			return array();
+		}
+
+		$parsed = array();
+
+		foreach ( explode( ',', $raw ) as $pair ) {
+			list( $addon_id, $quantity ) = array_pad( explode( ':', $pair, 2 ), 2, 1 );
+
+			$addon_id = (int) $addon_id;
+
+			if ( $addon_id > 0 ) {
+				$parsed[ $addon_id ] = max( 0, (int) $quantity );
+			}
+		}
+
+		return $parsed;
 	}
 
 	public static function calendar( WP_REST_Request $request ) {

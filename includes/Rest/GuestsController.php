@@ -43,6 +43,10 @@ class GuestsController extends Controller {
 			static function ( $row ) {
 				$item = array(
 					'id'             => (int) $row['id'],
+					// Every booking has one of these. `order_id` below is only
+					// set when the booking went through WooCommerce, so it is
+					// the extra detail, not the identity.
+					'reference'      => mageyabo_booking_reference( (int) $row['id'] ),
 					'guest_id'       => (int) $row['guest_id'],
 					'name'           => $row['guest_name'],
 					'email'          => $row['guest_email'],

@@ -83,10 +83,13 @@ $mageyabo_tables = array(
 	'mageyabo_addons',
 	'mageyabo_yacht_addons',
 	'mageyabo_booking_addons',
-	'mageyabo_email_templates',
-	'mageyabo_email_logs',
 	'mageyabo_newsletter_subscribers',
 );
+
+// Tables belonging to add-ons are deliberately not listed: each add-on drops
+// its own on its own uninstall. Dropping them from here would destroy a site's
+// coupons and mail history the moment this plugin was removed, even with the
+// add-on still installed.
 
 foreach ( $mageyabo_tables as $mageyabo_table ) {
 	// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name comes from the hardcoded list above; prepare() cannot parameterise an identifier.

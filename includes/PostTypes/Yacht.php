@@ -48,6 +48,8 @@ class Yacht {
 		'base_price_shared_evening_slot',
 		'base_price_shared_daily',
 		'base_price_shared_multiday',
+		'deposit_mode',
+		'deposit_value',
 		'min_notice_hours',
 		'buffer_minutes',
 		'min_duration',

@@ -5,6 +5,7 @@ use MageYaBo\Admin\Menu;
 use MageYaBo\Booking\AvailabilityService;
 use MageYaBo\Cron\Maintenance;
 use MageYaBo\Frontend\Block;
+use MageYaBo\Frontend\BookingConfirmation;
 use MageYaBo\Frontend\Newsletter;
 use MageYaBo\Frontend\Shortcode;
 use MageYaBo\Frontend\Templates;
@@ -12,6 +13,7 @@ use MageYaBo\Install\Migrator;
 use MageYaBo\Notifications\BookingEmailer;
 use MageYaBo\Payments\Gateways;
 use MageYaBo\PostTypes\Yacht;
+use MageYaBo\Rest\AddonsController;
 use MageYaBo\Rest\BookingsController;
 use MageYaBo\Rest\GuestsController;
 use MageYaBo\Rest\PricingRulesController;
@@ -55,6 +57,7 @@ final class Plugin {
 		add_action( 'init', array( Templates::class, 'register' ) );
 		add_action( 'init', array( Block::class, 'register' ) );
 		add_action( 'init', array( Newsletter::class, 'register' ) );
+		add_action( 'init', array( BookingConfirmation::class, 'register' ) );
 
 		add_action( 'admin_menu', array( Menu::class, 'register' ) );
 		add_action( 'admin_init', array( Migrator::class, 'maybe_upgrade' ), 5 );
@@ -66,6 +69,7 @@ final class Plugin {
 		add_action( 'rest_api_init', array( SettingsController::class, 'register_routes' ) );
 		add_action( 'rest_api_init', array( PricingRulesController::class, 'register_routes' ) );
 		add_action( 'rest_api_init', array( ReportsController::class, 'register_routes' ) );
+		add_action( 'rest_api_init', array( AddonsController::class, 'register_routes' ) );
 
 		/**
 		 * Add-ons and site code can register additional `mageyabo/v1` routes here -

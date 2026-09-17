@@ -32,6 +32,24 @@ class ReportsController extends Controller {
 
 		$counts['active_yachts']   = (int) wp_count_posts( Yacht::POST_TYPE )->publish;
 		$counts['currency_symbol'] = \MageYaBo\Settings::get( 'currency_symbol', '$' );
+		$counts['upcoming']        = array_map(
+			static function ( $booking ) {
+				return array(
+					'id'              => (int) $booking['id'],
+					'yacht_id'        => (int) $booking['yacht_id'],
+					'yacht_name'      => $booking['yacht_name'] ?: __( 'Untitled yacht', 'magepeople-yacht-booking-system' ),
+					'guest_name'      => $booking['guest_name'] ?: __( 'Guest', 'magepeople-yacht-booking-system' ),
+					'guest_count'     => (int) $booking['guest_count'],
+					'start_datetime'  => $booking['start_datetime'],
+					'start_formatted' => mageyabo_format_datetime( $booking['start_datetime'] ),
+					'duration'        => mageyabo_format_duration( $booking['start_datetime'], $booking['end_datetime'] ),
+					'total_price'     => (float) $booking['total_price'],
+					'currency'        => $booking['currency'],
+					'status'          => sanitize_key( $booking['status'] ),
+				);
+			},
+			BookingRepository::upcoming_for_dashboard()
+		);
 
 		/**
 		 * Filters the dashboard summary payload.

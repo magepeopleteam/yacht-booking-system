@@ -58,6 +58,8 @@ const DEFAULT_FORM = {
 	base_price_shared_halfday: '',
 	base_price_shared_morning_slot: '',
 	base_price_shared_evening_slot: '',
+	deposit_mode: '',
+	deposit_value: '',
 	min_notice_hours: '',
 	buffer_minutes: '',
 	min_duration: '',
@@ -242,7 +244,7 @@ export default function YachtWizard({ yachtId }) {
 				<div className="ybs-wizard-grid__main">
 					{1 === step && <StepBasicInfo form={form} set={set} errors={errors} />}
 					{2 === step && <StepSpecs form={form} set={set} />}
-					{3 === step && <StepPricing form={form} set={set} />}
+					{3 === step && <StepPricing form={form} set={set} yachtId={yachtId || form.id} />}
 					{4 === step && <StepReview form={form} set={set} />}
 				</div>
 
@@ -467,7 +469,84 @@ function RateGrid({ prefix, form, set }) {
 	);
 }
 
-function StepPricing({ form, set }) {
+/**
+ * Which catalogue add-ons this yacht offers. Saved through its own route
+ * rather than with the rest of the wizard: the assignment is a join table,
+ * not postmeta, and the catalogue itself (names, prices) is owned by the
+ * Add-ons screen so one price change does not mean editing every yacht.
+ */
+function AddonAssignment({ yachtId }) {
+	const [addons, setAddons] = useState(null);
+	const [assigned, setAssigned] = useState([]);
+	const [saving, setSaving] = useState(false);
+
+	useEffect(() => {
+		if (!yachtId) {
+			return;
+		}
+
+		Promise.all([
+			api.get('/addons'),
+			api.get(`/yachts/${yachtId}/addons`, { all: 1 }),
+		])
+			.then(([catalogue, yachtAddons]) => {
+				setAddons(catalogue);
+				setAssigned(yachtAddons.assigned || []);
+			})
+			.catch(() => setAddons([]));
+	}, [yachtId]);
+
+	const toggle = (id) =>
+		setAssigned((prev) => (prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]));
+
+	const save = () => {
+		setSaving(true);
+
+		api.post(`/yachts/${yachtId}/addons`, { addon_ids: assigned })
+			.then(() => toast(__('Add-ons updated.', 'magepeople-yacht-booking-system'), 'success'))
+			.catch((err) => toast(err.message, 'error'))
+			.finally(() => setSaving(false));
+	};
+
+	if (!yachtId) {
+		return (
+			<p className="ybs-hint">
+				{__('Save this yacht as a draft first, then come back to pick which add-ons it offers.', 'magepeople-yacht-booking-system')}
+			</p>
+		);
+	}
+
+	if (!addons) {
+		return <div className="ybs-loading">{__('Loading…', 'magepeople-yacht-booking-system')}</div>;
+	}
+
+	if (!addons.length) {
+		return (
+			<p className="ybs-hint">
+				{__('No add-ons exist yet. Create them under Yacht Booking → Add-ons, then assign them here.', 'magepeople-yacht-booking-system')}
+			</p>
+		);
+	}
+
+	return (
+		<>
+			<div className="ybs-checkbox-grid">
+				{addons.map((addon) => (
+					<label key={addon.id}>
+						<input type="checkbox" checked={assigned.includes(addon.id)} onChange={() => toggle(addon.id)} />{' '}
+						{addon.name}
+						{!addon.active && ` (${__('inactive', 'magepeople-yacht-booking-system')})`}
+					</label>
+				))}
+			</div>
+			<button type="button" className="ybs-btn is-primary" disabled={saving} onClick={save}>
+				{__('Save add-on selection', 'magepeople-yacht-booking-system')}
+			</button>
+		</>
+	);
+}
+
+function StepPricing({ form, set, yachtId }) {
 	const mode = form.booking_mode || 'full';
 	const showShared = 'both' === mode;
 
@@ -568,6 +647,34 @@ function StepPricing({ form, set }) {
 						<input type="number" value={form.max_duration} onChange={(e) => set('max_duration', e.target.value)} />
 					</Field>
 				</div>
+			</Card>
+
+			<Card
+				title={__('Deposit', 'magepeople-yacht-booking-system')}
+				subtitle={__('What this yacht asks for up front. Leave it inheriting to follow the fleet-wide setting under Settings → Deposits & Extras.', 'magepeople-yacht-booking-system')}
+			>
+				<div className="ybs-field-row">
+					<Field label={__('Deposit', 'magepeople-yacht-booking-system')}>
+						<select value={form.deposit_mode || ''} onChange={(e) => set('deposit_mode', e.target.value)}>
+							<option value="">{__('Use the global setting', 'magepeople-yacht-booking-system')}</option>
+							<option value="off">{__('No deposit - pay in full', 'magepeople-yacht-booking-system')}</option>
+							<option value="percent">{__('Percentage of the total', 'magepeople-yacht-booking-system')}</option>
+							<option value="fixed">{__('Fixed amount', 'magepeople-yacht-booking-system')}</option>
+						</select>
+					</Field>
+					{('percent' === form.deposit_mode || 'fixed' === form.deposit_mode) && (
+						<Field label={'percent' === form.deposit_mode ? __('Percent', 'magepeople-yacht-booking-system') : __('Amount', 'magepeople-yacht-booking-system')}>
+							<input type="number" min="0" step="0.01" value={form.deposit_value ?? ''} onChange={(e) => set('deposit_value', e.target.value)} />
+						</Field>
+					)}
+				</div>
+			</Card>
+
+			<Card
+				title={__('Add-ons', 'magepeople-yacht-booking-system')}
+				subtitle={__('The optional extras guests can add when booking this yacht.', 'magepeople-yacht-booking-system')}
+			>
+				<AddonAssignment yachtId={yachtId} />
 			</Card>
 
 			<Card title={__('Off-Days', 'magepeople-yacht-booking-system')} subtitle={__('Dates this yacht cannot be booked.', 'magepeople-yacht-booking-system')}>
