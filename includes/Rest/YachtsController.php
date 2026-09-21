@@ -252,6 +252,17 @@ class YachtsController extends Controller {
 
 	public static function index( WP_REST_Request $request ) {
 		$can_manage = \MageYaBo\Capabilities::can( 'settings' );
+		$date       = sanitize_text_field( $request->get_param( 'date' ) );
+
+		if ( $date ) {
+			$parsed_date = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date, wp_timezone() );
+			if ( ! $parsed_date || $parsed_date->format( 'Y-m-d' ) !== $date ) {
+				return new WP_Error( 'mageyabo_invalid_date', __( 'Please provide a valid date as YYYY-MM-DD.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+			}
+			if ( $parsed_date < current_datetime()->setTime( 0, 0, 0 ) ) {
+				return new WP_Error( 'mageyabo_past_date', __( 'Please choose today or a future date.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
+			}
+		}
 
 		$args = array(
 			'post_type'      => Yacht::POST_TYPE,
@@ -328,6 +339,16 @@ class YachtsController extends Controller {
 			$items = array_values( array_filter( $items, static fn( $item ) => $item['from_price'] > 0 ) );
 		}
 
+		if ( $date ) {
+			$guest_count = max( 1, absint( $request->get_param( 'guests' ) ) );
+			$items       = array_values(
+				array_filter(
+					$items,
+					static fn( $item ) => self::is_available_on_date( $item['id'], $date, $charter_type ?: 'day', $guest_count )
+				)
+			);
+		}
+
 		// Price range and "near me" filters need computed values, applied post-query.
 		$price_min = $request->get_param( 'price_min' );
 		$price_max = $request->get_param( 'price_max' );
@@ -365,6 +386,105 @@ class YachtsController extends Controller {
 				'dummy_seeded' => (bool) get_option( 'mageyabo_dummy_seeded' ),
 			)
 		);
+	}
+
+	/**
+	 * Whether a yacht has at least one bookable slot on a search date.
+	 *
+	 * @param int    $yacht_id    Yacht post ID.
+	 * @param string $date        Date in Y-m-d format.
+	 * @param string $charter_type Search family: day, hourly, or weekly.
+	 * @param int    $guest_count Number of guests requested.
+	 * @return bool
+	 */
+	private static function is_available_on_date( $yacht_id, $date, $charter_type, $guest_count ) {
+		$configured_mode = get_post_meta( $yacht_id, 'mageyabo_booking_mode', true ) ?: 'full';
+		$modes           = 'both' === $configured_mode ? array( 'full', 'shared' ) : array( $configured_mode );
+		$now             = current_datetime();
+
+		if ( 'hourly' === $charter_type ) {
+			$start = new \DateTimeImmutable( $date . ' 10:00:00', wp_timezone() );
+			if ( $date === $now->format( 'Y-m-d' ) && $start <= $now ) {
+				$notice_hours = max( 1, (int) get_post_meta( $yacht_id, 'mageyabo_min_notice_hours', true ) );
+				$candidate    = $now->modify( '+' . $notice_hours . ' hours' );
+				$start        = $candidate->setTime( (int) $candidate->format( 'H' ), 0, 0 );
+				if ( $start < $candidate ) {
+					$start = $start->modify( '+1 hour' );
+				}
+			}
+
+			$duration = max( 120, (int) get_post_meta( $yacht_id, 'mageyabo_min_duration', true ) );
+			$end      = $start->modify( '+' . $duration . ' minutes' );
+			if ( $end->format( 'Y-m-d' ) !== $date ) {
+				return false;
+			}
+
+			return self::slot_is_available( $yacht_id, 'hourly', 'hourly', $start, $end, $guest_count, $modes );
+		}
+
+		if ( 'weekly' === $charter_type ) {
+			$start = new \DateTimeImmutable( $date . ' 08:00:00', wp_timezone() );
+			$end   = $start->modify( '+7 days' );
+			return self::slot_is_available( $yacht_id, 'multiday', 'multiday', $start, $end, $guest_count, $modes );
+		}
+
+		$windows = Yacht::time_windows( $yacht_id );
+		$slots   = array(
+			array( 'half_day', 'halfday', $windows['half_day'] ),
+			array( 'morning_slot', 'morning_slot', $windows['morning_slot'] ),
+			array( 'evening_slot', 'evening_slot', $windows['evening_slot'] ),
+			array( 'daily', 'daily', $windows['daily'] ),
+		);
+
+		foreach ( $slots as $slot ) {
+			list( $booking_type, $rate_key, $window ) = $slot;
+			$start = new \DateTimeImmutable( $date . ' ' . $window[0] . ':00', wp_timezone() );
+			$end   = new \DateTimeImmutable( $date . ' ' . $window[1] . ':00', wp_timezone() );
+
+			if ( $date === $now->format( 'Y-m-d' ) && $start <= $now ) {
+				continue;
+			}
+			if ( self::slot_is_available( $yacht_id, $booking_type, $rate_key, $start, $end, $guest_count, $modes ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check a priced slot against each booking mode supported by the yacht.
+	 *
+	 * @param int                $yacht_id    Yacht post ID.
+	 * @param string             $booking_type Booking type passed to availability.
+	 * @param string             $rate_key    Suffix used by the stored rate meta.
+	 * @param \DateTimeImmutable $start       Slot start.
+	 * @param \DateTimeImmutable $end         Slot end.
+	 * @param int                $guest_count Requested capacity.
+	 * @param string[]           $modes       Supported booking modes.
+	 * @return bool
+	 */
+	private static function slot_is_available( $yacht_id, $booking_type, $rate_key, $start, $end, $guest_count, $modes ) {
+		foreach ( $modes as $mode ) {
+			$price_key = 'shared' === $mode ? 'mageyabo_base_price_shared_' . $rate_key : 'mageyabo_base_price_' . $rate_key;
+			if ( (float) get_post_meta( $yacht_id, $price_key, true ) <= 0 ) {
+				continue;
+			}
+
+			$availability = AvailabilityService::check(
+				$yacht_id,
+				$booking_type,
+				$start->format( 'Y-m-d H:i:s' ),
+				$end->format( 'Y-m-d H:i:s' ),
+				$guest_count,
+				$mode
+			);
+			if ( $availability['available'] ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -504,7 +624,8 @@ class YachtsController extends Controller {
 			return new WP_Error( 'mageyabo_already_seeded', __( 'Sample yachts have already been imported.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
-		$imported = 0;
+		$imported    = 0;
+		$created_ids = array();
 
 		foreach ( self::dummy_yacht_samples() as $sample ) {
 			$post_id = wp_insert_post(
@@ -518,10 +639,18 @@ class YachtsController extends Controller {
 			);
 
 			if ( is_wp_error( $post_id ) ) {
-				continue;
+				self::rollback_dummy_yachts( $created_ids );
+				return new WP_Error( 'mageyabo_dummy_import_failed', __( 'The sample fleet could not be imported. Please try again.', 'magepeople-yacht-booking-system' ), array( 'status' => 500 ) );
 			}
+			$created_ids[] = (int) $post_id;
 
 			self::save_meta( $post_id, $sample['meta'] );
+
+			$gallery_ids = self::import_dummy_gallery( $post_id, $sample['photo'], $sample['title'] );
+			if ( count( $gallery_ids ) < 5 ) {
+				self::rollback_dummy_yachts( $created_ids );
+				return new WP_Error( 'mageyabo_dummy_media_failed', __( 'The sample yacht photos could not be imported. Check that WordPress can write to the uploads directory, then try again.', 'magepeople-yacht-booking-system' ), array( 'status' => 500 ) );
+			}
 
 			$class_term = get_term_by( 'name', $sample['class'], 'mageyabo_yacht_class' );
 
@@ -566,6 +695,7 @@ class YachtsController extends Controller {
 		return array(
 			array(
 				'title'       => __( 'Ocean Breeze', 'magepeople-yacht-booking-system' ),
+				'photo'       => 'ocean-breeze.jpg',
 				'description' => __( 'A sleek 42ft motor yacht perfect for sunset cruises and small celebrations along the coast.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Comfort',
 				'occasions'   => array( 'Birthday', 'Sunset Cocktail' ),
@@ -592,6 +722,7 @@ class YachtsController extends Controller {
 			),
 			array(
 				'title'       => __( 'Sapphire Horizon', 'magepeople-yacht-booking-system' ),
+				'photo'       => 'sapphire-horizon.jpg',
 				'description' => __( 'A spacious 68ft luxury cruiser with a sundeck lounge, ideal for corporate charters and weddings.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'First Class',
 				'occasions'   => array( 'Wedding', 'Corporate' ),
@@ -618,6 +749,7 @@ class YachtsController extends Controller {
 			),
 			array(
 				'title'       => __( 'Island Serenade', 'magepeople-yacht-booking-system' ),
+				'photo'       => 'island-serenade.jpg',
 				'description' => __( 'A breezy 36ft catamaran built for laid-back island hopping and small bachelorette groups.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Comfort Plus',
 				'occasions'   => array( 'Bachelorette', 'Anniversary / Proposal' ),
@@ -644,6 +776,7 @@ class YachtsController extends Controller {
 			),
 			array(
 				'title'       => __( 'Golden Mirage', 'magepeople-yacht-booking-system' ),
+				'photo'       => 'golden-mirage.jpg',
 				'description' => __( 'A striking 55ft superyacht with a jacuzzi deck, built for high-end business entertaining.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Business',
 				'occasions'   => array( 'Corporate', 'Birthday' ),
@@ -670,6 +803,7 @@ class YachtsController extends Controller {
 			),
 			array(
 				'title'       => __( 'Aegean Muse', 'magepeople-yacht-booking-system' ),
+				'photo'       => 'aegean-muse.jpg',
 				'description' => __( 'A whitewashed 48ft sailing yacht drifting past the caldera - built for sunset proposals.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Comfort',
 				'occasions'   => array( 'Anniversary / Proposal', 'Sunset Cocktail' ),
@@ -696,6 +830,7 @@ class YachtsController extends Controller {
 			),
 			array(
 				'title'       => __( 'Southern Star', 'magepeople-yacht-booking-system' ),
+				'photo'       => 'southern-star.jpg',
 				'description' => __( 'A lively 60ft party yacht with a sound system and open deck, built for big celebrations - bookable as a full charter or by the seat.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Party',
 				'occasions'   => array( 'Bachelorette', 'Birthday' ),
@@ -726,6 +861,130 @@ class YachtsController extends Controller {
 				),
 			),
 		);
+	}
+
+	/**
+	 * Import a five-photo gallery for one sample yacht.
+	 *
+	 * Each yacht's matching photo is first, followed by other bundled fleet
+	 * views. Attachments are shared across sample yachts and reused on retries.
+	 *
+	 * @param int    $post_id       Yacht post ID.
+	 * @param string $primary_file  Filename for the yacht's primary photo.
+	 * @param string $title         Yacht title used for attachment metadata.
+	 * @return int[] Attachment IDs.
+	 */
+	private static function import_dummy_gallery( $post_id, $primary_file, $title ) {
+		$files = array(
+			sanitize_file_name( $primary_file ),
+			'ocean-breeze.jpg',
+			'sapphire-horizon.jpg',
+			'island-serenade.jpg',
+			'golden-mirage.jpg',
+			'aegean-muse.jpg',
+			'southern-star.jpg',
+		);
+		$files = array_values( array_unique( array_filter( $files ) ) );
+		$ids   = array();
+
+		foreach ( $files as $filename ) {
+			$attachment_id = self::import_dummy_attachment( $filename, $title );
+			if ( $attachment_id ) {
+				$ids[] = $attachment_id;
+			}
+			if ( count( $ids ) >= 5 ) {
+				break;
+			}
+		}
+
+		$ids = array_values( array_unique( array_map( 'intval', $ids ) ) );
+		if ( count( $ids ) < 5 ) {
+			return array();
+		}
+
+		set_post_thumbnail( $post_id, $ids[0] );
+		update_post_meta( $post_id, Yacht::meta_key( 'gallery' ), $ids );
+
+		return $ids;
+	}
+
+	/**
+	 * Copy one bundled sample photo into the WordPress Media Library.
+	 *
+	 * @param string $filename Bundled filename.
+	 * @param string $title    Attachment title and alt-text basis.
+	 * @return int Attachment ID, or zero when the image cannot be imported.
+	 */
+	private static function import_dummy_attachment( $filename, $title ) {
+		$filename = sanitize_file_name( $filename );
+		$existing = get_posts(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'meta_key'       => '_mageyabo_demo_asset',
+				'meta_value'     => $filename,
+			)
+		);
+
+		if ( $existing ) {
+			$file = get_attached_file( $existing[0] );
+			if ( $file && file_exists( $file ) ) {
+				return (int) $existing[0];
+			}
+		}
+
+		$source = MAGEYABO_PLUGIN_DIR . 'assets/demo/' . basename( $filename );
+		if ( ! is_readable( $source ) ) {
+			return 0;
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$tmp_file = wp_tempnam( $filename );
+		if ( ! $tmp_file ) {
+			return 0;
+		}
+		if ( ! copy( $source, $tmp_file ) ) {
+			wp_delete_file( $tmp_file );
+			return 0;
+		}
+
+		$attachment_id = media_handle_sideload(
+			array(
+				'name'     => $filename,
+				'tmp_name' => $tmp_file,
+			),
+			0,
+			$title
+		);
+
+		if ( is_wp_error( $attachment_id ) ) {
+			if ( file_exists( $tmp_file ) ) {
+				wp_delete_file( $tmp_file );
+			}
+			return 0;
+		}
+
+		update_post_meta( $attachment_id, '_mageyabo_demo_asset', $filename );
+		update_post_meta( $attachment_id, '_wp_attachment_image_alt', sanitize_text_field( $title ) );
+
+		return (int) $attachment_id;
+	}
+
+	/**
+	 * Remove sample yachts created by a failed all-or-nothing import attempt.
+	 *
+	 * @param int[] $post_ids Yacht post IDs created during this request.
+	 * @return void
+	 */
+	private static function rollback_dummy_yachts( $post_ids ) {
+		foreach ( array_map( 'intval', $post_ids ) as $post_id ) {
+			wp_delete_post( $post_id, true );
+		}
 	}
 
 	public static function availability( WP_REST_Request $request ) {

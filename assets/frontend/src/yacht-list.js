@@ -88,6 +88,12 @@ async function runList( root, append ) {
 	const activeTab = root.querySelector( '.ybs-yl-tab.is-active' );
 	if ( activeTab && activeTab.dataset.class ) {
 		params.set( 'class', activeTab.dataset.class );
+	} else if ( root.dataset.class ) {
+		params.set( 'class', root.dataset.class );
+	}
+
+	if ( root.dataset.occasion ) {
+		params.set( 'occasion', root.dataset.occasion );
 	}
 
 	try {
