@@ -80,6 +80,9 @@ async function runSearch( root ) {
 	const where = root.querySelector( '.ybs-search-where' );
 	if ( where && where.value ) params.set( 'location', where.value );
 
+	const date = root.querySelector( '.ybs-search-date' );
+	if ( date && date.value ) params.set( 'date', date.value );
+
 	const guests = root.querySelector( '.ybs-search-guests' );
 	if ( guests && guests.dataset.value ) params.set( 'guests', guests.dataset.value );
 
@@ -121,6 +124,9 @@ export function initSearch() {
 		const whereField = root.querySelector( '.ybs-search-where' );
 		if ( whereField ) whereField.addEventListener( 'change', search );
 
+		const dateField = root.querySelector( '.ybs-search-date' );
+		if ( dateField ) dateField.addEventListener( 'change', search );
+
 		const priceField = root.querySelector( '.ybs-search-price' );
 		if ( priceField ) priceField.addEventListener( 'change', search );
 
@@ -147,6 +153,8 @@ export function initSearch() {
 			} );
 		} );
 
-		search();
+		if ( 'no' !== root.dataset.autoload ) {
+			search();
+		}
 	} );
 }

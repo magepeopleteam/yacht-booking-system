@@ -373,9 +373,9 @@ class Shortcode {
 	 * "Day / Hourly charter" pill toggle above a Where/Dates/Guests/Price
 	 * bar. The toggle re-prices results off that charter type's own rate
 	 * via the `charter_type` REST param (see
-	 * `YachtsController::CHARTER_TYPE_PRICE_KEYS`); Dates is left unwired to
-	 * the query, matching `[mageyabo_yacht_list]`'s bar, which doesn't filter
-	 * on it either - there's no per-date/season pricing to filter by yet.
+	 * `YachtsController::CHARTER_TYPE_PRICE_KEYS`). The selected date is sent
+	 * to the REST endpoint so results exclude off-days, conflicting bookings,
+	 * and yachts that cannot meet their configured notice period.
 	 *
 	 * Every field, and the toggle bar itself, can be hidden independently -
 	 * e.g. `[mageyabo_yacht_search where="no" tabs="no"]` for a bare
@@ -385,11 +385,13 @@ class Shortcode {
 	public static function render_search( $atts ) {
 		$atts = shortcode_atts(
 			array(
-				'tabs'   => 'yes',
-				'where'  => 'yes',
-				'dates'  => 'yes',
-				'guests' => 'yes',
-				'price'  => 'yes',
+				'tabs'     => 'yes',
+				'where'    => 'yes',
+				'dates'    => 'yes',
+				'guests'   => 'yes',
+				'price'    => 'yes',
+				'date'     => '',
+				'autoload' => 'yes',
 			),
 			$atts,
 			'mageyabo_yacht_search'
@@ -400,6 +402,11 @@ class Shortcode {
 		$show_dates  = 'yes' === $atts['dates'] || '1' === (string) $atts['dates'];
 		$show_guests = 'yes' === $atts['guests'] || '1' === (string) $atts['guests'];
 		$show_price  = 'yes' === $atts['price'] || '1' === (string) $atts['price'];
+		$autoload    = 'yes' === $atts['autoload'] || '1' === (string) $atts['autoload'];
+		$initial_date = 'today' === strtolower( (string) $atts['date'] ) ? current_time( 'Y-m-d' ) : sanitize_text_field( (string) $atts['date'] );
+		if ( $initial_date && ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $initial_date ) ) {
+			$initial_date = '';
+		}
 
 		wp_enqueue_script( 'mageyabo-frontend' );
 		wp_enqueue_style( 'mageyabo-frontend' );
@@ -415,7 +422,7 @@ class Shortcode {
 
 		ob_start();
 		?>
-		<div class="ybs-search" data-ybs-search>
+		<div class="ybs-search" data-ybs-search data-autoload="<?php echo $autoload ? 'yes' : 'no'; ?>" data-date="<?php echo esc_attr( $initial_date ); ?>">
 			<?php if ( $show_tabs ) : ?>
 				<div class="ybs-search-toggle" role="tablist" aria-label="<?php esc_attr_e( 'Charter type', 'magepeople-yacht-booking-system' ); ?>">
 					<button type="button" role="tab" aria-selected="true" class="ybs-search-toggle__btn is-active" data-charter-type="day"><?php esc_html_e( 'Day charter', 'magepeople-yacht-booking-system' ); ?></button>
@@ -441,9 +448,9 @@ class Shortcode {
 					<div class="ybs-search-bar__field">
 						<span class="ybs-search-bar__label">
 							<?php esc_html_e( 'Dates', 'magepeople-yacht-booking-system' ); ?>
-							<small><?php esc_html_e( '(sets season rates)', 'magepeople-yacht-booking-system' ); ?></small>
+							<small><?php esc_html_e( '(checks availability)', 'magepeople-yacht-booking-system' ); ?></small>
 						</span>
-						<input type="date" class="ybs-search-date ybs-search-bar__control" />
+						<input type="date" class="ybs-search-date ybs-search-bar__control" value="<?php echo esc_attr( $initial_date ); ?>" min="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" />
 					</div>
 				<?php endif; ?>
 				<?php if ( $show_guests ) : ?>
@@ -492,6 +499,8 @@ class Shortcode {
 			array(
 				'search'   => 'yes',
 				'per_page' => 9,
+				'class'     => '',
+				'occasion'  => '',
 			),
 			$atts,
 			'mageyabo_yacht_list'
@@ -500,14 +509,16 @@ class Shortcode {
 		wp_enqueue_script( 'mageyabo-frontend' );
 		wp_enqueue_style( 'mageyabo-frontend' );
 
-		$show_search = 'yes' === $atts['search'] || '1' === (string) $atts['search'];
-		$classes     = get_terms( array( 'taxonomy' => 'mageyabo_yacht_class', 'hide_empty' => false ) );
-		$currency    = Settings::get( 'currency_symbol', '$' );
-		$price_tiers = self::price_tiers( $currency );
+		$show_search   = 'yes' === $atts['search'] || '1' === (string) $atts['search'];
+		$initial_class = sanitize_title( (string) $atts['class'] );
+		$occasion      = sanitize_title( (string) $atts['occasion'] );
+		$classes       = get_terms( array( 'taxonomy' => 'mageyabo_yacht_class', 'hide_empty' => false ) );
+		$currency      = Settings::get( 'currency_symbol', '$' );
+		$price_tiers   = self::price_tiers( $currency );
 
 		ob_start();
 		?>
-		<div class="ybs-yl" data-ybs-yl data-per-page="<?php echo esc_attr( (int) $atts['per_page'] ); ?>">
+		<div class="ybs-yl" data-ybs-yl data-per-page="<?php echo esc_attr( (int) $atts['per_page'] ); ?>" data-class="<?php echo esc_attr( $initial_class ); ?>" data-occasion="<?php echo esc_attr( $occasion ); ?>">
 			<?php if ( $show_search ) : ?>
 				<div class="ybs-yl-bar">
 					<div class="ybs-yl-bar__field">
@@ -544,9 +555,10 @@ class Shortcode {
 
 				<?php if ( $classes ) : ?>
 					<div class="ybs-yl-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Filter yachts by class', 'magepeople-yacht-booking-system' ); ?>">
-						<button type="button" role="tab" aria-selected="true" class="ybs-yl-tab is-active" data-class=""><?php esc_html_e( 'All', 'magepeople-yacht-booking-system' ); ?></button>
+						<button type="button" role="tab" aria-selected="<?php echo $initial_class ? 'false' : 'true'; ?>" class="ybs-yl-tab<?php echo $initial_class ? '' : ' is-active'; ?>" data-class=""><?php esc_html_e( 'All', 'magepeople-yacht-booking-system' ); ?></button>
 						<?php foreach ( $classes as $term ) : ?>
-							<button type="button" role="tab" aria-selected="false" class="ybs-yl-tab" data-class="<?php echo esc_attr( $term->slug ); ?>"><?php echo esc_html( $term->name ); ?></button>
+							<?php $is_selected = $initial_class === $term->slug; ?>
+							<button type="button" role="tab" aria-selected="<?php echo $is_selected ? 'true' : 'false'; ?>" class="ybs-yl-tab<?php echo $is_selected ? ' is-active' : ''; ?>" data-class="<?php echo esc_attr( $term->slug ); ?>"><?php echo esc_html( $term->name ); ?></button>
 						<?php endforeach; ?>
 					</div>
 				<?php endif; ?>
