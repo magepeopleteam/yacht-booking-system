@@ -1,6 +1,7 @@
 <?php
 namespace MageYaBo\Frontend;
 
+use MageYaBo\Booking\PricingEngine;
 use MageYaBo\Payments\Gateways;
 use MageYaBo\PostTypes\Yacht;
 use MageYaBo\Settings;
@@ -124,10 +125,12 @@ class Shortcode {
 		wp_enqueue_script( 'mageyabo-frontend' );
 		wp_enqueue_style( 'mageyabo-frontend' );
 
-		$yacht_id  = (int) $atts['yacht_id'];
-		$yacht_mode = $yacht_id ? ( get_post_meta( $yacht_id, 'mageyabo_booking_mode', true ) ?: 'full' ) : '';
-		$capacity  = $yacht_id ? (int) get_post_meta( $yacht_id, 'mageyabo_capacity', true ) : 0;
-		$yachts    = $yacht_id ? array() : get_posts(
+		$yacht_id     = (int) $atts['yacht_id'];
+		$yacht_mode   = $yacht_id ? ( get_post_meta( $yacht_id, 'mageyabo_booking_mode', true ) ?: 'full' ) : '';
+		$capacity     = $yacht_id ? (int) get_post_meta( $yacht_id, 'mageyabo_capacity', true ) : 0;
+		$full_types   = $yacht_id ? PricingEngine::available_booking_types( $yacht_id, 'full' ) : array();
+		$shared_types = $yacht_id ? PricingEngine::available_booking_types( $yacht_id, 'shared' ) : array();
+		$yachts       = $yacht_id ? array() : get_posts(
 			array(
 				'post_type'      => Yacht::POST_TYPE,
 				'post_status'    => 'publish',
@@ -157,6 +160,8 @@ class Shortcode {
 				data-ybs-wc="1"
 				data-yacht-id="<?php echo esc_attr( $yacht_id ); ?>"
 				data-capacity="<?php echo esc_attr( $capacity ); ?>"
+				data-booking-types-full="<?php echo esc_attr( implode( ',', $full_types ) ); ?>"
+				data-booking-types-shared="<?php echo esc_attr( implode( ',', $shared_types ) ); ?>"
 				<?php echo $yacht_mode ? 'data-ybs-mode="' . esc_attr( $yacht_mode ) . '"' : ''; ?>
 			>
 				<input type="hidden" name="mageyabo_yacht_id" value="<?php echo esc_attr( $yacht_id ); ?>" />
@@ -166,7 +171,15 @@ class Shortcode {
 				<input type="hidden" name="mageyabo_end_datetime" value="" />
 				<input type="hidden" name="mageyabo_guest_count" value="1" />
 		<?php else : ?>
-			<div class="ybs-booking-form" data-ybs-booking-form data-yacht-id="<?php echo esc_attr( $yacht_id ); ?>" data-capacity="<?php echo esc_attr( $capacity ); ?>"<?php echo $yacht_mode ? ' data-ybs-mode="' . esc_attr( $yacht_mode ) . '"' : ''; ?>>
+			<div
+				class="ybs-booking-form"
+				data-ybs-booking-form
+				data-yacht-id="<?php echo esc_attr( $yacht_id ); ?>"
+				data-capacity="<?php echo esc_attr( $capacity ); ?>"
+				data-booking-types-full="<?php echo esc_attr( implode( ',', $full_types ) ); ?>"
+				data-booking-types-shared="<?php echo esc_attr( implode( ',', $shared_types ) ); ?>"
+				<?php echo $yacht_mode ? 'data-ybs-mode="' . esc_attr( $yacht_mode ) . '"' : ''; ?>
+			>
 		<?php endif; ?>
 			<?php if ( 'both' === $yacht_mode ) : ?>
 				<div class="ybs-field">
@@ -183,9 +196,15 @@ class Shortcode {
 				<div class="ybs-field">
 					<label><?php esc_html_e( 'Yacht', 'magepeople-yacht-booking-system' ); ?></label>
 					<select class="ybs-bf-yacht">
-						<option value=""><?php esc_html_e( 'Select a yacht', 'magepeople-yacht-booking-system' ); ?></option>
+						<option value="" data-booking-types-full="" data-booking-types-shared=""><?php esc_html_e( 'Select a yacht', 'magepeople-yacht-booking-system' ); ?></option>
 						<?php foreach ( $yachts as $yacht ) : ?>
-							<option value="<?php echo esc_attr( $yacht->ID ); ?>" data-capacity="<?php echo esc_attr( (int) get_post_meta( $yacht->ID, 'mageyabo_capacity', true ) ); ?>"><?php echo esc_html( $yacht->post_title ); ?></option>
+							<option
+								value="<?php echo esc_attr( $yacht->ID ); ?>"
+								data-capacity="<?php echo esc_attr( (int) get_post_meta( $yacht->ID, 'mageyabo_capacity', true ) ); ?>"
+								data-ybs-mode="<?php echo esc_attr( get_post_meta( $yacht->ID, 'mageyabo_booking_mode', true ) ?: 'full' ); ?>"
+								data-booking-types-full="<?php echo esc_attr( implode( ',', PricingEngine::available_booking_types( $yacht->ID, 'full' ) ) ); ?>"
+								data-booking-types-shared="<?php echo esc_attr( implode( ',', PricingEngine::available_booking_types( $yacht->ID, 'shared' ) ) ); ?>"
+							><?php echo esc_html( $yacht->post_title ); ?></option>
 						<?php endforeach; ?>
 					</select>
 				</div>
@@ -320,10 +339,10 @@ class Shortcode {
 								<div class="ybs-bf-pm-list" data-ybs-bf-pm-list role="radiogroup" aria-label="<?php esc_attr_e( 'Payment Method', 'magepeople-yacht-booking-system' ); ?>"></div>
 							</div>
 
-							<div class="ybs-field">
-								<label>
+							<div class="ybs-field ybs-bf-terms-field">
+								<label class="ybs-bf-terms-label">
 									<input type="checkbox" class="ybs-bf-terms" name="mageyabo_terms" value="1" required />
-									<?php esc_html_e( 'I accept the terms and conditions.', 'magepeople-yacht-booking-system' ); ?>
+									<span><?php esc_html_e( 'I accept the terms and conditions.', 'magepeople-yacht-booking-system' ); ?></span>
 								</label>
 							</div>
 
