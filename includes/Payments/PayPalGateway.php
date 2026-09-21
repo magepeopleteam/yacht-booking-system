@@ -48,17 +48,33 @@ class PayPalGateway {
 		$sandbox = 'sandbox' === Settings::get( 'paypal_mode', 'sandbox' );
 		$base    = $sandbox ? 'https://www.sandbox.paypal.com/cgi-bin/webscr' : 'https://www.paypal.com/cgi-bin/webscr';
 
+		// A deposit booking charges the deposit now and leaves the balance with
+		// the operator. The IPN amount check below compares against this same
+		// figure, so the two can never drift apart.
+		$amount_due = \MageYaBo\Booking\PricingEngine::amount_due_now( $booking );
+		$is_deposit = $amount_due < (float) $booking['total_price'];
+
+		$item_name = $is_deposit
+			/* translators: %d: booking id */
+			? sprintf( __( 'Deposit for Yacht Booking #%d', 'magepeople-yacht-booking-system' ), $booking_id )
+			/* translators: %d: booking id */
+			: sprintf( __( 'Yacht Booking #%d', 'magepeople-yacht-booking-system' ), $booking_id );
+
+		$confirmation_url = mageyabo_confirmation_url( $booking_id, $booking['qr_token'] );
+
 		$args = array(
 			'cmd'           => '_xclick',
 			'business'      => Settings::get( 'paypal_email' ),
-			'item_name'     => sprintf( /* translators: %d: booking id */ __( 'Yacht Booking #%d', 'magepeople-yacht-booking-system' ), $booking_id ),
-			'amount'        => number_format( (float) $booking['total_price'], 2, '.', '' ),
+			'item_name'     => $item_name,
+			'amount'        => number_format( $amount_due, 2, '.', '' ),
 			'currency_code' => $booking['currency'],
 			'custom'        => $booking_id,
 			'no_shipping'   => 1,
 			'notify_url'    => rest_url( 'mageyabo/v1/payments/paypal/ipn' ),
-			'return'        => add_query_arg( array( 'mageyabo_booking' => $booking_id, 'mageyabo_payment' => 'success' ), home_url( '/' ) ),
-			'cancel_return' => add_query_arg( array( 'mageyabo_booking' => $booking_id, 'mageyabo_payment' => 'cancelled' ), home_url( '/' ) ),
+			// Both land on the plugin's confirmation page rather than the site
+			// root - a guest who has just paid needs to be told so.
+			'return'        => add_query_arg( 'mageyabo_payment', 'success', $confirmation_url ),
+			'cancel_return' => add_query_arg( 'mageyabo_payment', 'cancelled', $confirmation_url ),
 		);
 
 		return array( 'redirect' => $base . '?' . http_build_query( $args ) );
@@ -130,8 +146,13 @@ class PayPalGateway {
 			return new \WP_Error( 'mageyabo_ipn_currency_mismatch', 'IPN currency does not match the booking.', array( 'status' => 400 ) );
 		}
 
-		if ( abs( $gross - (float) $booking['total_price'] ) > 0.01 ) {
-			return new \WP_Error( 'mageyabo_ipn_amount_mismatch', 'IPN amount does not match the booking total.', array( 'status' => 400 ) );
+		// Compared against what was actually asked for, which is the deposit
+		// on a deposit booking - checking the full total here would reject
+		// every legitimate deposit payment.
+		$expected_amount = \MageYaBo\Booking\PricingEngine::amount_due_now( $booking );
+
+		if ( abs( $gross - $expected_amount ) > 0.01 ) {
+			return new \WP_Error( 'mageyabo_ipn_amount_mismatch', 'IPN amount does not match the amount due.', array( 'status' => 400 ) );
 		}
 
 		// Replay guard: a transaction id already recorded against this booking

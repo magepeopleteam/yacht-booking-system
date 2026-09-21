@@ -39,6 +39,18 @@ class Settings {
 			'email_subject'            => 'Your booking for {yacht_name} is confirmed',
 			'email_body'               => "<p>Hi {guest_name},</p><p>Thank you for booking <strong>{yacht_name}</strong>. Here are your booking details:</p><ul><li>Booking ID: {booking_id}</li><li>Date: {start_date}</li><li>Time: {start_time} - {end_time}</li><li>Guests: {guest_count}</li><li>Total: {total_price}</li></ul><p>We look forward to welcoming you aboard.</p><p>{site_name}</p>",
 			'email_trigger_statuses'   => array( 'pending' ),
+			// Who hears about a new booking. Blank recipients fall back to the
+			// site admin address at send time rather than being written here,
+			// so changing the site's admin email keeps working.
+			'admin_email_enabled'      => true,
+			'admin_email_recipients'   => '',
+			// Deposits: when on, the gateway is asked for this much up front
+			// instead of the whole charter, and the balance is settled with
+			// the operator. A per-yacht override lives in postmeta.
+			'deposit_enabled'          => false,
+			'deposit_type'             => 'percent',
+			'deposit_value'            => 0.0,
+			'addons_enabled'           => true,
 			// Translated because they are rendered on the front end as-is until
 			// an admin overrides them. Safe to call __() here: nothing reads
 			// settings before `init` (see Plugin::boot()).

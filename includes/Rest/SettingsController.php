@@ -130,12 +130,19 @@ class SettingsController extends Controller {
 		$from_name    = sanitize_text_field( (string) $request->get_param( 'from_name' ) );
 		$from_address = sanitize_email( (string) $request->get_param( 'from_email' ) );
 
-		if ( '' === $subject ) {
-			$subject = Settings::get( 'email_subject', '' );
-		}
+		// Blank means "send whatever would really be sent" - resolved through
+		// the emailer itself, so this previews an add-on's edited template
+		// when one is installed and the built-in wording when it is not.
+		if ( '' === $subject || '' === trim( wp_strip_all_tags( $body ) ) ) {
+			$template = BookingEmailer::template_for( BookingEmailer::TYPE_CONFIRMATION );
 
-		if ( '' === trim( wp_strip_all_tags( $body ) ) ) {
-			$body = Settings::get( 'email_body', '' );
+			if ( '' === $subject ) {
+				$subject = (string) $template['subject'];
+			}
+
+			if ( '' === trim( wp_strip_all_tags( $body ) ) ) {
+				$body = (string) $template['body'];
+			}
 		}
 
 		if ( '' === $from_name ) {

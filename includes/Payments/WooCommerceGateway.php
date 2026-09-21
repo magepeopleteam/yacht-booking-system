@@ -147,7 +147,8 @@ class WooCommerceGateway {
 					$parsed['start_datetime'],
 					$parsed['end_datetime'],
 					$parsed['guest_count'],
-					$parsed['booking_mode']
+					$parsed['booking_mode'],
+					array( 'addons' => $parsed['addons'] ?? array() )
 				);
 
 				if ( is_wp_error( $pricing ) ) {
@@ -311,6 +312,7 @@ class WooCommerceGateway {
 
 			if ( $existing_id ) {
 				BookingRepository::update_payment( $existing_id, 'unpaid', array( 'woo_order_id' => $order->get_id() ) );
+				self::reconcile_booking_totals( $existing_id, $item );
 				$created[] = $existing_id;
 				continue;
 			}
@@ -351,15 +353,27 @@ class WooCommerceGateway {
 					'end_datetime'   => $data['end_datetime'],
 					'guest_count'    => (int) $data['guest_count'],
 					'base_price'     => (float) ( $pricing['base_price'] ?? 0 ) + (float) ( $pricing['adjustment_total'] ?? 0 ),
+					'addons_total'   => (float) ( $pricing['addons_total'] ?? 0 ),
 					'tax_total'      => (float) ( $pricing['tax_total'] ?? 0 ),
 					'discount_total' => (float) ( $pricing['discount_total'] ?? 0 ),
+					// Deliberately 0: WooCommerce charges the whole line-item total
+					// at checkout, so recording a deposit here would leave the
+					// booking claiming a balance the guest has already paid.
+					// Part payment on this path belongs to a WooCommerce
+					// deposits extension, not to this plugin.
+					'deposit_amount' => 0,
 					'total_price'    => (float) ( $pricing['total'] ?? 0 ),
 					'currency'       => Settings::get( 'currency_code', 'USD' ),
 					'payment_method' => self::ID,
 				)
 			);
 
+			if ( ! empty( $pricing['addon_lines'] ) ) {
+				\MageYaBo\Booking\AddonRepository::save_for_booking( $booking_id, $pricing['addon_lines'] );
+			}
+
 			BookingRepository::update_payment( $booking_id, 'unpaid', array( 'woo_order_id' => $order->get_id() ) );
+			self::reconcile_booking_totals( $booking_id, $item );
 
 			$item->add_meta_data( '_mageyabo_booking_id', $booking_id, true );
 			$item->save();
@@ -372,6 +386,51 @@ class WooCommerceGateway {
 			$order->update_meta_data( '_mageyabo_bookings_created', current_time( 'mysql' ) );
 			$order->save();
 		}
+	}
+
+	/**
+	 * On this path WooCommerce, not PricingEngine, has the last word on what a
+	 * booking cost: a coupon entered at checkout is applied long after the
+	 * quote was calculated, so the booking would otherwise keep recording the
+	 * full pre-discount price while the customer was charged less. The
+	 * dashboard sums `total_price` for revenue, so that gap overstates every
+	 * order a coupon touched.
+	 *
+	 * Read per line item rather than per order on purpose - WooCommerce has
+	 * already distributed any order-level discount across the lines, so an
+	 * order holding two charters attributes it to each of them correctly.
+	 *
+	 * Only a line that was actually discounted is touched. Without a coupon
+	 * the quote and the line agree, and re-deriving the total from the order
+	 * anyway would quietly fold WooCommerce's own tax handling into bookings
+	 * that price tax themselves - a change well beyond keeping the discount
+	 * honest.
+	 */
+	private static function reconcile_booking_totals( $booking_id, $item ) {
+		$booking = BookingRepository::find( $booking_id );
+
+		if ( ! $booking ) {
+			return;
+		}
+
+		// Both ex-tax: get_total() is already net of any coupon, get_subtotal()
+		// is what the line came to before one was applied.
+		$line_total    = (float) $item->get_total();
+		$line_discount = round( max( 0, (float) $item->get_subtotal() - $line_total ), 2 );
+
+		if ( $line_discount <= 0 ) {
+			return;
+		}
+
+		BookingRepository::update_totals(
+			$booking_id,
+			array(
+				// Added to, not replaced: on the legacy path the booking may
+				// already carry a discount from one of this plugin's own coupons.
+				'discount_total' => (float) $booking['discount_total'] + $line_discount,
+				'total_price'    => $line_total + (float) $item->get_total_tax(),
+			)
+		);
 	}
 
 	/**
@@ -509,7 +568,37 @@ class WooCommerceGateway {
 			'end_datetime'   => $end,
 			'guest_count'    => $guest_count,
 			'guest'          => $guest,
+			'addons'         => self::parse_addons( $post['mageyabo_addons'] ?? '' ),
 		);
+	}
+
+	/**
+	 * The booking form posts its add-on selection as a compact "id:qty,id:qty"
+	 * string (a hidden field, since this path submits natively rather than
+	 * through JSON). Only ids and quantities travel - prices are looked up
+	 * server-side in PricingEngine.
+	 *
+	 * @return array<int, int> addon id => quantity.
+	 */
+	private static function parse_addons( $raw ) {
+		$raw    = sanitize_text_field( (string) $raw );
+		$parsed = array();
+
+		if ( '' === $raw ) {
+			return $parsed;
+		}
+
+		foreach ( explode( ',', $raw ) as $pair ) {
+			list( $addon_id, $quantity ) = array_pad( explode( ':', $pair, 2 ), 2, 1 );
+
+			$addon_id = (int) $addon_id;
+
+			if ( $addon_id > 0 ) {
+				$parsed[ $addon_id ] = max( 0, (int) $quantity );
+			}
+		}
+
+		return $parsed;
 	}
 
 	private static function type_label( $type, $mode ) {

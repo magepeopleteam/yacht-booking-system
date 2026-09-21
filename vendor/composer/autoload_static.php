@@ -27,6 +27,7 @@ class ComposerStaticInitfa89797d641d885598f00b24eb55428e
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'MageYaBo\\Admin\\Menu' => __DIR__ . '/../..' . '/includes/Admin/Menu.php',
+        'MageYaBo\\Booking\\AddonRepository' => __DIR__ . '/../..' . '/includes/Booking/AddonRepository.php',
         'MageYaBo\\Booking\\AvailabilityService' => __DIR__ . '/../..' . '/includes/Booking/AvailabilityService.php',
         'MageYaBo\\Booking\\BookingRepository' => __DIR__ . '/../..' . '/includes/Booking/BookingRepository.php',
         'MageYaBo\\Booking\\GuestRepository' => __DIR__ . '/../..' . '/includes/Booking/GuestRepository.php',
@@ -35,6 +36,7 @@ class ComposerStaticInitfa89797d641d885598f00b24eb55428e
         'MageYaBo\\Capabilities' => __DIR__ . '/../..' . '/includes/Capabilities.php',
         'MageYaBo\\Cron\\Maintenance' => __DIR__ . '/../..' . '/includes/Cron/Maintenance.php',
         'MageYaBo\\Frontend\\Block' => __DIR__ . '/../..' . '/includes/Frontend/Block.php',
+        'MageYaBo\\Frontend\\BookingConfirmation' => __DIR__ . '/../..' . '/includes/Frontend/BookingConfirmation.php',
         'MageYaBo\\Frontend\\Newsletter' => __DIR__ . '/../..' . '/includes/Frontend/Newsletter.php',
         'MageYaBo\\Frontend\\Shortcode' => __DIR__ . '/../..' . '/includes/Frontend/Shortcode.php',
         'MageYaBo\\Frontend\\Templates' => __DIR__ . '/../..' . '/includes/Frontend/Templates.php',
@@ -48,6 +50,7 @@ class ComposerStaticInitfa89797d641d885598f00b24eb55428e
         'MageYaBo\\Payments\\WooCommerceProduct' => __DIR__ . '/../..' . '/includes/Payments/WooCommerceProduct.php',
         'MageYaBo\\Plugin' => __DIR__ . '/../..' . '/includes/Plugin.php',
         'MageYaBo\\PostTypes\\Yacht' => __DIR__ . '/../..' . '/includes/PostTypes/Yacht.php',
+        'MageYaBo\\Rest\\AddonsController' => __DIR__ . '/../..' . '/includes/Rest/AddonsController.php',
         'MageYaBo\\Rest\\BookingsController' => __DIR__ . '/../..' . '/includes/Rest/BookingsController.php',
         'MageYaBo\\Rest\\Controller' => __DIR__ . '/../..' . '/includes/Rest/Controller.php',
         'MageYaBo\\Rest\\GuestsController' => __DIR__ . '/../..' . '/includes/Rest/GuestsController.php',

@@ -8,6 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'MageYaBo\\Admin\\Menu' => $baseDir . '/includes/Admin/Menu.php',
+    'MageYaBo\\Booking\\AddonRepository' => $baseDir . '/includes/Booking/AddonRepository.php',
     'MageYaBo\\Booking\\AvailabilityService' => $baseDir . '/includes/Booking/AvailabilityService.php',
     'MageYaBo\\Booking\\BookingRepository' => $baseDir . '/includes/Booking/BookingRepository.php',
     'MageYaBo\\Booking\\GuestRepository' => $baseDir . '/includes/Booking/GuestRepository.php',
@@ -16,6 +17,7 @@ return array(
     'MageYaBo\\Capabilities' => $baseDir . '/includes/Capabilities.php',
     'MageYaBo\\Cron\\Maintenance' => $baseDir . '/includes/Cron/Maintenance.php',
     'MageYaBo\\Frontend\\Block' => $baseDir . '/includes/Frontend/Block.php',
+    'MageYaBo\\Frontend\\BookingConfirmation' => $baseDir . '/includes/Frontend/BookingConfirmation.php',
     'MageYaBo\\Frontend\\Newsletter' => $baseDir . '/includes/Frontend/Newsletter.php',
     'MageYaBo\\Frontend\\Shortcode' => $baseDir . '/includes/Frontend/Shortcode.php',
     'MageYaBo\\Frontend\\Templates' => $baseDir . '/includes/Frontend/Templates.php',
@@ -29,6 +31,7 @@ return array(
     'MageYaBo\\Payments\\WooCommerceProduct' => $baseDir . '/includes/Payments/WooCommerceProduct.php',
     'MageYaBo\\Plugin' => $baseDir . '/includes/Plugin.php',
     'MageYaBo\\PostTypes\\Yacht' => $baseDir . '/includes/PostTypes/Yacht.php',
+    'MageYaBo\\Rest\\AddonsController' => $baseDir . '/includes/Rest/AddonsController.php',
     'MageYaBo\\Rest\\BookingsController' => $baseDir . '/includes/Rest/BookingsController.php',
     'MageYaBo\\Rest\\Controller' => $baseDir . '/includes/Rest/Controller.php',
     'MageYaBo\\Rest\\GuestsController' => $baseDir . '/includes/Rest/GuestsController.php',

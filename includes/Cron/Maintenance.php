@@ -25,5 +25,12 @@ class Maintenance {
 		if ( $months > 0 ) {
 			GuestRepository::anonymize_expired( $months );
 		}
+
+		/**
+		 * Anything else with housekeeping to do daily. Add-ons trim their own
+		 * tables here - the Pro add-on's mail log grows with every email sent,
+		 * and is pruned on this hook.
+		 */
+		do_action( 'mageyabo_daily_maintenance_tasks' );
 	}
 }

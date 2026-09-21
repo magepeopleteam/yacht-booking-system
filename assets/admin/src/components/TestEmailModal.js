@@ -43,7 +43,9 @@ export default function TestEmailModal({ subject, body, fromName, fromEmail, onR
 			className="ybs-test-email-modal"
 		>
 			<p className="ybs-hint" style={{ marginTop: 0 }}>
-				{__('Sends the current subject and body - including unsaved changes - with sample data in place of the dynamic tags.', 'magepeople-yacht-booking-system')}
+				{ subject || body
+					? __('Sends the current subject and body - including unsaved changes - with sample data in place of the dynamic tags.', 'magepeople-yacht-booking-system')
+					: __('Sends your saved booking confirmation email, with sample data in place of the dynamic tags.', 'magepeople-yacht-booking-system') }
 			</p>
 
 			<div className="ybs-field">

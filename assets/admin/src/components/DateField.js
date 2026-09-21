@@ -108,6 +108,9 @@ export default function DateField({ value, onChange, placeholder }) {
 			<input
 				type="date"
 				className="ybs-date-input ybs-custom-date-enabled"
+				aria-label={placeholder || __('Choose date', 'magepeople-yacht-booking-system')}
+				aria-haspopup="dialog"
+				aria-expanded={open}
 				readOnly
 				autoComplete="off"
 				inputMode="none"

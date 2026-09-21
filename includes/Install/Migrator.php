@@ -45,6 +45,21 @@ final class Migrator {
 			'[mageyabo_yacht_search]'
 		);
 		self::create_yacht_list_page();
+		self::create_confirmation_page();
+	}
+
+	/**
+	 * Where a guest lands after paying. Both hosted gateways send the browser
+	 * here rather than to the site root - without it a guest who completes a
+	 * PayPal or Stripe payment is dropped on the home page with no
+	 * acknowledgement that anything happened.
+	 */
+	public static function create_confirmation_page() {
+		return self::create_page_once(
+			'mageyabo_confirmation_page_id',
+			__( 'Booking Confirmation', 'magepeople-yacht-booking-system' ),
+			'[mageyabo_booking_confirmation]'
+		);
 	}
 
 	/**
@@ -110,6 +125,9 @@ final class Migrator {
 
 		set_transient( self::LOCK_OPTION, 1, MINUTE_IN_SECONDS );
 		self::install();
+		// New in v3: a site upgrading from 1/2 never ran create_pages(), so
+		// the gateways would still have nowhere to return the guest to.
+		self::create_confirmation_page();
 		// Roles/caps too, not just the schema: a site that activated an
 		// earlier version would otherwise never receive capabilities added
 		// since. `Capabilities::install()` is idempotent.
@@ -162,8 +180,6 @@ final class Migrator {
 			woo_order_id BIGINT UNSIGNED NULL DEFAULT NULL,
 			transaction_ref VARCHAR(191) NOT NULL DEFAULT '',
 			qr_token VARCHAR(64) NOT NULL DEFAULT '',
-			checked_in_at DATETIME NULL DEFAULT NULL,
-			checked_out_at DATETIME NULL DEFAULT NULL,
 			notes LONGTEXT NULL,
 			created_at DATETIME NOT NULL,
 			updated_at DATETIME NOT NULL,
@@ -223,27 +239,8 @@ final class Migrator {
 			KEY booking_id (booking_id)
 		) {$charset_collate};";
 
-		$sql[] = "CREATE TABLE {$prefix}mageyabo_email_templates (
-			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-			template_type VARCHAR(30) NOT NULL DEFAULT '',
-			subject VARCHAR(191) NOT NULL DEFAULT '',
-			body LONGTEXT NULL,
-			created_at DATETIME NOT NULL,
-			updated_at DATETIME NOT NULL,
-			PRIMARY KEY  (id)
-		) {$charset_collate};";
 
-		$sql[] = "CREATE TABLE {$prefix}mageyabo_email_logs (
-			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-			booking_id BIGINT UNSIGNED NULL DEFAULT NULL,
-			guest_id BIGINT UNSIGNED NULL DEFAULT NULL,
-			template_type VARCHAR(30) NOT NULL DEFAULT '',
-			recipient VARCHAR(191) NOT NULL DEFAULT '',
-			subject VARCHAR(191) NOT NULL DEFAULT '',
-			status VARCHAR(20) NOT NULL DEFAULT '',
-			sent_at DATETIME NOT NULL,
-			PRIMARY KEY  (id)
-		) {$charset_collate};";
+
 
 		$sql[] = "CREATE TABLE {$prefix}mageyabo_newsletter_subscribers (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -258,7 +255,7 @@ final class Migrator {
 		}
 
 		self::migrate_statuses();
-
+		self::backfill_payment_statuses();
 		update_option( self::VERSION_OPTION, MAGEYABO_DB_VERSION );
 	}
 
@@ -284,4 +281,38 @@ final class Migrator {
 		$wpdb->query( "UPDATE {$table} SET status = 'completed' WHERE status = 'no_show'" );
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
 	}
+
+	/**
+	 * Repairs bookings whose payment status drifted away from their booking
+	 * status.
+	 *
+	 * Until 1.1.0, `update_status()` wrote only the status column, so marking
+	 * an offline booking "Completed" or "Processing" from the admin left
+	 * `payment_status` at its 'unpaid' default forever - and every screen that
+	 * works out what has been paid from that field went on reporting a balance
+	 * due on a booking the operator had already closed out.
+	 *
+	 * Deliberately narrow: only rows still holding the untouched 'unpaid'
+	 * default, and only for the two statuses that unambiguously mean the money
+	 * arrived. A booking someone explicitly marked refunded or failed is left
+	 * exactly as it is.
+	 *
+	 * Guarded by its own option rather than the schema version, so a site that
+	 * had already reached the current version still gets the repair once.
+	 */
+	private static function backfill_payment_statuses() {
+		global $wpdb;
+
+		if ( get_option( 'mageyabo_payment_status_backfilled' ) ) {
+			return;
+		}
+
+		$table = $wpdb->prefix . 'mageyabo_bookings';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- the plugin's own table during a one-time data repair; no user input in the statement.
+		$wpdb->query( "UPDATE {$table} SET payment_status = 'paid' WHERE payment_status = 'unpaid' AND status IN ('processing','completed')" );
+
+		update_option( 'mageyabo_payment_status_backfilled', 1 );
+	}
+
 }

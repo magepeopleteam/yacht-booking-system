@@ -211,6 +211,320 @@ async function mountStripeCheckout( form, payment ) {
 	}
 }
 
+/**
+ * The yacht's optional extras. Fetched rather than printed server-side,
+ * because the form can be rendered without a yacht (the picker) and the list
+ * has to follow whichever one is selected - so it reloads on every yacht
+ * change, and empties itself when no yacht is chosen.
+ */
+async function loadAddons( form ) {
+	const box = form.querySelector( '[data-ybs-bf-addons]' );
+
+	if ( ! box ) {
+		return;
+	}
+
+	const config = window.mageyaboFrontendConfig;
+	const list = form.querySelector( '[data-ybs-bf-addons-list]' );
+	const yachtId = currentYachtId( form );
+
+	list.innerHTML = '';
+	box.hidden = true;
+
+	if ( ! yachtId || ! config.addonsEnabled ) {
+		return;
+	}
+
+	let items = [];
+
+	try {
+		const response = await fetch( `${ config.restRoot }yachts/${ yachtId }/addons` );
+
+		if ( ! response.ok ) {
+			return;
+		}
+
+		const data = await response.json();
+		items = Array.isArray( data.items ) ? data.items : [];
+	} catch ( e ) {
+		// A yacht with no reachable add-on list simply offers no extras -
+		// never a reason to block the booking itself.
+		return;
+	}
+
+	if ( ! items.length ) {
+		return;
+	}
+
+	items.forEach( ( addon ) => {
+		const row = document.createElement( 'label' );
+		row.className = 'ybs-bf-addon';
+
+		const checkbox = document.createElement( 'input' );
+		checkbox.type = 'checkbox';
+		checkbox.className = 'ybs-bf-addon__check';
+		checkbox.value = String( addon.id );
+
+		const name = document.createElement( 'span' );
+		name.className = 'ybs-bf-addon__name';
+		// textContent, not innerHTML: an add-on name is operator-entered text.
+		name.textContent = addon.name;
+
+		const price = document.createElement( 'span' );
+		price.className = 'ybs-bf-addon__price';
+		price.textContent = `${ config.currency }${ Number( addon.price ).toFixed( 2 ) }`;
+
+		const qty = document.createElement( 'input' );
+		qty.type = 'number';
+		qty.className = 'ybs-bf-addon__qty';
+		qty.min = '1';
+		qty.value = '1';
+		qty.hidden = true;
+
+		checkbox.addEventListener( 'change', () => {
+			qty.hidden = ! checkbox.checked;
+			refreshQuote( form );
+		} );
+
+		qty.addEventListener( 'change', () => refreshQuote( form ) );
+
+		row.append( checkbox, name, price, qty );
+
+		if ( addon.description ) {
+			const description = document.createElement( 'span' );
+			description.className = 'ybs-bf-addon__description';
+			description.textContent = addon.description;
+			row.appendChild( description );
+		}
+
+		list.appendChild( row );
+	} );
+
+	box.hidden = false;
+}
+
+/**
+ * The ticked extras as the compact "id:qty,id:qty" string both the REST quote
+ * and the WooCommerce hidden field take. Quantities only - the server prices
+ * them from its own table.
+ */
+function selectedAddons( form ) {
+	const pairs = [];
+
+	form.querySelectorAll( '.ybs-bf-addon' ).forEach( ( row ) => {
+		const checkbox = row.querySelector( '.ybs-bf-addon__check' );
+
+		if ( ! checkbox || ! checkbox.checked ) {
+			return;
+		}
+
+		const qtyInput = row.querySelector( '.ybs-bf-addon__qty' );
+		const qty = Math.max( 1, parseInt( qtyInput ? qtyInput.value : '1', 10 ) || 1 );
+
+		pairs.push( `${ checkbox.value }:${ qty }` );
+	} );
+
+	return pairs.join( ',' );
+}
+
+/**
+ * "3:2,7:1" -> { 3: 2, 7: 1 } for the JSON booking payload.
+ */
+function addonsObject( form ) {
+	const selection = {};
+
+	selectedAddons( form )
+		.split( ',' )
+		.filter( Boolean )
+		.forEach( ( pair ) => {
+			const [ id, qty ] = pair.split( ':' );
+			selection[ id ] = Number( qty );
+		} );
+
+	return selection;
+}
+
+/**
+ * Extensions to the booking form, registered by add-on scripts.
+ *
+ * The form owns the charter itself - dates, guests, extras, the quote and the
+ * submit. Anything beyond that is somebody else's: the Pro add-on's coupon
+ * field is an extension, not a branch in here. Each one may implement any of:
+ *
+ *   mount( form )                  wire up its own markup and listeners
+ *   quoteParams( form )            -> object, merged into the quote request
+ *   submitData( form )             -> object, merged into the booking payload
+ *   hiddenFields( form )           -> object, written into the WooCommerce
+ *                                    form's hidden inputs by name
+ *   onQuote( form, pricing )       react to a fresh quote
+ *
+ * Registering after the forms have already been initialised still works -
+ * `mount` is called for the forms already on the page - so an add-on script
+ * does not have to win a race with this one.
+ */
+const extensions = [];
+
+// Registration and form initialisation can happen in either order, so both
+// call mountInto(). This is what keeps whichever arrives second from wiring a
+// second set of listeners onto the same field.
+const mounted = new WeakMap();
+
+function mountInto( extension, form ) {
+	if ( ! extension.mount ) {
+		return;
+	}
+
+	let forms = mounted.get( extension );
+
+	if ( ! forms ) {
+		forms = new WeakSet();
+		mounted.set( extension, forms );
+	}
+
+	if ( forms.has( form ) ) {
+		return;
+	}
+
+	forms.add( form );
+
+	try {
+		extension.mount( form );
+	} catch ( e ) {
+		// An extension that cannot mount costs its own field, nothing else.
+	}
+}
+
+export function registerFormExtension( extension ) {
+	if ( ! extension || 'object' !== typeof extension ) {
+		return;
+	}
+
+	extensions.push( extension );
+
+	document.querySelectorAll( '[data-ybs-booking-form]' ).forEach( ( form ) => {
+		mountInto( extension, form );
+	} );
+}
+
+/**
+ * Collects one hook across every extension into a single object. An extension
+ * that throws is skipped rather than taking the quote down with it - a broken
+ * add-on should cost its own field, not the ability to book.
+ */
+function collect( hook, form ) {
+	return extensions.reduce( ( carry, extension ) => {
+		if ( ! extension[ hook ] ) {
+			return carry;
+		}
+
+		try {
+			return Object.assign( carry, extension[ hook ]( form ) || {} );
+		} catch ( e ) {
+			return carry;
+		}
+	}, {} );
+}
+
+function notify( hook, form, ...args ) {
+	extensions.forEach( ( extension ) => {
+		if ( ! extension[ hook ] ) {
+			return;
+		}
+
+		try {
+			extension[ hook ]( form, ...args );
+		} catch ( e ) {
+			// As above: an extension's failure is its own.
+		}
+	} );
+}
+
+if ( typeof window !== 'undefined' ) {
+	window.mageyaboBooking = window.mageyaboBooking || {};
+	window.mageyaboBooking.registerFormExtension = registerFormExtension;
+	// Extensions re-price the charter after changing something of their own.
+	window.mageyaboBooking.refreshQuote = ( form ) => refreshQuote( form );
+}
+
+/**
+ * The quote as a small breakdown rather than one number, so a guest can see
+ * what the extras and the discount did to the price - and, when the operator
+ * takes deposits, what they are actually being charged today.
+ */
+function renderPrice( form, pricing, remaining ) {
+	const config = window.mageyaboFrontendConfig;
+	const i18n = config.i18n || {};
+	const priceBox = form.querySelector( '.ybs-bf-price' );
+	const money = ( value ) => `${ config.currency }${ Number( value ).toFixed( 2 ) }`;
+
+	priceBox.innerHTML = '';
+
+	// Rendered as real text rather than a CSS `content:` label, so it can be
+	// translated - and so it cannot leak onto every other notice sharing the
+	// same class.
+	const title = document.createElement( 'span' );
+	title.className = 'ybs-bf-price__title';
+	title.textContent = i18n.estimatedTotal || 'Estimated total';
+	priceBox.appendChild( title );
+
+	const rows = [ [ i18n.charter || 'Charter', money( pricing.base_price + pricing.adjustment_total ) ] ];
+
+	if ( pricing.addons_total > 0 ) {
+		rows.push( [ i18n.extrasTotal || 'Extras', money( pricing.addons_total ) ] );
+	}
+
+	if ( pricing.discount_total > 0 ) {
+		rows.push( [ i18n.discount || 'Discount', `-${ money( pricing.discount_total ) }` ] );
+	}
+
+	if ( pricing.tax_total > 0 ) {
+		rows.push( [ i18n.tax || 'Tax', money( pricing.tax_total ) ] );
+	}
+
+	rows.forEach( ( [ label, value ] ) => {
+		const row = document.createElement( 'div' );
+		row.className = 'ybs-bf-price__row';
+
+		const labelEl = document.createElement( 'span' );
+		labelEl.textContent = label;
+
+		const valueEl = document.createElement( 'span' );
+		valueEl.textContent = value;
+
+		row.append( labelEl, valueEl );
+		priceBox.appendChild( row );
+	} );
+
+	const totalRow = document.createElement( 'div' );
+	totalRow.className = 'ybs-bf-price__row is-total';
+
+	const totalLabel = document.createElement( 'strong' );
+	totalLabel.textContent = i18n.total || 'Total';
+
+	const totalValue = document.createElement( 'strong' );
+	totalValue.textContent = money( pricing.total );
+
+	totalRow.append( totalLabel, totalValue );
+	priceBox.appendChild( totalRow );
+
+	if ( pricing.deposit_amount > 0 ) {
+		const deposit = document.createElement( 'div' );
+		deposit.className = 'ybs-bf-price__deposit';
+		deposit.textContent =
+			( i18n.depositDueNow || 'Pay %s deposit now' ).replace( '%s', money( pricing.deposit_amount ) ) +
+			' ' +
+			( i18n.depositBalance || 'Balance of %s due before departure.' ).replace( '%s', money( pricing.balance_due ) );
+		priceBox.appendChild( deposit );
+	}
+
+	if ( null !== remaining && undefined !== remaining && 'shared' === currentMode( form ) ) {
+		const seats = document.createElement( 'div' );
+		seats.className = 'ybs-bf-price__seats';
+		seats.textContent = `${ Number( remaining ) } ${ i18n.seatsLeft || 'seats left' }`;
+		priceBox.appendChild( seats );
+	}
+}
+
 function currentYachtId( form ) {
 	const select = form.querySelector( '.ybs-bf-yacht' );
 	return select ? select.value : form.dataset.yachtId;
@@ -298,6 +612,11 @@ function updateHiddenFields( form ) {
 	set( 'mageyabo_guest_count', form.querySelector( '.ybs-bf-guests' ).value || 1 );
 	set( 'mageyabo_start_datetime', window_ ? window_.start : '' );
 	set( 'mageyabo_end_datetime', window_ ? window_.end : '' );
+	set( 'mageyabo_addons', selectedAddons( form ) );
+
+	// This path submits natively, so an extension's value has to travel as a
+	// hidden input rather than in a JSON body.
+	Object.entries( collect( 'hiddenFields', form ) ).forEach( ( [ name, value ] ) => set( name, value ) );
 }
 
 function setSubmitEnabled( form, enabled ) {
@@ -437,6 +756,17 @@ function showBookingSuccess( form, data, payload, window_ ) {
 		} );
 	}
 
+	// The same page both hosted gateways return to - so an offline booking
+	// ends up somewhere it can be looked at again later, not just in a popup
+	// that closes.
+	if ( data.confirmation_url && detailsEl ) {
+		const link = document.createElement( 'a' );
+		link.className = 'ybs-bf-success__link';
+		link.href = data.confirmation_url;
+		link.textContent = i18n.viewBooking || 'View your booking';
+		detailsEl.after( link );
+	}
+
 	successBox.hidden = false;
 
 	// Nothing left to book on this form instance until the page is reloaded
@@ -490,6 +820,19 @@ async function refreshQuote( form ) {
 			booking_mode: currentMode( form ),
 		} );
 
+		const addons = selectedAddons( form );
+
+		if ( addons ) {
+			params.set( 'addons', addons );
+		}
+
+		// Whatever the extensions want asked about - a coupon code, say.
+		Object.entries( collect( 'quoteParams', form ) ).forEach( ( [ key, value ] ) => {
+			if ( '' !== value && null !== value && undefined !== value ) {
+				params.set( key, value );
+			}
+		} );
+
 		const response = await fetch( `${ config.restRoot }yachts/${ yachtId }/quote?${ params }` );
 		const data = await response.json();
 
@@ -504,12 +847,9 @@ async function refreshQuote( form ) {
 			return;
 		}
 
-		let label = `${ config.currency }${ Number( data.pricing.total ).toFixed( 2 ) }`;
 		const remaining = data.availability && data.availability.remaining_capacity;
 
 		if ( 'shared' === currentMode( form ) && null !== remaining && undefined !== remaining ) {
-			label += ` · ${ Number( remaining ) } ${ config.i18n.seatsLeft }`;
-
 			const guestsInput = form.querySelector( '.ybs-bf-guests' );
 
 			if ( guestsInput && Number( remaining ) > 0 ) {
@@ -518,7 +858,9 @@ async function refreshQuote( form ) {
 			}
 		}
 
-		priceBox.textContent = label;
+		renderPrice( form, data.pricing, remaining );
+		notify( 'onQuote', form, data.pricing );
+
 		form.dataset.validQuote = '1';
 		setSubmitEnabled( form, true );
 		updateHiddenFields( form );
@@ -556,12 +898,14 @@ async function submitBooking( form ) {
 	}
 
 	const payload = {
+		...collect( 'submitData', form ),
 		yacht_id: Number( yachtId ),
 		booking_type: form.querySelector( '.ybs-bf-type' ).value,
 		booking_mode: currentMode( form ),
 		start_datetime: window_.start,
 		end_datetime: window_.end,
 		guest_count: Number( form.querySelector( '.ybs-bf-guests' ).value || 1 ),
+		addons: addonsObject( form ),
 		payment_method: selectedPaymentMethod( form ),
 		terms_accepted: true,
 		guest: {
@@ -650,9 +994,23 @@ export function initBookingForms() {
 				// full mode caps at the yacht's capacity, so reset there
 				// before refreshQuote tightens it further for shared mode.
 				resetGuestsMax( form );
+
+				// Extras belong to a yacht, so a different yacht means a
+				// different list - and loadAddons() re-quotes through the
+				// change handlers it wires on the new checkboxes.
+				if ( field.classList.contains( 'ybs-bf-yacht' ) ) {
+					loadAddons( form );
+				}
+
 				refreshQuote( form );
 			} );
 		} );
+
+		// Anything an add-on rendered into this form gets wired up now, in
+		// the same pass - including extensions registered before this ran.
+		extensions.forEach( ( extension ) => mountInto( extension, form ) );
+
+		loadAddons( form );
 
 		// Number fields (start time, duration, nights, guests) update live
 		// while typing/using the spinner, not just on blur - debounced so
