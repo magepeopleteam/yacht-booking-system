@@ -646,7 +646,7 @@ class YachtsController extends Controller {
 
 			self::save_meta( $post_id, $sample['meta'] );
 
-			$gallery_ids = self::import_dummy_gallery( $post_id, $sample['photo'], $sample['title'] );
+			$gallery_ids = self::import_dummy_gallery( $post_id, $sample['gallery'], $sample['title'] );
 			if ( count( $gallery_ids ) < 5 ) {
 				self::rollback_dummy_yachts( $created_ids );
 				return new WP_Error( 'mageyabo_dummy_media_failed', __( 'The sample yacht photos could not be imported. Check that WordPress can write to the uploads directory, then try again.', 'magepeople-yacht-booking-system' ), array( 'status' => 500 ) );
@@ -696,6 +696,7 @@ class YachtsController extends Controller {
 			array(
 				'title'       => __( 'Ocean Breeze', 'magepeople-yacht-booking-system' ),
 				'photo'       => 'ocean-breeze.jpg',
+				'gallery'     => array( 'ocean-breeze.jpg', 'ocean-breeze-02.jpg', 'ocean-breeze-03.jpg', 'ocean-breeze-04.jpg', 'ocean-breeze-05.jpg' ),
 				'description' => __( 'A sleek 42ft motor yacht perfect for sunset cruises and small celebrations along the coast.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Comfort',
 				'occasions'   => array( 'Birthday', 'Sunset Cocktail' ),
@@ -723,6 +724,7 @@ class YachtsController extends Controller {
 			array(
 				'title'       => __( 'Sapphire Horizon', 'magepeople-yacht-booking-system' ),
 				'photo'       => 'sapphire-horizon.jpg',
+				'gallery'     => array( 'sapphire-horizon.jpg', 'sapphire-horizon-02.jpg', 'sapphire-horizon-03.jpg', 'sapphire-horizon-04.jpg', 'sapphire-horizon-05.jpg' ),
 				'description' => __( 'A spacious 68ft luxury cruiser with a sundeck lounge, ideal for corporate charters and weddings.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'First Class',
 				'occasions'   => array( 'Wedding', 'Corporate' ),
@@ -750,6 +752,7 @@ class YachtsController extends Controller {
 			array(
 				'title'       => __( 'Island Serenade', 'magepeople-yacht-booking-system' ),
 				'photo'       => 'island-serenade.jpg',
+				'gallery'     => array( 'island-serenade.jpg', 'island-serenade-02.jpg', 'island-serenade-03.jpg', 'island-serenade-04.jpg', 'island-serenade-05.jpg' ),
 				'description' => __( 'A breezy 36ft catamaran built for laid-back island hopping and small bachelorette groups.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Comfort Plus',
 				'occasions'   => array( 'Bachelorette', 'Anniversary / Proposal' ),
@@ -777,6 +780,7 @@ class YachtsController extends Controller {
 			array(
 				'title'       => __( 'Golden Mirage', 'magepeople-yacht-booking-system' ),
 				'photo'       => 'golden-mirage.jpg',
+				'gallery'     => array( 'golden-mirage.jpg', 'golden-mirage-02.jpg', 'golden-mirage-03.jpg', 'golden-mirage-04.jpg', 'golden-mirage-05.jpg' ),
 				'description' => __( 'A striking 55ft superyacht with a jacuzzi deck, built for high-end business entertaining.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Business',
 				'occasions'   => array( 'Corporate', 'Birthday' ),
@@ -804,6 +808,7 @@ class YachtsController extends Controller {
 			array(
 				'title'       => __( 'Aegean Muse', 'magepeople-yacht-booking-system' ),
 				'photo'       => 'aegean-muse.jpg',
+				'gallery'     => array( 'aegean-muse.jpg', 'aegean-muse-02.jpg', 'aegean-muse-03.jpg', 'aegean-muse-04.jpg', 'aegean-muse-05.jpg' ),
 				'description' => __( 'A whitewashed 48ft sailing yacht drifting past the caldera - built for sunset proposals.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Comfort',
 				'occasions'   => array( 'Anniversary / Proposal', 'Sunset Cocktail' ),
@@ -831,6 +836,7 @@ class YachtsController extends Controller {
 			array(
 				'title'       => __( 'Southern Star', 'magepeople-yacht-booking-system' ),
 				'photo'       => 'southern-star.jpg',
+				'gallery'     => array( 'southern-star.jpg', 'southern-star-02.jpg', 'southern-star-03.jpg', 'southern-star-04.jpg', 'southern-star-05.jpg' ),
 				'description' => __( 'A lively 60ft party yacht with a sound system and open deck, built for big celebrations - bookable as a full charter or by the seat.', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Party',
 				'occasions'   => array( 'Bachelorette', 'Birthday' ),
@@ -866,24 +872,16 @@ class YachtsController extends Controller {
 	/**
 	 * Import a five-photo gallery for one sample yacht.
 	 *
-	 * Each yacht's matching photo is first, followed by other bundled fleet
-	 * views. Attachments are shared across sample yachts and reused on retries.
+	 * Each yacht receives its own bundled gallery. Attachments are reused on
+	 * retries for the same yacht image, but never shared between sample yachts.
 	 *
-	 * @param int    $post_id       Yacht post ID.
-	 * @param string $primary_file  Filename for the yacht's primary photo.
-	 * @param string $title         Yacht title used for attachment metadata.
+	 * @param int      $post_id Yacht post ID.
+	 * @param string[] $files   Yacht-specific bundled photo filenames.
+	 * @param string   $title   Yacht title used for attachment metadata.
 	 * @return int[] Attachment IDs.
 	 */
-	private static function import_dummy_gallery( $post_id, $primary_file, $title ) {
-		$files = array(
-			sanitize_file_name( $primary_file ),
-			'ocean-breeze.jpg',
-			'sapphire-horizon.jpg',
-			'island-serenade.jpg',
-			'golden-mirage.jpg',
-			'aegean-muse.jpg',
-			'southern-star.jpg',
-		);
+	private static function import_dummy_gallery( $post_id, $files, $title ) {
+		$files = is_array( $files ) ? array_map( 'sanitize_file_name', $files ) : array();
 		$files = array_values( array_unique( array_filter( $files ) ) );
 		$ids   = array();
 
