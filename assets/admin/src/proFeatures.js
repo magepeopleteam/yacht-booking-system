@@ -51,3 +51,16 @@ export const PRO_FEATURES = [
 export function proFeature( id ) {
 	return PRO_FEATURES.find( ( feature ) => feature.id === id );
 }
+
+/**
+ * The Pro screens worth a mention on the "Pro Features" details page and the
+ * rail's single locked entry - i.e. those with their own screen (`nav` isn't
+ * `false`) that no installed add-on has already claimed.
+ */
+export function navFeatures() {
+	const config = window.mageyaboAdminConfig || {};
+	const extra = Array.isArray( config.extraRoutes ) ? config.extraRoutes : [];
+	const claimed = new Set( extra.map( ( item ) => item.id ) );
+
+	return PRO_FEATURES.filter( ( feature ) => false !== feature.nav && ! claimed.has( feature.id ) );
+}

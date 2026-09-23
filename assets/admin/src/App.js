@@ -12,6 +12,7 @@ import Guests from './routes/Guests';
 import Addons from './routes/Addons';
 import SettingsScreen from './routes/Settings';
 import ProFeature from './routes/ProFeature';
+import ProFeatures from './routes/ProFeatures';
 import UserGuide from './routes/UserGuide';
 
 export default function App() {
@@ -54,6 +55,9 @@ export default function App() {
 			break;
 		case 'user-guide':
 			screen = <UserGuide />;
+			break;
+		case 'pro-features':
+			screen = <ProFeatures />;
 			break;
 		case 'dashboard':
 			screen = <Dashboard />;

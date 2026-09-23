@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 import { navigate } from '../router';
-import { PRO_FEATURES } from '../proFeatures';
+import { navFeatures } from '../proFeatures';
 import { ToastHost } from './Toast';
 
 const BUILTIN_NAV = [
@@ -26,21 +26,26 @@ function extraNav() {
 }
 
 /**
- * The rail: built-ins, then whatever add-ons registered, then a locked entry
- * for each Pro screen no add-on claimed.
+ * The rail: built-ins, then whatever add-ons registered, then a single
+ * "Pro Features" entry if any Pro screen is still unclaimed.
  *
- * The locked entries exist precisely for the case where Pro is *not*
- * installed, so an id an add-on has actually registered drops its stand-in -
- * otherwise activating the add-on would leave two "Coupons" in the rail.
+ * That one entry stands in for every locked screen at once - the details of
+ * which screens those are, and their descriptions, live on the page it opens
+ * (see routes/ProFeatures.js) rather than as one rail row per feature. Once
+ * an add-on registers all of them, the entry drops on its own.
  */
 function navItems() {
 	const extra = extraNav();
-	const claimed = new Set(extra.map((item) => item.id));
-	const locked = PRO_FEATURES
-		.filter((feature) => false !== feature.nav && !claimed.has(feature.id))
-		.map((feature) => ({ ...feature, pro: true }));
+	const proFeaturesEntry = navFeatures().length
+		? [{
+			id: 'pro-features',
+			label: __('Pro Features', 'magepeople-yacht-booking-system'),
+			icon: 'dashicons-star-filled',
+			pro: true,
+		}]
+		: [];
 
-	return [...BUILTIN_NAV, ...extra, ...locked, ...TRAILING_NAV];
+	return [...BUILTIN_NAV, ...extra, ...proFeaturesEntry, ...TRAILING_NAV];
 }
 
 export default function Shell({ active, children }) {
