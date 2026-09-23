@@ -114,58 +114,6 @@ The departure-point map uses OpenStreetMap:
 * **OpenStreetMap tiles** — when a yacht has a location set, the visitor's browser requests map tiles from OpenStreetMap's tile servers, which receives the visitor's IP address and the map area being viewed. This happens on the front end only on pages that display a yacht map. [Tile Usage Policy](https://operations.osmfoundation.org/policies/tiles/) | [Privacy Policy](https://wiki.osmfoundation.org/wiki/Privacy_Policy)
 * **OpenStreetMap Nominatim** — in the admin only, when you type an address into the location search while editing a yacht, that search text is sent to Nominatim to look up coordinates. [Usage Policy](https://operations.osmfoundation.org/policies/nominatim/) | [Privacy Policy](https://wiki.osmfoundation.org/wiki/Privacy_Policy)
 
-== Source code and build process ==
-
-Nothing in this plugin is obfuscated, and no compiled file ships without its
-source. All source code is included within the plugin.
-
-= JavaScript and CSS source files =
-
-Every compiled asset in `assets/build/` has its human-readable, unminified
-source bundled inside the plugin:
-
-* `assets/build/admin.js` — source: all `.js` files under `assets/admin/src/`, entry point `assets/admin/src/index.js`
-* `assets/build/style-admin.css` — source: `assets/admin/src/style.css`
-* `assets/build/frontend.js` — source: all `.js` files under `assets/frontend/src/`, entry point `assets/frontend/src/index.js`
-* `assets/build/style-frontend.css` — source: `assets/frontend/src/style.css`
-* `assets/build/booking-block.js` — source: `assets/frontend/src/block/`, entry point `assets/frontend/src/block/index.js`
-
-The webpack manifest files (`assets/build/*.asset.php`) are auto-generated
-by `@wordpress/scripts` and list the dependency and version maps for each
-bundle.
-
-= Build tools =
-
-`package.json`, `package-lock.json` and `webpack.config.js` ship with the
-plugin. To regenerate every bundle from source:
-
-`npm install`
-`npm run build`
-
-That runs `wp-scripts build` (@wordpress/scripts, webpack) using the entry
-points declared in `webpack.config.js`, writing output to `assets/build/`.
-Use `npm run start` for a watching development build.
-
-= PHP source =
-
-PHP classes are autoloaded by Composer from `includes/` (PSR-4 namespace
-`MageYaBo\`). The autoloader in `vendor/` is generated from the shipped
-`composer.json` with:
-
-`composer dump-autoload`
-
-= Third-party libraries =
-
-Leaflet (BSD-2-Clause) and Plus Jakarta Sans (SIL Open Font License 1.1)
-are bundled unmodified in `assets/frontend/vendor/leaflet/` and
-`assets/frontend/fonts/` respectively. Each carries its own upstream
-license file.
-
-= Public repository =
-
-Development happens in the open at
-https://github.com/magepeopleteam/yacht-booking-system
-
 == Credits ==
 
 This plugin bundles [Leaflet](https://leafletjs.com/) (BSD-2-Clause) for its maps, and the [Plus Jakarta Sans](https://github.com/tokotype/PlusJakartaSans) typeface (SIL Open Font License 1.1). Both licenses ship with the plugin.
