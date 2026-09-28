@@ -19,3 +19,8 @@ node_modules
 
 *.log
 *.zip
+
+# Agent documentation: for contributors' coding agents, not for users.
+AGENTS.md
+CLAUDE.md
+docs
