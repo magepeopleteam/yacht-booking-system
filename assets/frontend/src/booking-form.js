@@ -9,7 +9,7 @@ function computeWindow( form ) {
 	const type = form.querySelector( '.ybs-bf-type' ).value;
 	const date = form.querySelector( '.ybs-bf-date' ).value;
 
-	if ( ! date ) {
+	if ( ! type || ! date ) {
 		return null;
 	}
 
@@ -63,6 +63,47 @@ function toggleFields( form ) {
 	form.querySelectorAll( '.ybs-bf-multiday-fields' ).forEach( ( el ) => {
 		el.hidden = 'multiday' !== type;
 	} );
+}
+
+/**
+ * Keep the type picker aligned with prices configured for the current yacht
+ * and sales mode. The server remains authoritative; this simply prevents a
+ * visitor choosing an option that the pricing engine must reject.
+ */
+function syncBookingTypes( form ) {
+	const yachtSelect = form.querySelector( '.ybs-bf-yacht' );
+	const source = yachtSelect ? yachtSelect.selectedOptions[ 0 ] : form;
+	const typeSelect = form.querySelector( '.ybs-bf-type' );
+
+	if ( ! source || ! typeSelect ) {
+		return;
+	}
+
+	const dataKey = 'shared' === currentMode( form ) ? 'bookingTypesShared' : 'bookingTypesFull';
+
+	// Older/custom markup without availability metadata retains its existing
+	// behaviour instead of having every option hidden.
+	if ( undefined === source.dataset[ dataKey ] ) {
+		return;
+	}
+
+	const available = source.dataset[ dataKey ].split( ',' ).filter( Boolean );
+	let firstAvailable = '';
+
+	Array.from( typeSelect.options ).forEach( ( option ) => {
+		const enabled = available.includes( option.value );
+
+		option.hidden = ! enabled;
+		option.disabled = ! enabled;
+
+		if ( enabled && ! firstAvailable ) {
+			firstAvailable = option.value;
+		}
+	} );
+
+	if ( ! available.includes( typeSelect.value ) ) {
+		typeSelect.value = firstAvailable;
+	}
 }
 
 /**
@@ -591,6 +632,15 @@ function currentMode( form ) {
 		return modeSelect.value || 'full';
 	}
 
+	const yachtSelect = form.querySelector( '.ybs-bf-yacht' );
+	const selectedMode = yachtSelect && yachtSelect.selectedOptions[ 0 ]
+		? yachtSelect.selectedOptions[ 0 ].dataset.ybsMode
+		: '';
+
+	if ( 'shared' === selectedMode ) {
+		return 'shared';
+	}
+
 	return form.dataset.ybsMode || 'full';
 }
 
@@ -784,6 +834,11 @@ function showBookingSuccess( form, data, payload, window_ ) {
 }
 
 async function refreshQuote( form ) {
+	const requestId = String( ( parseInt( form.dataset.quoteRequestId || '0', 10 ) || 0 ) + 1 );
+	form.dataset.quoteRequestId = requestId;
+	form.dataset.validQuote = '';
+	setSubmitEnabled( form, false );
+
 	const yachtId = currentYachtId( form );
 	const priceBox = form.querySelector( '.ybs-bf-price' );
 	const errorBox = form.querySelector( '.ybs-bf-error' );
@@ -836,6 +891,12 @@ async function refreshQuote( form ) {
 		const response = await fetch( `${ config.restRoot }yachts/${ yachtId }/quote?${ params }` );
 		const data = await response.json();
 
+		// A slower response for a previous selection must never validate or
+		// invalidate the newer selection currently visible in the form.
+		if ( requestId !== form.dataset.quoteRequestId ) {
+			return;
+		}
+
 		if ( ! response.ok ) {
 			priceBox.hidden = true;
 			errorBox.hidden = false;
@@ -865,6 +926,10 @@ async function refreshQuote( form ) {
 		setSubmitEnabled( form, true );
 		updateHiddenFields( form );
 	} catch ( e ) {
+		if ( requestId !== form.dataset.quoteRequestId ) {
+			return;
+		}
+
 		priceBox.hidden = true;
 	}
 }
@@ -971,6 +1036,7 @@ export function initBookingForms() {
 	document.querySelectorAll( '[data-ybs-booking-form]' ).forEach( ( form ) => {
 		const wcMode = '1' === form.dataset.ybsWc;
 
+		syncBookingTypes( form );
 		toggleFields( form );
 
 		if ( ! wcMode ) {
@@ -989,6 +1055,10 @@ export function initBookingForms() {
 
 		form.querySelectorAll( '.ybs-bf-mode, .ybs-bf-type, .ybs-bf-date, .ybs-bf-yacht' ).forEach( ( field ) => {
 			field.addEventListener( 'change', () => {
+				if ( field.classList.contains( 'ybs-bf-mode' ) || field.classList.contains( 'ybs-bf-yacht' ) ) {
+					syncBookingTypes( form );
+				}
+
 				toggleFields( form );
 				// A yacht/mode switch changes what "too many guests" means -
 				// full mode caps at the yacht's capacity, so reset there

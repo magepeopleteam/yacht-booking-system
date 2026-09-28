@@ -675,6 +675,14 @@ class YachtsController extends Controller {
 			$imported++;
 		}
 
+		// Cross-link every sample to the others so "You might also like"
+		// has something to show immediately - the same-class fallback alone
+		// often comes up short here, since the 6 samples span 5 classes.
+		foreach ( $created_ids as $post_id ) {
+			$others = array_values( array_diff( $created_ids, array( $post_id ) ) );
+			self::save_meta( $post_id, array( 'related_yachts' => $others ) );
+		}
+
 		update_option( 'mageyabo_dummy_seeded', 1 );
 
 		// A site that activated the plugin before this page existed (or
@@ -688,6 +696,29 @@ class YachtsController extends Controller {
 				'dummy_seeded'       => true,
 				'yacht_list_page_id' => $yacht_list_page_id,
 			)
+		);
+	}
+
+	/**
+	 * Same 3 FAQ rows for every sample yacht, so the "Frequently asked"
+	 * section on a freshly seeded single-yacht page isn't empty.
+	 *
+	 * @return array
+	 */
+	private static function dummy_faq_items() {
+		return array(
+			array(
+				'question' => __( 'What is included in the charter price?', 'magepeople-yacht-booking-system' ),
+				'answer'   => __( 'The quoted price covers the yacht, crew, fuel for the booked itinerary and standard safety equipment. Catering, drinks and water toys can be added as extras during booking.', 'magepeople-yacht-booking-system' ),
+			),
+			array(
+				'question' => __( 'Can I bring my own food and drinks on board?', 'magepeople-yacht-booking-system' ),
+				'answer'   => __( 'Yes - you are welcome to bring your own food and beverages. Let us know in advance and the crew can also arrange catering for you.', 'magepeople-yacht-booking-system' ),
+			),
+			array(
+				'question' => __( 'What is the cancellation policy?', 'magepeople-yacht-booking-system' ),
+				'answer'   => __( 'A full refund is available up to 7 days before departure. Cancellations made closer to the charter date follow the policy shown at checkout.', 'magepeople-yacht-booking-system' ),
+			),
 		);
 	}
 
@@ -719,6 +750,7 @@ class YachtsController extends Controller {
 					'min_duration'            => '120',
 					'max_duration'            => '480',
 					'booking_mode'            => 'full',
+					'faq'                     => self::dummy_faq_items(),
 				),
 			),
 			array(
@@ -747,6 +779,7 @@ class YachtsController extends Controller {
 					'min_duration'            => '180',
 					'max_duration'            => '600',
 					'booking_mode'            => 'full',
+					'faq'                     => self::dummy_faq_items(),
 				),
 			),
 			array(
@@ -775,6 +808,7 @@ class YachtsController extends Controller {
 					'min_duration'            => '120',
 					'max_duration'            => '360',
 					'booking_mode'            => 'full',
+					'faq'                     => self::dummy_faq_items(),
 				),
 			),
 			array(
@@ -803,6 +837,7 @@ class YachtsController extends Controller {
 					'min_duration'            => '120',
 					'max_duration'            => '480',
 					'booking_mode'            => 'full',
+					'faq'                     => self::dummy_faq_items(),
 				),
 			),
 			array(
@@ -831,6 +866,7 @@ class YachtsController extends Controller {
 					'min_duration'            => '120',
 					'max_duration'            => '480',
 					'booking_mode'            => 'full',
+					'faq'                     => self::dummy_faq_items(),
 				),
 			),
 			array(
@@ -864,6 +900,7 @@ class YachtsController extends Controller {
 					'min_duration'                   => '120',
 					'max_duration'                   => '480',
 					'booking_mode'                   => 'both',
+					'faq'                            => self::dummy_faq_items(),
 				),
 			),
 		);

@@ -140,6 +140,31 @@
 	margin-bottom: 20px;
 }
 
+/* The generic field rules make every label and input full-width. Terms are
+   one compact choice, so keep the checkbox and its copy on the same line. */
+.ybs-field .ybs-bf-terms-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	max-width: 100%;
+	margin: 0;
+	color: var( --ybs-ink );
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: normal;
+	line-height: 1.4;
+	text-transform: none;
+	cursor: pointer;
+}
+
+.ybs-field .ybs-bf-terms-label .ybs-bf-terms {
+	flex: 0 0 18px;
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	padding: 0;
+}
+
 /* ---- Payment Method: a row of clickable cards, one per enabled gateway,
    built by populatePaymentMethods() in booking-form.js ---- */
 
@@ -350,6 +375,14 @@
 
 .ybs-btn.is-primary:active {
 	transform: translateY( 0 );
+}
+
+.ybs-btn:disabled,
+.ybs-btn:disabled:hover {
+	opacity: .55;
+	cursor: not-allowed;
+	box-shadow: none;
+	transform: none;
 }
 
 /* The submit button is the one call to action on the form - give it its

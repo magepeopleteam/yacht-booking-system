@@ -20,6 +20,39 @@ if ( ! defined( 'ABSPATH' ) ) {
 class PricingEngine {
 
 	/**
+	 * Booking types that have a usable price for one yacht and sales mode.
+	 *
+	 * The frontend uses this to avoid offering choices that base_rate() would
+	 * necessarily reject. Shared bookings deliberately retain the same
+	 * full-charter fallback used while calculating the final price.
+	 *
+	 * @param int    $yacht_id     Yacht post ID.
+	 * @param string $booking_mode Full or shared.
+	 * @return string[]
+	 */
+	public static function available_booking_types( $yacht_id, $booking_mode = 'full' ) {
+		$rate_keys = array(
+			'hourly'      => 'hourly',
+			'half_day'    => 'halfday',
+			'morning_slot' => 'morning_slot',
+			'evening_slot' => 'evening_slot',
+			'daily'       => 'daily',
+			'multiday'    => 'multiday',
+		);
+		$booking_mode = 'shared' === $booking_mode ? 'shared' : 'full';
+		$prefix       = 'shared' === $booking_mode ? 'mageyabo_base_price_shared_' : 'mageyabo_base_price_';
+		$available    = array();
+
+		foreach ( $rate_keys as $booking_type => $rate_key ) {
+			if ( self::mode_rate( $yacht_id, $prefix, $rate_key, $booking_mode ) > 0 ) {
+				$available[] = $booking_type;
+			}
+		}
+
+		return $available;
+	}
+
+	/**
 	 * @param int    $yacht_id
 	 * @param string $booking_type
 	 * @param string $start_datetime
@@ -298,14 +331,14 @@ class PricingEngine {
 				break;
 
 			default:
-				return new \WP_Error( 'mageyabo_invalid_booking_type', __( 'Unknown booking type.', 'magepeople-yacht-booking-system' ) );
+				return new \WP_Error( 'mageyabo_invalid_booking_type', __( 'Unknown booking type.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		// A blank rate means the admin deliberately left this booking type
 		// disabled for this yacht (per the wizard's own "leave blank to
 		// disable" hint) - quoting $0 for it would be worse than an error.
 		if ( $total <= 0 ) {
-			return new \WP_Error( 'mageyabo_booking_type_unavailable', __( 'This booking type is not available for this yacht.', 'magepeople-yacht-booking-system' ) );
+			return new \WP_Error( 'mageyabo_booking_type_unavailable', __( 'This booking type is not available for this yacht.', 'magepeople-yacht-booking-system' ), array( 'status' => 400 ) );
 		}
 
 		return $total;
