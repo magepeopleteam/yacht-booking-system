@@ -239,73 +239,6 @@
 	font: inherit;
 }
 
-/* ---- Booking confirmation, shown in place of the fields once a booking
-   that needs no further payment step goes through (see showBookingSuccess()
-   in booking-form.js) ---- */
-
-.ybs-bf-success {
-	text-align: center;
-	padding: 8px 0 4px;
-}
-
-.ybs-bf-success__icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 56px;
-	height: 56px;
-	margin: 0 auto 14px;
-	border-radius: 50%;
-	background: #dcfce7;
-	color: var( --ybs-success );
-}
-
-.ybs-bf-success__icon .dashicons {
-	width: 32px;
-	height: 32px;
-	font-size: 32px;
-}
-
-.ybs-bf-success__message {
-	margin: 0 0 20px;
-	font-size: 14.5px;
-	line-height: 1.6;
-	color: var( --ybs-ink-soft );
-}
-
-.ybs-bf-success__details {
-	display: grid;
-	grid-template-columns: auto 1fr;
-	gap: 10px 16px;
-	margin: 0 0 22px;
-	padding: 16px 18px;
-	border: 1px solid var( --ybs-border );
-	border-radius: 12px;
-	background: var( --ybs-bg, #f8fafc );
-	text-align: left;
-}
-
-.ybs-bf-success__details dt {
-	font-size: 11.5px;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: .04em;
-	color: var( --ybs-ink-soft );
-	white-space: nowrap;
-}
-
-.ybs-bf-success__details dd {
-	margin: 0;
-	font-size: 14px;
-	font-weight: 600;
-	color: var( --ybs-ink );
-	text-align: right;
-}
-
-.ybs-bf-success .ybs-btn {
-	width: 100%;
-}
-
 /* Replaces the main page's "Book Now" trigger once a booking on this form
    instance has gone through - there's nothing left to book without
    reloading the page (the availability check only holds for that one
@@ -572,14 +505,6 @@ body.ybs-bf-modal-open {
 	margin-bottom: 14px;
 }
 
-.ybs-bf-summary__thumb {
-	flex: 0 0 auto;
-	width: 56px;
-	height: 56px;
-	border-radius: 10px;
-	object-fit: cover;
-}
-
 .ybs-bf-summary__name {
 	display: block;
 	font-size: 16px;
@@ -685,6 +610,46 @@ body.ybs-bf-modal-open {
 	padding: 14px 16px;
 	border: 1px dashed var( --ybs-ink-faded );
 	border-radius: 12px;
+}
+
+/* Until the guest asks for it, the coupon is just a line of text. */
+.ybs-bf-coupon.is-collapsed {
+	padding: 0;
+	border: 0;
+	background: none;
+}
+
+.ybs-bf-coupon__toggle {
+	display: inline-flex;
+	align-items: center;
+	min-height: 32px;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var( --ybs-ink );
+	font: inherit;
+	font-size: 14px;
+	font-weight: 600;
+	text-decoration: underline;
+	text-decoration-style: dashed;
+	text-underline-offset: 4px;
+	cursor: pointer;
+}
+
+.ybs-bf-coupon__toggle:hover {
+	color: var( --ybs-primary-dark, var( --ybs-ink ) );
+	text-decoration-style: solid;
+}
+
+.ybs-bf-coupon__toggle:focus-visible {
+	outline: 2px solid var( --ybs-primary );
+	outline-offset: 3px;
+	border-radius: 4px;
+}
+
+.ybs-bf-coupon__toggle[hidden],
+.ybs-bf-coupon__panel[hidden] {
+	display: none;
 }
 
 .ybs-bf-coupon__label {
@@ -2941,10 +2906,79 @@ select.ybs-search-bar__control {
 	}
 }
 
-.ybs-bf-drawer .ybs-bf-success__link {
+/* ---- Ticket / invoice downloads (success screen, confirmation page, thank-you) ---- */
+
+.ybs-docs {
+	margin: 16px 0;
+	padding: 16px;
+	border: 1px solid var( --ybs-border, #e2e8f0 );
+	border-radius: 12px;
+	background: #f8fafc;
+	text-align: left;
+}
+
+.ybs-docs__label {
 	display: block;
-	margin: 4px 0 16px;
-	text-align: center;
+	margin-bottom: 10px;
+	color: var( --ybs-ink-muted, #64748b );
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.ybs-docs__buttons {
+	display: grid;
+	grid-template-columns: repeat( auto-fit, minmax( 150px, 1fr ) );
+	gap: 10px;
+}
+
+.ybs-docs .ybs-docs__button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 44px;
+	padding: 10px 16px;
+	border: 1px solid var( --ybs-primary, #1e3a5f );
+	border-radius: 10px;
+	background: #fff;
+	color: var( --ybs-primary, #1e3a5f );
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.ybs-docs .ybs-docs__button.is-ticket {
+	background: var( --ybs-primary, #1e3a5f );
+	color: #fff;
+}
+
+.ybs-docs .ybs-docs__button:hover,
+.ybs-docs .ybs-docs__button:focus-visible {
+	background: var( --ybs-primary-dark, #152a45 );
+	border-color: var( --ybs-primary-dark, #152a45 );
+	color: #fff;
+}
+
+.ybs-docs .ybs-docs__button:focus-visible {
+	outline: 2px solid var( --ybs-primary, #1e3a5f );
+	outline-offset: 2px;
+}
+
+.ybs-docs__button svg {
+	flex: none;
+}
+
+.ybs-docs__for {
+	margin: 16px 0 -8px;
+	font-weight: 600;
+}
+
+.ybs-wc-docs {
+	margin-bottom: 24px;
 }
 
 /* ---- WooCommerce checkout inside the drawer (WooCommerceDrawer.php) ---- */
@@ -3052,5 +3086,875 @@ select.ybs-search-bar__control {
 @media screen and ( max-width: 600px ) {
 	.ybs-bf-drawer__back {
 		padding: 0 10px 0 6px;
+	}
+}
+
+/* ========================================================================
+ * Drawer look: a soft grey canvas with white cards, a progress strip under
+ * the title, the summary as a ticket (photo banner, icon rows, perforated
+ * price stub) and a matching confirmation. Later in the file than the base
+ * drawer rules on purpose - these refine them.
+ * ===================================================================== */
+
+.ybs-bf-drawer {
+	--ybs-drawer-canvas: #f4f5f7;
+	--ybs-drawer-line: #e6e9ef;
+	--ybs-drawer-strong: color-mix( in srgb, var( --ybs-drawer-accent ) 82%, #000 );
+	--ybs-drawer-soft: color-mix( in srgb, var( --ybs-drawer-accent ) 11%, #fff );
+	--ybs-drawer-card-shadow: 0 1px 2px rgba( 15, 23, 42, .04 ), 0 8px 24px rgba( 15, 23, 42, .05 );
+}
+
+.ybs-bf-drawer__panel {
+	width: min( 500px, 100% );
+	background: var( --ybs-drawer-canvas );
+}
+
+.ybs-bf-drawer__header {
+	padding: 16px 24px 10px;
+	border-bottom: 0;
+	background: #fff;
+}
+
+.ybs-bf-drawer__title {
+	font-size: 20px;
+	letter-spacing: -.01em;
+}
+
+/* ---- Progress strip ---- */
+
+.ybs-bf-steps {
+	display: flex;
+	margin: 0;
+	padding: 6px 20px 16px;
+	border-bottom: 1px solid var( --ybs-drawer-line );
+	background: #fff;
+	list-style: none;
+}
+
+.ybs-bf-steps__item {
+	position: relative;
+	display: flex;
+	flex: 1 1 0;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	color: var( --ybs-ink-faded );
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.2;
+	text-align: center;
+}
+
+/* The line leading into each step from the one before it. */
+.ybs-bf-steps__item::before {
+	content: '';
+	position: absolute;
+	top: 13px;
+	right: calc( 50% + 18px );
+	left: calc( -50% + 18px );
+	height: 2px;
+	border-radius: 2px;
+	background: var( --ybs-drawer-line );
+	transition: background-color .3s ease;
+}
+
+.ybs-bf-steps__item:first-child::before {
+	display: none;
+}
+
+.ybs-bf-steps__item.is-done::before,
+.ybs-bf-steps__item.is-current::before {
+	background: var( --ybs-drawer-strong );
+}
+
+.ybs-bf-steps__dot {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border: 2px solid var( --ybs-drawer-line );
+	border-radius: 50%;
+	background: #fff;
+	color: var( --ybs-ink-faded );
+	font-size: 12px;
+	font-weight: 700;
+	transition: background-color .3s ease, border-color .3s ease, box-shadow .3s ease, color .3s ease;
+}
+
+.ybs-bf-steps__item.is-current {
+	color: var( --ybs-ink );
+}
+
+.ybs-bf-steps__item.is-current .ybs-bf-steps__dot {
+	border-color: var( --ybs-drawer-strong );
+	color: var( --ybs-drawer-strong );
+	box-shadow: 0 0 0 4px var( --ybs-drawer-soft );
+}
+
+.ybs-bf-steps__item.is-done {
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-bf-steps__item.is-done .ybs-bf-steps__dot {
+	border-color: var( --ybs-drawer-strong );
+	background: var( --ybs-drawer-strong );
+}
+
+.ybs-bf-steps__item.is-done .ybs-bf-steps__num {
+	display: none;
+}
+
+.ybs-bf-steps__item.is-done .ybs-bf-steps__dot::after {
+	content: '';
+	width: 13px;
+	height: 13px;
+	background: #fff;
+	-webkit-mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 12.5 10 17.5 19 7.5'/%3E%3C/svg%3E" ) center / contain no-repeat;
+	mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 12.5 10 17.5 19 7.5'/%3E%3C/svg%3E" ) center / contain no-repeat;
+}
+
+/* ---- Body ---- */
+
+.ybs-bf-drawer__body {
+	gap: 14px;
+	padding: 18px 20px 24px;
+	background: var( --ybs-drawer-canvas );
+}
+
+/* The body scrolls; its cards must keep their height rather than being
+   squeezed to fit (the summary banner collapsed once the form grew). */
+.ybs-bf-drawer__body > * {
+	flex-shrink: 0;
+}
+
+.ybs-bf-drawer__body > .ybs-bf-checkout {
+	flex-shrink: 1;
+}
+
+/* ---- Summary: a ticket with the yacht's photo as its banner ---- */
+
+.ybs-bf-summary {
+	position: relative;
+	padding: 0;
+	overflow: hidden;
+	border: 1px solid var( --ybs-drawer-line );
+	border-radius: 18px;
+	background: #fff;
+	box-shadow: var( --ybs-drawer-card-shadow );
+}
+
+.ybs-bf-summary > .ybs-bf-drawer__section-title {
+	margin: 0;
+	padding: 16px 18px 0;
+	background: linear-gradient( 180deg, var( --ybs-drawer-soft ), #fff );
+	color: var( --ybs-ink-soft );
+	font-size: 11px;
+	letter-spacing: .14em;
+}
+
+/* The yacht: an icon badge, its name and marina - no photo, just a soft
+   accent band that runs down from the section title. */
+.ybs-bf-summary__yacht,
+.ybs-bf-success__yacht {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	margin: 0;
+	padding: 12px 18px 16px;
+	border-bottom: 1px solid var( --ybs-drawer-line );
+	background: #fff;
+	color: var( --ybs-ink );
+}
+
+.ybs-bf-success__yacht {
+	padding-top: 16px;
+	background: linear-gradient( 180deg, var( --ybs-drawer-soft ), #fff );
+}
+
+.ybs-bf-summary__badge {
+	position: relative;
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 46px;
+	height: 46px;
+	border-radius: 14px;
+	background: var( --ybs-drawer-strong );
+	box-shadow: 0 8px 18px color-mix( in srgb, var( --ybs-drawer-accent ) 28%, transparent );
+}
+
+.ybs-bf-summary__badge::before {
+	content: '';
+	width: 24px;
+	height: 24px;
+	background: #fff;
+	-webkit-mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 20c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 4.5 0 3-1 4.5 0'/%3E%3Cpath d='M4 17.5 3 13h18l-2.5 4.5'/%3E%3Cpath d='M12 3v10'/%3E%3Cpath d='M12 4.5 18 11h-6'/%3E%3Cpath d='M11 6.5 6.5 11H11'/%3E%3C/svg%3E" ) center / contain no-repeat;
+	mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 20c1.5 1 3 1 4.5 0s3-1 4.5 0 3 1 4.5 0 3-1 4.5 0'/%3E%3Cpath d='M4 17.5 3 13h18l-2.5 4.5'/%3E%3Cpath d='M12 3v10'/%3E%3Cpath d='M12 4.5 18 11h-6'/%3E%3Cpath d='M11 6.5 6.5 11H11'/%3E%3C/svg%3E" ) center / contain no-repeat;
+}
+
+.ybs-bf-summary__yacht > div,
+.ybs-bf-success__yacht > div {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.ybs-bf-summary__yacht .ybs-bf-summary__name,
+.ybs-bf-success__yacht .ybs-bf-summary__name {
+	display: block;
+	color: var( --ybs-ink );
+	font-size: 18px;
+	font-weight: 700;
+	letter-spacing: -.01em;
+	line-height: 1.25;
+	overflow-wrap: anywhere;
+}
+
+.ybs-bf-summary__yacht .ybs-bf-summary__location,
+.ybs-bf-success__yacht .ybs-bf-summary__location {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	margin-top: 3px;
+	color: var( --ybs-ink-soft );
+	font-size: 13px;
+}
+
+.ybs-bf-summary__yacht .ybs-bf-summary__location::before,
+.ybs-bf-success__yacht .ybs-bf-summary__location::before {
+	content: '';
+	flex: none;
+	width: 14px;
+	height: 14px;
+	background: var( --ybs-drawer-strong );
+	-webkit-mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E" ) center / contain no-repeat;
+	mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z'/%3E%3Ccircle cx='12' cy='10' r='3'/%3E%3C/svg%3E" ) center / contain no-repeat;
+}
+
+.ybs-bf-summary__details,
+.ybs-bf-drawer .ybs-bf-success__details {
+	display: grid;
+	grid-template-columns: auto minmax( 0, 1fr );
+	gap: 13px 16px;
+	margin: 0;
+	padding: 18px 18px 16px;
+	border: 0;
+	border-radius: 0;
+	background: none;
+	font-size: 14px;
+	text-align: left;
+}
+
+.ybs-bf-summary__details dt,
+.ybs-bf-drawer .ybs-bf-success__details dt {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: var( --ybs-ink-soft );
+	font-size: 13.5px;
+	font-weight: 500;
+	letter-spacing: normal;
+	text-transform: none;
+	white-space: nowrap;
+}
+
+.ybs-bf-summary__details dd,
+.ybs-bf-drawer .ybs-bf-success__details dd {
+	margin: 0;
+	color: var( --ybs-ink );
+	font-size: 14px;
+	font-weight: 600;
+	text-align: right;
+	overflow-wrap: anywhere;
+}
+
+/* A small line icon in front of each label, in the accent colour. */
+.ybs-bf-summary__details dt::before,
+.ybs-bf-drawer .ybs-bf-success__details dt::before {
+	content: '';
+	flex: none;
+	width: 16px;
+	height: 16px;
+	background: var( --ybs-drawer-strong );
+	-webkit-mask: var( --ybs-dt-icon ) center / contain no-repeat;
+	mask: var( --ybs-dt-icon ) center / contain no-repeat;
+}
+
+.ybs-bf-drawer dt {
+	--ybs-dt-icon: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3C/svg%3E" );
+}
+
+.ybs-bf-drawer dt.is-date {
+	--ybs-dt-icon: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E" );
+}
+
+.ybs-bf-drawer dt.is-charter {
+	--ybs-dt-icon: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpolyline points='12 7 12 12 15.5 14'/%3E%3C/svg%3E" );
+}
+
+.ybs-bf-drawer dt.is-booking {
+	--ybs-dt-icon: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='5' r='2.5'/%3E%3Cline x1='12' y1='7.5' x2='12' y2='21'/%3E%3Cpath d='M5 13a7 7 0 0 0 14 0'/%3E%3Cline x1='8' y1='11' x2='16' y2='11'/%3E%3C/svg%3E" );
+}
+
+.ybs-bf-drawer dt.is-guests {
+	--ybs-dt-icon: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9' cy='7' r='4'/%3E%3Cpath d='M23 21v-2a4 4 0 0 0-3-3.87'/%3E%3Cpath d='M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E" );
+}
+
+.ybs-bf-drawer dt.is-extras {
+	--ybs-dt-icon: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='8' width='18' height='13' rx='2'/%3E%3Cpath d='M12 8v13'/%3E%3Cpath d='M3 12h18'/%3E%3Cpath d='M12 8S10.5 3 8 3a2.5 2.5 0 0 0 0 5'/%3E%3Cpath d='M12 8s1.5-5 4-5a2.5 2.5 0 0 1 0 5'/%3E%3C/svg%3E" );
+}
+
+.ybs-bf-drawer dt.is-ref {
+	--ybs-dt-icon: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='4' y1='9' x2='20' y2='9'/%3E%3Cline x1='4' y1='15' x2='20' y2='15'/%3E%3Cline x1='10' y1='3' x2='8' y2='21'/%3E%3Cline x1='16' y1='3' x2='14' y2='21'/%3E%3C/svg%3E" );
+}
+
+.ybs-bf-drawer dt.is-payment {
+	--ybs-dt-icon: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='5' width='20' height='14' rx='2'/%3E%3Cline x1='2' y1='10' x2='22' y2='10'/%3E%3C/svg%3E" );
+}
+
+/* The price stub, torn off along a perforation with a notch either side. */
+.ybs-bf-summary__price,
+.ybs-bf-success__total {
+	position: relative;
+	margin: 0;
+	padding: 16px 18px 18px;
+	border-top: 2px dashed var( --ybs-drawer-line );
+	background: #fbfbfc;
+}
+
+.ybs-bf-summary__price::before,
+.ybs-bf-summary__price::after,
+.ybs-bf-success__total::before,
+.ybs-bf-success__total::after {
+	content: '';
+	position: absolute;
+	top: -11px;
+	width: 20px;
+	height: 20px;
+	border: 1px solid var( --ybs-drawer-line );
+	border-radius: 50%;
+	background: var( --ybs-drawer-canvas );
+}
+
+.ybs-bf-summary__price::before,
+.ybs-bf-success__total::before {
+	left: -11px;
+}
+
+.ybs-bf-summary__price::after,
+.ybs-bf-success__total::after {
+	right: -11px;
+}
+
+.ybs-bf-summary__row {
+	padding: 4px 0;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-bf-summary__row > span:last-child {
+	color: var( --ybs-ink );
+	font-weight: 600;
+}
+
+.ybs-bf-summary__row.is-discount > span:last-child {
+	color: var( --ybs-success );
+}
+
+.ybs-bf-summary__row.is-total {
+	margin-top: 8px;
+	padding-top: 12px;
+	border-top: 1px solid var( --ybs-drawer-line );
+	color: var( --ybs-ink );
+	font-size: 18px;
+	font-weight: 800;
+}
+
+.ybs-bf-summary__row.is-total > span:last-child {
+	font-weight: 800;
+}
+
+/* WooCommerce: what happens after "Confirm Booking". */
+.ybs-bf-drawer__note {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 12px 14px;
+	border: 1px solid var( --ybs-drawer-line );
+	border-radius: 14px;
+	background: #fff;
+	color: var( --ybs-ink-soft );
+	font-size: 13.5px;
+	line-height: 1.5;
+}
+
+.ybs-bf-drawer__note::before {
+	content: '';
+	flex: none;
+	width: 18px;
+	height: 18px;
+	margin-top: 1px;
+	background: var( --ybs-drawer-strong );
+	-webkit-mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E" ) center / contain no-repeat;
+	mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E" ) center / contain no-repeat;
+}
+
+/* ---- Details + payment cards ---- */
+
+.ybs-bf-drawer .ybs-bf-modal__fields {
+	gap: 14px;
+}
+
+.ybs-bf-card {
+	display: grid;
+	gap: 14px;
+	padding: 18px;
+	border: 1px solid var( --ybs-drawer-line );
+	border-radius: 18px;
+	background: #fff;
+	box-shadow: var( --ybs-drawer-card-shadow );
+}
+
+.ybs-bf-drawer .ybs-bf-card__title {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 0;
+	color: var( --ybs-ink );
+	font-family: inherit;
+	font-size: 16px;
+	font-weight: 700;
+	letter-spacing: normal;
+	line-height: 1.3;
+	text-transform: none;
+}
+
+.ybs-bf-card__num {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: var( --ybs-drawer-soft );
+	color: var( --ybs-drawer-strong );
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.ybs-bf-drawer .ybs-bf-card .ybs-field-row {
+	margin: 0;
+}
+
+.ybs-bf-drawer .ybs-field input:not( [type='checkbox'] ):not( [type='radio'] ) {
+	height: 48px;
+	border-color: #dde2ea;
+	background: #fbfbfc;
+}
+
+.ybs-bf-drawer .ybs-field input:not( [type='checkbox'] ):not( [type='radio'] ):focus {
+	border-color: var( --ybs-drawer-strong );
+	background: #fff;
+	box-shadow: 0 0 0 3px color-mix( in srgb, var( --ybs-drawer-accent ) 18%, transparent );
+}
+
+.ybs-bf-drawer .ybs-field input::placeholder {
+	color: #a3adbb;
+}
+
+.ybs-bf-pm-list .ybs-bf-pm-card {
+	min-height: 56px;
+	padding: 12px 14px;
+	border-color: var( --ybs-drawer-line );
+	border-radius: 14px;
+}
+
+.ybs-bf-drawer .ybs-bf-pm-list .ybs-bf-pm-card:has( input:checked ) {
+	border-color: var( --ybs-drawer-strong );
+	background: var( --ybs-drawer-soft );
+	box-shadow: 0 0 0 1px var( --ybs-drawer-strong );
+}
+
+.ybs-bf-drawer .ybs-bf-pm-list .ybs-bf-pm-card__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	background: #fff;
+	box-shadow: inset 0 0 0 1px var( --ybs-drawer-line );
+}
+
+/* The card icon in the accent colour rather than the default orange. */
+.ybs-bf-drawer .ybs-bf-pm-list .ybs-bf-pm-card__icon::before {
+	content: '';
+	width: 16px;
+	height: 16px;
+	background: var( --ybs-drawer-strong );
+	-webkit-mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='5' width='20' height='14' rx='2'/%3E%3Cpath d='M2 10h20'/%3E%3C/svg%3E" ) center / contain no-repeat;
+	mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='5' width='20' height='14' rx='2'/%3E%3Cpath d='M2 10h20'/%3E%3C/svg%3E" ) center / contain no-repeat;
+}
+
+.ybs-bf-drawer .ybs-bf-terms-field {
+	margin: 0;
+}
+
+.ybs-bf-drawer .ybs-field .ybs-bf-terms-label {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	padding: 12px 14px;
+	border-radius: 12px;
+	background: #f6f7f9;
+	font-size: 13.5px;
+	font-weight: 500;
+	cursor: pointer;
+}
+
+.ybs-bf-drawer .ybs-bf-coupon.is-collapsed {
+	margin: -2px 0 -4px;
+}
+
+.ybs-bf-drawer .ybs-bf-coupon__toggle {
+	gap: 8px;
+	color: var( --ybs-drawer-strong );
+	text-decoration: none;
+}
+
+.ybs-bf-drawer .ybs-bf-coupon__toggle::before {
+	content: '';
+	width: 16px;
+	height: 16px;
+	background: currentColor;
+	-webkit-mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z'/%3E%3Cline x1='7' y1='7' x2='7.01' y2='7'/%3E%3C/svg%3E" ) center / contain no-repeat;
+	mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z'/%3E%3Cline x1='7' y1='7' x2='7.01' y2='7'/%3E%3C/svg%3E" ) center / contain no-repeat;
+}
+
+.ybs-bf-drawer .ybs-bf-coupon__toggle:hover {
+	color: var( --ybs-ink );
+	text-decoration: underline;
+	text-underline-offset: 4px;
+}
+
+.ybs-bf-drawer .ybs-bf-coupon:not( .is-collapsed ) {
+	border-color: var( --ybs-drawer-line );
+	background: #fbfbfc;
+}
+
+/* ---- Footer ---- */
+
+.ybs-bf-drawer__footer {
+	gap: 18px;
+	padding: 14px 20px calc( 16px + env( safe-area-inset-bottom, 0px ) );
+	border-top: 1px solid var( --ybs-drawer-line );
+	box-shadow: 0 -12px 32px rgba( 15, 23, 42, .07 );
+}
+
+.ybs-bf-drawer__total-value {
+	font-size: 24px;
+	letter-spacing: -.01em;
+}
+
+.ybs-bf-drawer .ybs-bf-submit,
+.ybs-bf-drawer .ybs-btn.is-primary {
+	border-color: var( --ybs-drawer-strong );
+	background: var( --ybs-drawer-strong );
+	box-shadow: 0 10px 24px color-mix( in srgb, var( --ybs-drawer-accent ) 30%, transparent );
+}
+
+.ybs-bf-drawer__footer .ybs-bf-submit {
+	gap: 10px;
+	min-height: 54px;
+	font-size: 16px;
+}
+
+.ybs-bf-drawer__footer .ybs-bf-submit::after {
+	content: '';
+	width: 18px;
+	height: 18px;
+	background: currentColor;
+	-webkit-mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='5' y1='12' x2='19' y2='12'/%3E%3Cpolyline points='12 5 19 12 12 19'/%3E%3C/svg%3E" ) center / contain no-repeat;
+	mask: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='5' y1='12' x2='19' y2='12'/%3E%3Cpolyline points='12 5 19 12 12 19'/%3E%3C/svg%3E" ) center / contain no-repeat;
+	transition: transform .2s ease;
+}
+
+.ybs-bf-drawer__footer .ybs-bf-submit:hover:not( :disabled )::after {
+	transform: translateX( 3px );
+}
+
+/* ---- Checkout stage (WooCommerce, in the frame) ---- */
+
+.ybs-bf-drawer.is-checkout .ybs-bf-drawer__panel {
+	width: min( 640px, 100% );
+}
+
+.ybs-bf-drawer.is-checkout .ybs-bf-drawer__body,
+.ybs-bf-checkout__frame,
+.ybs-bf-checkout__loading {
+	background: var( --ybs-drawer-canvas );
+}
+
+/* ---- Confirmation ---- */
+
+.ybs-bf-success {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 0;
+	text-align: center;
+}
+
+.ybs-bf-success__hero {
+	padding: 28px 22px 24px;
+	border: 1px solid var( --ybs-drawer-line );
+	border-radius: 18px;
+	background:
+		radial-gradient( 120% 90% at 50% 0%, #ecfdf3 0%, rgba( 236, 253, 243, 0 ) 62% ),
+		#fff;
+	box-shadow: var( --ybs-drawer-card-shadow );
+}
+
+.ybs-bf-drawer .ybs-bf-success__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 72px;
+	height: 72px;
+	margin: 0 auto 16px;
+	border-radius: 50%;
+	background: var( --ybs-success );
+	box-shadow: 0 0 0 8px #dcfce7, 0 14px 30px rgba( 22, 163, 74, .3 );
+	color: #fff;
+	animation: ybs-bf-pop .5s cubic-bezier( .2, 1.4, .4, 1 ) both;
+}
+
+.ybs-bf-success__icon svg {
+	width: 46px;
+	height: 46px;
+	fill: none;
+	stroke: #fff;
+	stroke-width: 4;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.ybs-bf-success__circle {
+	display: none;
+}
+
+.ybs-bf-success__tick {
+	stroke-dasharray: 36;
+	stroke-dashoffset: 36;
+	animation: ybs-bf-tick .45s .3s ease-out forwards;
+}
+
+@keyframes ybs-bf-pop {
+	from {
+		opacity: 0;
+		transform: scale( .55 );
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@keyframes ybs-bf-tick {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+.ybs-bf-drawer .ybs-bf-success__title {
+	margin: 0 0 6px;
+	color: var( --ybs-ink );
+	font-family: inherit;
+	font-size: 23px;
+	font-weight: 800;
+	letter-spacing: -.01em;
+	line-height: 1.25;
+	text-transform: none;
+}
+
+.ybs-bf-success__message {
+	max-width: 34ch;
+	margin: 0 auto;
+	color: var( --ybs-ink-soft );
+	font-size: 14.5px;
+	line-height: 1.6;
+}
+
+.ybs-bf-success__ticket {
+	position: relative;
+	overflow: hidden;
+	border: 1px solid var( --ybs-drawer-line );
+	border-radius: 18px;
+	background: #fff;
+	box-shadow: var( --ybs-drawer-card-shadow );
+	text-align: left;
+}
+
+.ybs-bf-success__ref {
+	flex: none;
+	align-self: flex-start;
+	padding: 5px 11px;
+	border: 1px solid var( --ybs-drawer-line );
+	border-radius: 999px;
+	background: #fff;
+	color: var( --ybs-ink );
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: .04em;
+}
+
+.ybs-bf-success__total {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	color: var( --ybs-ink-soft );
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.ybs-bf-success__total strong {
+	color: var( --ybs-ink );
+	font-size: 22px;
+	font-weight: 800;
+	letter-spacing: -.01em;
+}
+
+.ybs-bf-success__extras:empty {
+	display: none;
+}
+
+.ybs-bf-drawer .ybs-docs {
+	margin: 0;
+	padding: 16px 18px 18px;
+	border-color: var( --ybs-drawer-line );
+	border-radius: 18px;
+	background: #fff;
+	box-shadow: var( --ybs-drawer-card-shadow );
+}
+
+.ybs-bf-drawer .ybs-docs .ybs-docs__button {
+	min-height: 48px;
+	padding: 10px 12px;
+	white-space: nowrap;
+	border-color: var( --ybs-drawer-strong );
+	border-radius: 12px;
+	color: var( --ybs-drawer-strong );
+}
+
+.ybs-bf-drawer .ybs-docs .ybs-docs__button.is-ticket {
+	background: var( --ybs-drawer-strong );
+	color: #fff;
+}
+
+.ybs-bf-drawer .ybs-docs .ybs-docs__button:hover,
+.ybs-bf-drawer .ybs-docs .ybs-docs__button:focus-visible {
+	border-color: var( --ybs-ink );
+	background: var( --ybs-ink );
+	color: #fff;
+}
+
+.ybs-bf-success__actions {
+	display: grid;
+	grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
+	gap: 10px;
+}
+
+.ybs-bf-success__actions > :only-child {
+	grid-column: 1 / -1;
+}
+
+.ybs-bf-drawer .ybs-bf-success__actions .ybs-btn {
+	width: 100%;
+	min-height: 52px;
+	margin: 0;
+	border-radius: 12px;
+	font-size: 15px;
+	text-decoration: none;
+}
+
+.ybs-bf-drawer .ybs-bf-success__actions .ybs-bf-success__link {
+	display: inline-flex;
+	border: 1.5px solid var( --ybs-drawer-line );
+	background: #fff;
+	color: var( --ybs-ink );
+}
+
+.ybs-bf-drawer .ybs-bf-success__actions .ybs-bf-success__link:hover {
+	border-color: var( --ybs-ink-faded );
+}
+
+@media screen and ( max-width: 600px ) {
+	.ybs-bf-drawer__header {
+		padding: 14px 16px 8px;
+	}
+
+	.ybs-bf-steps {
+		padding: 4px 8px 14px;
+	}
+
+	.ybs-bf-steps__item {
+		font-size: 11.5px;
+	}
+
+	.ybs-bf-drawer__body {
+		padding: 14px 14px 20px;
+	}
+
+	.ybs-bf-card {
+		padding: 16px;
+	}
+
+	.ybs-bf-drawer__footer {
+		padding: 12px 16px calc( 14px + env( safe-area-inset-bottom, 0px ) );
+	}
+
+	.ybs-bf-success__actions {
+		grid-template-columns: minmax( 0, 1fr );
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.ybs-bf-drawer .ybs-bf-success__icon,
+	.ybs-bf-success__tick {
+		animation: none;
+		stroke-dashoffset: 0;
+	}
+}
+
+/* Card titles keep their own spacing inside theme content wrappers - a
+   theme's `.entry-content h3` / `.yachtiva-prose h3` margin otherwise lands
+   on them and opens a gap between the photo and the name. */
+.ybs-yl-card .ybs-yl-card__title {
+	margin: 0 0 8px;
+}
+
+.ybs-yacht-card .ybs-yacht-card__title {
+	margin-top: 0;
+}
+
+/* Phones: the class filter is one swipeable row rather than a big wrapped
+   pill with the options centred on three lines. */
+@media screen and ( max-width: 600px ) {
+	.ybs-yl-tabs {
+		flex-wrap: nowrap;
+		justify-content: flex-start;
+		width: 100%;
+		scrollbar-width: none;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.ybs-yl-tabs::-webkit-scrollbar {
+		display: none;
 	}
 }

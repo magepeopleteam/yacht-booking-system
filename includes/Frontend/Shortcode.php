@@ -107,6 +107,7 @@ class Shortcode {
 					/* translators: %s: formatted balance amount. */
 					'depositBalance'  => __( 'Balance of %s due before departure.', 'magepeople-yacht-booking-system' ),
 					'viewBooking'     => __( 'View your booking', 'magepeople-yacht-booking-system' ),
+					'yourDocuments'   => __( 'Your documents', 'magepeople-yacht-booking-system' ),
 					'detailYacht'     => __( 'Yacht', 'magepeople-yacht-booking-system' ),
 					'detailCharter'   => __( 'Charter', 'magepeople-yacht-booking-system' ),
 					'detailBooking'   => __( 'Booking', 'magepeople-yacht-booking-system' ),
@@ -192,6 +193,23 @@ class Shortcode {
 								<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
 							</button>
 						</header>
+
+						<?php /* Where the guest is: set by setStep() in booking-form.js. */ ?>
+						<ol class="ybs-bf-steps" data-ybs-bf-steps aria-label="<?php esc_attr_e( 'Booking progress', 'magepeople-yacht-booking-system' ); ?>">
+							<?php
+							$steps = array(
+								1 => __( 'Summary', 'magepeople-yacht-booking-system' ),
+								2 => __( 'Checkout', 'magepeople-yacht-booking-system' ),
+								3 => __( 'Confirmed', 'magepeople-yacht-booking-system' ),
+							);
+							foreach ( $steps as $number => $label ) :
+								?>
+								<li class="ybs-bf-steps__item" data-step="<?php echo (int) $number; ?>">
+									<span class="ybs-bf-steps__dot" aria-hidden="true"><span class="ybs-bf-steps__num"><?php echo (int) $number; ?></span></span>
+									<span class="ybs-bf-steps__label"><?php echo esc_html( $label ); ?></span>
+								</li>
+							<?php endforeach; ?>
+						</ol>
 
 						<div class="ybs-bf-drawer__body">
 							<section class="ybs-bf-summary" data-ybs-bf-summary aria-labelledby="<?php echo esc_attr( $drawer_id ); ?>-summary">
@@ -455,44 +473,55 @@ class Shortcode {
 							 * nothing left to edit here at that point.
 							 */ ?>
 							<div class="ybs-bf-modal__fields" data-ybs-bf-modal-fields>
-								<h4 class="ybs-bf-drawer__section-title"><?php esc_html_e( 'Your details', 'magepeople-yacht-booking-system' ); ?></h4>
+								<section class="ybs-bf-card">
+								<h4 class="ybs-bf-card__title"><span class="ybs-bf-card__num" aria-hidden="true">1</span><?php esc_html_e( 'Your details', 'magepeople-yacht-booking-system' ); ?></h4>
 
 								<div class="ybs-field">
 									<label for="<?php echo esc_attr( $drawer_id ); ?>-name"><?php esc_html_e( 'Full Name', 'magepeople-yacht-booking-system' ); ?></label>
-									<input type="text" id="<?php echo esc_attr( $drawer_id ); ?>-name" name="mageyabo_name" class="ybs-bf-name" autocomplete="name" required />
+									<input type="text" id="<?php echo esc_attr( $drawer_id ); ?>-name" name="mageyabo_name" class="ybs-bf-name" autocomplete="name" placeholder="<?php esc_attr_e( 'e.g. Jane Smith', 'magepeople-yacht-booking-system' ); ?>" required />
 								</div>
 								<div class="ybs-field-row">
 									<div class="ybs-field">
 										<label for="<?php echo esc_attr( $drawer_id ); ?>-email"><?php esc_html_e( 'Email', 'magepeople-yacht-booking-system' ); ?></label>
-										<input type="email" id="<?php echo esc_attr( $drawer_id ); ?>-email" name="mageyabo_email" class="ybs-bf-email" autocomplete="email" required />
+										<input type="email" id="<?php echo esc_attr( $drawer_id ); ?>-email" name="mageyabo_email" class="ybs-bf-email" autocomplete="email" placeholder="<?php esc_attr_e( 'you@example.com', 'magepeople-yacht-booking-system' ); ?>" required />
 									</div>
 									<div class="ybs-field">
 										<label for="<?php echo esc_attr( $drawer_id ); ?>-phone"><?php esc_html_e( 'Phone', 'magepeople-yacht-booking-system' ); ?></label>
-										<input type="tel" id="<?php echo esc_attr( $drawer_id ); ?>-phone" name="mageyabo_phone" class="ybs-bf-phone" autocomplete="tel" required />
+										<input type="tel" id="<?php echo esc_attr( $drawer_id ); ?>-phone" name="mageyabo_phone" class="ybs-bf-phone" autocomplete="tel" placeholder="<?php esc_attr_e( '+1 555 123 4567', 'magepeople-yacht-booking-system' ); ?>" required />
 									</div>
 								</div>
 
+								</section>
+
+								<section class="ybs-bf-card">
+								<h4 class="ybs-bf-card__title" id="<?php echo esc_attr( $drawer_id ); ?>-pm"><span class="ybs-bf-card__num" aria-hidden="true">2</span><?php esc_html_e( 'Payment', 'magepeople-yacht-booking-system' ); ?></h4>
+
 								<?php if ( self::coupons_offered() ) : ?>
-									<div class="ybs-bf-coupon" data-ybs-bf-coupon>
-										<label class="ybs-bf-coupon__label" for="<?php echo esc_attr( $drawer_id ); ?>-coupon"><?php esc_html_e( 'Coupon code', 'magepeople-yacht-booking-system' ); ?></label>
-										<div class="ybs-bf-coupon__row" data-ybs-bf-coupon-entry>
-											<input type="text" id="<?php echo esc_attr( $drawer_id ); ?>-coupon" class="ybs-bf-coupon-input" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="<?php esc_attr_e( 'Enter code', 'magepeople-yacht-booking-system' ); ?>" />
-											<button type="button" class="ybs-btn ybs-bf-coupon-apply"><?php esc_html_e( 'Apply', 'magepeople-yacht-booking-system' ); ?></button>
-										</div>
-										<div class="ybs-bf-coupon__applied" data-ybs-bf-coupon-applied hidden>
-											<span class="ybs-bf-coupon__tag">
-												<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-												<strong data-ybs-bf-coupon-code></strong>
-												<span data-ybs-bf-coupon-saving></span>
-											</span>
-											<button type="button" class="ybs-bf-coupon-remove"><?php esc_html_e( 'Remove', 'magepeople-yacht-booking-system' ); ?></button>
+									<?php /* `builtin`: the Pro add-on renders its own coupon field with the same classes, and the two must never be wired as one. */ ?>
+									<div class="ybs-bf-coupon is-collapsed" data-ybs-bf-coupon="builtin">
+										<button type="button" class="ybs-bf-coupon__toggle" aria-expanded="false" aria-controls="<?php echo esc_attr( $drawer_id ); ?>-coupon-panel">
+											<?php esc_html_e( 'Have a coupon code?', 'magepeople-yacht-booking-system' ); ?>
+										</button>
+										<div class="ybs-bf-coupon__panel" id="<?php echo esc_attr( $drawer_id ); ?>-coupon-panel" hidden>
+											<label class="ybs-bf-coupon__label" for="<?php echo esc_attr( $drawer_id ); ?>-coupon"><?php esc_html_e( 'Coupon code', 'magepeople-yacht-booking-system' ); ?></label>
+											<div class="ybs-bf-coupon__row" data-ybs-bf-coupon-entry>
+												<input type="text" id="<?php echo esc_attr( $drawer_id ); ?>-coupon" class="ybs-bf-coupon-input" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="<?php esc_attr_e( 'Enter code', 'magepeople-yacht-booking-system' ); ?>" />
+												<button type="button" class="ybs-btn ybs-bf-coupon-apply"><?php esc_html_e( 'Apply', 'magepeople-yacht-booking-system' ); ?></button>
+											</div>
+											<div class="ybs-bf-coupon__applied" data-ybs-bf-coupon-applied hidden>
+												<span class="ybs-bf-coupon__tag">
+													<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+													<strong data-ybs-bf-coupon-code></strong>
+													<span data-ybs-bf-coupon-saving></span>
+												</span>
+												<button type="button" class="ybs-bf-coupon-remove"><?php esc_html_e( 'Remove', 'magepeople-yacht-booking-system' ); ?></button>
+											</div>
 										</div>
 										<p class="ybs-bf-coupon__message" data-ybs-bf-coupon-message role="status" aria-live="polite" hidden></p>
 									</div>
 								<?php endif; ?>
 
 								<div class="ybs-field">
-									<span class="ybs-bf-drawer__label" id="<?php echo esc_attr( $drawer_id ); ?>-pm"><?php esc_html_e( 'Payment Method', 'magepeople-yacht-booking-system' ); ?></span>
 									<?php /* Populated by populatePaymentMethods() in booking-form.js as a row of
 									clickable cards (one radio per enabled gateway) - see .ybs-bf-pm-card in style.css. */ ?>
 									<div class="ybs-bf-pm-list" data-ybs-bf-pm-list role="radiogroup" aria-labelledby="<?php echo esc_attr( $drawer_id ); ?>-pm"></div>
@@ -504,6 +533,7 @@ class Shortcode {
 										<span><?php esc_html_e( 'I accept the terms and conditions.', 'magepeople-yacht-booking-system' ); ?></span>
 									</label>
 								</div>
+								</section>
 							</div>
 
 							<?php /*
@@ -522,12 +552,26 @@ class Shortcode {
 							 * showBookingSuccess() in booking-form.js.
 							 */ ?>
 							<div class="ybs-bf-success" data-ybs-bf-success hidden>
-								<div class="ybs-bf-success__icon" aria-hidden="true">
-									<span class="dashicons dashicons-yes-alt"></span>
+								<div class="ybs-bf-success__hero">
+									<div class="ybs-bf-success__icon" aria-hidden="true">
+										<svg viewBox="0 0 52 52" focusable="false"><circle class="ybs-bf-success__circle" cx="26" cy="26" r="24"/><path class="ybs-bf-success__tick" d="M15 27.5l7.5 7.5L37.5 19"/></svg>
+									</div>
+									<h4 class="ybs-bf-success__title"><?php esc_html_e( "You're all set!", 'magepeople-yacht-booking-system' ); ?></h4>
+									<p class="ybs-bf-success__message" data-ybs-bf-success-message></p>
 								</div>
-								<p class="ybs-bf-success__message" data-ybs-bf-success-message></p>
-								<dl class="ybs-bf-success__details" data-ybs-bf-success-details></dl>
-								<button type="button" class="ybs-btn is-primary" data-ybs-bf-modal-close><?php esc_html_e( 'Close', 'magepeople-yacht-booking-system' ); ?></button>
+
+								<?php /* A ticket stub: the yacht, the charter, then the total below a perforation. */ ?>
+								<div class="ybs-bf-success__ticket">
+									<div class="ybs-bf-success__yacht" data-ybs-bf-success-yacht hidden></div>
+									<dl class="ybs-bf-success__details" data-ybs-bf-success-details></dl>
+									<div class="ybs-bf-success__total" data-ybs-bf-success-total hidden></div>
+								</div>
+
+								<div class="ybs-bf-success__extras" data-ybs-bf-success-extras></div>
+
+								<div class="ybs-bf-success__actions" data-ybs-bf-success-actions>
+									<button type="button" class="ybs-btn is-primary" data-ybs-bf-modal-close><?php esc_html_e( 'Done', 'magepeople-yacht-booking-system' ); ?></button>
+								</div>
 							</div>
 						</div>
 

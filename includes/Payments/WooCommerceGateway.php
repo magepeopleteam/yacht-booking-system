@@ -43,6 +43,7 @@ class WooCommerceGateway {
 		add_action( 'woocommerce_checkout_order_processed', array( __CLASS__, 'process_classic_checkout' ), 90, 3 );
 		add_action( 'woocommerce_store_api_checkout_order_processed', array( __CLASS__, 'process_block_checkout' ), 90 );
 		add_action( 'woocommerce_order_status_changed', array( __CLASS__, 'sync_booking_status' ), 10, 3 );
+		add_action( 'woocommerce_thankyou', array( __CLASS__, 'print_documents' ), 5 );
 
 		// Reverse direction: a status change made from the bookings admin
 		// list is pushed back onto the linked WooCommerce order.
@@ -437,6 +438,43 @@ class WooCommerceGateway {
 	 * WooCommerce order status -> booking status. Booking statuses use the
 	 * WooCommerce slugs 1:1, so only the payment flag needs mapping.
 	 */
+	/**
+	 * Ticket / invoice downloads for each charter on the order, at the top of
+	 * the thank-you page (also the one shown inside the booking drawer).
+	 * WooCommerce only renders that page for the order's own key, so the
+	 * guest looking at it is the one who placed the order.
+	 */
+	public static function print_documents( $order_id ) {
+		$order = $order_id ? wc_get_order( $order_id ) : null;
+
+		if ( ! $order ) {
+			return;
+		}
+
+		$booking_ids = array_map( 'intval', (array) $order->get_meta( '_mageyabo_booking_ids' ) );
+		$blocks      = array();
+
+		foreach ( array_filter( $booking_ids ) as $booking_id ) {
+			$booking = BookingRepository::find( $booking_id );
+			$html    = $booking ? mageyabo_booking_documents_html( $booking ) : '';
+
+			if ( '' === $html ) {
+				continue;
+			}
+
+			if ( count( $booking_ids ) > 1 ) {
+				$html = '<p class="ybs-docs__for">' . esc_html( get_the_title( (int) $booking['yacht_id'] ) . ' · ' . mageyabo_booking_reference( $booking_id ) ) . '</p>' . $html;
+			}
+
+			$blocks[] = $html;
+		}
+
+		if ( $blocks ) {
+			wp_enqueue_style( 'mageyabo-frontend' );
+			echo '<div class="ybs-wc-docs">' . implode( '', $blocks ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped pieces above.
+		}
+	}
+
 	public static function sync_booking_status( $order_id, $old_status, $new_status ) {
 		global $wpdb;
 

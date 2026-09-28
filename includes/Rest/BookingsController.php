@@ -332,6 +332,7 @@ class BookingsController extends Controller {
 				'pricing'          => $result['pricing'],
 				'payment'          => $payment_start,
 				'confirmation_url' => mageyabo_confirmation_url( $result['booking_id'], $created['qr_token'] ?? '' ),
+				'documents'        => $created ? mageyabo_booking_guest_documents( $created ) : array(),
 			)
 		);
 	}

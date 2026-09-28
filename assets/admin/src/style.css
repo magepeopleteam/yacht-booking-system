@@ -27,6 +27,28 @@ body.ybs-shell {
 	--ybs-warning: #d97706;
 }
 
+/*
+ * Every text field in the app gets the same rounded, soft-bordered look,
+ * instead of wp-admin's square grey default wherever a screen forgot to
+ * style its own. `:where()` keeps the specificity at (0,1,1) - just enough to
+ * beat forms.css (and `.wp-core-ui select`, which this stylesheet loads
+ * after) - and it sits at the top of the file, so any component that shapes
+ * its fields on purpose (pill search, date pickers, toggles) still wins.
+ */
+:where(#ybs-admin-root) input[type="text"],
+:where(#ybs-admin-root) input[type="number"],
+:where(#ybs-admin-root) input[type="email"],
+:where(#ybs-admin-root) input[type="tel"],
+:where(#ybs-admin-root) input[type="url"],
+:where(#ybs-admin-root) input[type="search"],
+:where(#ybs-admin-root) input[type="password"],
+:where(#ybs-admin-root) input[type="datetime-local"],
+:where(#ybs-admin-root) select:not([multiple]),
+:where(#ybs-admin-root) textarea:not(.ybs-no-field-style) {
+	border-color: var( --ybs-border );
+	border-radius: var( --ybs-radius );
+}
+
 body.ybs-shell #adminmenumain,
 body.ybs-shell #adminmenuback,
 body.ybs-shell #adminmenuwrap,
@@ -1870,29 +1892,59 @@ select.ybs-badge:focus {
 .ybs-faq-editor {
 	display: flex;
 	flex-direction: column;
-	gap: 14px;
+	gap: 10px;
 }
 
+.ybs-faq-editor__empty {
+	margin: 0;
+	color: var( --ybs-ink-soft );
+}
+
+/* Collapsed, each question reads like the accordion on the yacht page;
+   clicking the row opens it for editing. */
 .ybs-faq-item {
 	border: 1px solid var( --ybs-border );
 	border-radius: 12px;
-	background: var( --ybs-bg );
-	overflow: hidden;
+	background: var( --ybs-surface );
 	transition: box-shadow .15s ease, border-color .15s ease;
 }
 
-.ybs-faq-item:focus-within {
+.ybs-faq-item:hover {
+	border-color: #cbd5e1;
+}
+
+.ybs-faq-item.is-open {
 	border-color: var( --ybs-primary );
 	box-shadow: 0 0 0 3px rgba( 249, 115, 22, .12 );
 }
 
-.ybs-faq-item__head {
+.ybs-faq-item__row {
 	display: flex;
 	align-items: center;
-	gap: 10px;
-	padding: 10px 10px 10px 14px;
-	background: var( --ybs-surface );
-	border-bottom: 1px solid var( --ybs-border );
+	gap: 4px;
+	padding-right: 8px;
+}
+
+.ybs-faq-item__toggle {
+	display: flex;
+	flex: 1 1 auto;
+	align-items: center;
+	gap: 12px;
+	min-width: 0;
+	min-height: 56px;
+	padding: 10px 8px 10px 14px;
+	border: 0;
+	border-radius: 12px;
+	background: none;
+	color: var( --ybs-ink );
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.ybs-faq-item__toggle:focus-visible {
+	outline: 2px solid var( --ybs-primary );
+	outline-offset: -2px;
 }
 
 .ybs-faq-item__badge {
@@ -1909,32 +1961,76 @@ select.ybs-badge:focus {
 	font-weight: 700;
 }
 
-.ybs-faq-item__question {
-	flex: 1;
-	border: 0;
-	background: none;
+.ybs-faq-item__text {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.ybs-faq-item__title {
 	font-size: 14.5px;
 	font-weight: 600;
-	color: var( --ybs-ink );
-	padding: 6px 4px;
+	line-height: 1.35;
 }
 
-.ybs-faq-item__question:focus {
-	outline: none;
-}
-
-.ybs-faq-item__question::placeholder {
-	font-weight: 500;
+.ybs-faq-item__title.is-empty {
 	color: var( --ybs-ink-faded );
+	font-style: italic;
+	font-weight: 500;
+}
+
+.ybs-faq-item__preview {
+	overflow: hidden;
+	color: var( --ybs-ink-soft );
+	font-size: 13px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ybs-faq-item__edit-hint {
+	display: flex;
+	flex: 0 0 auto;
+	color: var( --ybs-ink-faded );
+	opacity: 0;
+	transition: opacity .15s ease, color .15s ease;
+}
+
+.ybs-faq-item__toggle:hover .ybs-faq-item__edit-hint,
+.ybs-faq-item__toggle:focus-visible .ybs-faq-item__edit-hint {
+	color: var( --ybs-primary-dark );
+	opacity: 1;
+}
+
+.ybs-faq-item.is-open .ybs-faq-item__edit-hint {
+	display: none;
+}
+
+.ybs-faq-item__chevron {
+	flex: 0 0 auto;
+	width: 9px;
+	height: 9px;
+	margin: 0 6px 4px 4px;
+	border-right: 2px solid var( --ybs-ink-soft );
+	border-bottom: 2px solid var( --ybs-ink-soft );
+	transform: rotate( 45deg );
+	transition: transform .2s ease, margin .2s ease;
+}
+
+.ybs-faq-item.is-open .ybs-faq-item__chevron {
+	margin-top: 6px;
+	margin-bottom: 0;
+	transform: rotate( -135deg );
 }
 
 .ybs-faq-item__remove {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	flex: 0 0 30px;
-	width: 30px;
-	height: 30px;
+	flex: 0 0 34px;
+	width: 34px;
+	height: 34px;
 	border: 0;
 	border-radius: 8px;
 	background: none;
@@ -1942,20 +2038,65 @@ select.ybs-badge:focus {
 	cursor: pointer;
 }
 
-.ybs-faq-item__remove:hover {
+.ybs-faq-item__remove:hover,
+.ybs-faq-item__remove:focus-visible {
 	background: #fee2e2;
 	color: var( --ybs-danger );
 }
 
-.ybs-faq-item__body {
-	padding: 12px;
-	background: var( --ybs-surface );
+.ybs-faq-item__panel {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 4px 16px 16px;
+	border-top: 1px solid var( --ybs-border );
 }
 
-.ybs-faq-item__body .mce-tinymce,
-.ybs-faq-item__body .wp-editor-container {
-	border-radius: 8px;
+.ybs-faq-item__label {
+	margin-top: 10px;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	color: var( --ybs-ink-soft );
+}
+
+/* A real field: wp-admin's `input[type="text"]` rule wins over a bare
+   class, so the attribute is part of the selector. */
+.ybs-faq-item__question[type="text"] {
+	width: 100%;
+	min-height: 40px;
+	padding: 8px 12px;
+	border: 1px solid var( --ybs-border );
+	border-radius: var( --ybs-radius );
+	background: #fff;
+	box-shadow: none;
+	font-size: 14.5px;
+	font-weight: 600;
+	color: var( --ybs-ink );
+}
+
+.ybs-faq-item__question[type="text"]:focus {
+	outline: none;
+	border-color: var( --ybs-primary );
+	box-shadow: 0 0 0 3px rgba( 249, 115, 22, .16 );
+}
+
+.ybs-faq-item__question::placeholder {
+	font-weight: 500;
+	color: var( --ybs-ink-faded );
+}
+
+.ybs-faq-item__panel .mce-tinymce,
+.ybs-faq-item__panel .wp-editor-container {
+	border-radius: var( --ybs-radius );
 	overflow: hidden;
+}
+
+.ybs-faq-item__actions {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 6px;
 }
 
 /* ------------------------------------------------------------- Publish box */
@@ -4184,4 +4325,414 @@ fieldset.ybs-field {
 fieldset.ybs-field legend {
 	padding: 0;
 	font-weight: 600;
+}
+
+/* Yacht wizard - Booking Mode as three selectable cards (real radios). */
+.ybs-mode-cards.is-three {
+	grid-template-columns: repeat( 3, minmax( 0, 1fr ) );
+	margin-bottom: 8px;
+}
+
+@media ( max-width: 900px ) {
+	.ybs-mode-cards.is-three {
+		grid-template-columns: minmax( 0, 1fr );
+	}
+}
+
+.ybs-booking-mode legend {
+	margin-bottom: 8px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var( --ybs-ink );
+}
+
+.ybs-booking-mode .ybs-mode-card {
+	cursor: pointer;
+}
+
+/* The radio stays in the page for keyboard and screen readers; the card is
+   what shows the choice. */
+.ybs-mode-card__input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: 0;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.ybs-mode-card:has( .ybs-mode-card__input:focus-visible ) {
+	outline: 2px solid var( --ybs-primary );
+	outline-offset: 2px;
+}
+
+/* Yacht wizard - Base Rates: each price grid on its own tinted panel. */
+.ybs-rate-panel {
+	margin-top: 16px;
+	padding: 16px 18px 4px;
+	border: 1px solid var( --ybs-border );
+	border-radius: 12px;
+	background: #f8fafc;
+}
+
+.ybs-rate-panel.is-shared {
+	border-color: #fde2c8;
+	background: #fff8f1;
+}
+
+.ybs-rate-panel__head {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin-bottom: 14px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid var( --ybs-border );
+}
+
+.ybs-rate-panel.is-shared .ybs-rate-panel__head {
+	border-bottom-color: #fde2c8;
+}
+
+.ybs-rate-panel__icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 32px;
+	width: 32px;
+	height: 32px;
+	border-radius: 8px;
+	background: #fff;
+	color: var( --ybs-ink-soft );
+	font-size: 18px;
+	box-shadow: 0 1px 2px rgba( 15, 23, 42, .06 );
+}
+
+.ybs-rate-panel.is-shared .ybs-rate-panel__icon {
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-rate-panel__title {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 700;
+	color: var( --ybs-ink );
+}
+
+.ybs-rate-panel__desc {
+	margin: 2px 0 0;
+	font-size: 12.5px;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-rate-panel .ybs-field input {
+	background: #fff;
+}
+
+/* The panel's padding would otherwise drop the rate grid to one column. */
+.ybs-rate-panel .ybs-field-row {
+	grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
+	gap: 0 14px;
+}
+
+@media ( max-width: 600px ) {
+	.ybs-rate-panel .ybs-field-row {
+		grid-template-columns: minmax( 0, 1fr );
+	}
+}
+
+/* Review & Publish: the yacht description as formatted text. */
+.ybs-review-description {
+	margin-bottom: 16px;
+	color: var( --ybs-ink );
+	font-size: 13.5px;
+	line-height: 1.65;
+}
+
+.ybs-review-description > :first-child {
+	margin-top: 0;
+}
+
+.ybs-review-description p {
+	margin: 0 0 10px;
+}
+
+.ybs-review-description h2,
+.ybs-review-description h3,
+.ybs-review-description h4 {
+	margin: 16px 0 6px;
+	font-size: 14px;
+	font-weight: 700;
+}
+
+.ybs-review-description ul,
+.ybs-review-description ol {
+	margin: 0 0 10px 20px;
+}
+
+/* ---------------------------------------------- Yacht editor top bar */
+
+.ybs-editor-head {
+	position: sticky;
+	top: var( --ybs-wpbar, 32px );
+	z-index: 60;
+	display: grid;
+	grid-template-columns: minmax( 0, 1fr ) auto minmax( 0, 1fr );
+	align-items: center;
+	gap: 16px;
+	margin: -24px -24px 20px;
+	padding: 12px 24px;
+	border-bottom: 1px solid var( --ybs-border );
+	background: var( --ybs-surface );
+	box-shadow: 0 1px 2px rgba( 15, 23, 42, .04 );
+}
+
+.ybs-editor-head__left {
+	justify-self: start;
+}
+
+.ybs-editor-head__back {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	min-height: 36px;
+	padding: 0 6px 0 2px;
+	border-radius: var( --ybs-radius );
+	color: var( --ybs-ink-soft );
+	font-size: 14px;
+	font-weight: 500;
+	text-decoration: none;
+}
+
+.ybs-editor-head__back:hover,
+.ybs-editor-head__back:focus-visible {
+	color: var( --ybs-ink );
+}
+
+.ybs-editor-head__back .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.ybs-editor-head__title {
+	margin: 0;
+	padding: 0;
+	max-width: 48vw;
+	overflow: hidden;
+	color: var( --ybs-ink );
+	font-size: 21px;
+	font-weight: 700;
+	line-height: 1.3;
+	text-align: center;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ybs-editor-head__right {
+	display: flex;
+	justify-self: end;
+	align-items: center;
+	gap: 10px;
+}
+
+.ybs-editor-head__btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-height: 38px;
+	padding: 0 16px;
+	border: 1px solid transparent;
+	border-radius: var( --ybs-radius );
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1;
+	text-decoration: none;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.ybs-editor-head__btn .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.ybs-editor-head__btn.is-ghost {
+	border-color: var( --ybs-primary );
+	background: var( --ybs-surface );
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-editor-head__btn.is-ghost:hover {
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+}
+
+.ybs-editor-head__btn.is-primary {
+	background: var( --ybs-primary );
+	color: #fff;
+}
+
+.ybs-editor-head__btn.is-primary:hover:not( :disabled ) {
+	background: var( --ybs-primary-dark );
+}
+
+.ybs-editor-head__btn:disabled {
+	opacity: .65;
+	cursor: progress;
+}
+
+.ybs-editor-head__btn:focus-visible {
+	outline: 2px solid var( --ybs-primary );
+	outline-offset: 2px;
+}
+
+.ybs-editor-head__split {
+	position: relative;
+	display: inline-flex;
+}
+
+.ybs-editor-head__split > .ybs-editor-head__btn.is-primary:first-child {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+	min-width: 96px;
+}
+
+.ybs-editor-head__btn.is-chevron {
+	padding: 0 10px;
+	border-left: 1px solid rgba( 255, 255, 255, .35 );
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+.ybs-editor-head__menu {
+	position: absolute;
+	top: calc( 100% + 6px );
+	right: 0;
+	z-index: 70;
+	min-width: 190px;
+	padding: 6px;
+	border: 1px solid var( --ybs-border );
+	border-radius: 10px;
+	background: var( --ybs-surface );
+	box-shadow: 0 12px 32px rgba( 15, 23, 42, .14 );
+}
+
+.ybs-editor-head__menu-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	min-height: 38px;
+	padding: 0 10px;
+	border: 0;
+	border-radius: 6px;
+	background: none;
+	color: var( --ybs-ink );
+	font-size: 13.5px;
+	text-align: left;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.ybs-editor-head__menu-item:hover,
+.ybs-editor-head__menu-item:focus-visible {
+	background: var( --ybs-bg );
+	color: var( --ybs-ink );
+	outline: none;
+}
+
+.ybs-editor-head__menu-item .dashicons {
+	color: var( --ybs-ink-soft );
+	font-size: 17px;
+	width: 17px;
+	height: 17px;
+}
+
+@media screen and ( max-width: 782px ) {
+	.ybs-editor-head {
+		top: 0;
+		grid-template-columns: auto minmax( 0, 1fr );
+		margin: -24px -24px 16px;
+		padding: 10px 16px;
+	}
+
+	.ybs-editor-head__title {
+		grid-column: 1 / -1;
+		grid-row: 1;
+		max-width: none;
+		font-size: 18px;
+		text-align: left;
+	}
+
+	.ybs-editor-head__btn.is-ghost span:not( .dashicons ) {
+		display: none;
+	}
+}
+
+/* Confirmation email: "Start from a sample" presets. */
+.ybs-email-presets {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+	margin-bottom: 16px;
+	padding: 12px 14px;
+	border: 1px dashed var( --ybs-border );
+	border-radius: 10px;
+	background: var( --ybs-bg );
+}
+
+.ybs-email-presets__label {
+	font-size: 13px;
+	font-weight: 600;
+	color: var( --ybs-ink );
+}
+
+.ybs-email-presets__list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.ybs-email-presets__btn {
+	min-height: 32px;
+	padding: 0 12px;
+	border: 1px solid var( --ybs-border );
+	border-radius: 999px;
+	background: var( --ybs-surface );
+	color: var( --ybs-ink );
+	font-size: 13px;
+	cursor: pointer;
+	transition: border-color .15s ease, color .15s ease, background .15s ease;
+}
+
+.ybs-email-presets__btn:hover,
+.ybs-email-presets__btn:focus-visible {
+	border-color: var( --ybs-primary );
+	background: var( --ybs-primary-soft );
+	color: var( --ybs-primary-dark );
+	outline: none;
+}
+
+/* Desktop: the editor bar spans the whole content area - from the side rail
+   to the window's right edge - not just the centred 80% column. Fixed rather
+   than widened with negative margins, so `right: 0` accounts for a visible
+   scrollbar and nothing scrolls sideways; the wizard is padded down by the
+   bar's height so the steps start below it. */
+@media screen and ( min-width: 961px ) {
+	.ybs-editor-head {
+		position: fixed;
+		top: var( --ybs-wpbar, 32px );
+		left: var( --ybs-rail, 236px );
+		right: 0;
+		min-height: 62px;
+		margin: 0;
+		padding: 12px 32px;
+	}
+
+	.ybs-wizard.has-editor-head {
+		padding-top: 62px;
+	}
 }

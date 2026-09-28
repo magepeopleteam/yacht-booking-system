@@ -30,6 +30,7 @@ class WooCommerceDrawer {
 		add_filter( 'body_class', array( __CLASS__, 'body_class' ) );
 		add_filter( 'template_include', array( __CLASS__, 'canvas_template' ), 99 );
 		add_action( 'wp_head', array( __CLASS__, 'print_embed_styles' ), 99 );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_embed_styles' ), 99 );
 		add_action( 'wp_footer', array( __CLASS__, 'print_order_received_signal' ), 99 );
 
 		add_action( 'woocommerce_review_order_before_submit', array( __CLASS__, 'print_flag_field' ) );
@@ -188,6 +189,27 @@ class WooCommerceDrawer {
 	}
 
 	/**
+	 * The drawer's own look for the checkout and thank-you pages (cards,
+	 * rounded fields, the page's accent on Place Order) - and the plugin's
+	 * front-end sheet, which styles the ticket/invoice buttons.
+	 */
+	public static function enqueue_embed_styles() {
+		if ( ! self::is_embedded() ) {
+			return;
+		}
+
+		$file = MAGEYABO_PLUGIN_DIR . 'assets/frontend/embedded-checkout.css';
+
+		wp_enqueue_style( 'mageyabo-frontend' );
+		wp_enqueue_style(
+			'mageyabo-embedded-checkout',
+			MAGEYABO_PLUGIN_URL . 'assets/frontend/embedded-checkout.css',
+			array(),
+			file_exists( $file ) ? (string) filemtime( $file ) : MAGEYABO_VERSION
+		);
+	}
+
+	/**
 	 * Belt and braces for themes that print their header from a hook the
 	 * canvas cannot skip, and for sites that turn the canvas off.
 	 */
@@ -222,6 +244,20 @@ class WooCommerceDrawer {
 			.mageyabo-embedded-checkout #order_review { float: none; width: 100%; }
 			@media (max-width: 600px) { .mageyabo-embed { padding: 16px 16px 24px; } }
 		</style>
+		<script>
+			// The drawer this page sits in knows the page's accent (gold on a
+			// yacht page); carry it over so Place Order matches "Book Now".
+			( function () {
+				try {
+					var drawer = window.parent.document.querySelector( '.ybs-bf-drawer.is-checkout' );
+					var accent = drawer && window.parent.getComputedStyle( drawer ).getPropertyValue( '--ybs-drawer-accent' ).trim();
+
+					if ( accent ) {
+						document.documentElement.style.setProperty( '--mageyabo-accent-from-drawer', accent );
+					}
+				} catch ( e ) {}
+			} )();
+		</script>
 		<?php
 	}
 

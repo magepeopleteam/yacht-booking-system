@@ -2,11 +2,10 @@ import { __ } from '@wordpress/i18n';
 
 /**
  * The always-visible "Publish" sidebar box (present on every wizard step,
- * not just Basic Info) - status, slug, and the two save actions live here
- * instead of the page header/footer, matching the classic WP editor's
- * Publish box convention.
+ * not just Basic Info): the yacht's status and its slug. Saving lives in the
+ * editor's top bar (EditorHeader) - Update/Publish and Save Draft are there.
  */
-export default function PublishBox({ status, slug, title, saving, onSlugChange, onSaveDraft, onPublish, permalink }) {
+export default function PublishBox({ status, slug, title, onSlugChange, permalink }) {
 	const isPublished = 'publish' === status;
 
 	return (
@@ -34,19 +33,6 @@ export default function PublishBox({ status, slug, title, saving, onSlugChange, 
 							{permalink}
 						</a>
 					)}
-				</div>
-
-				<div className="ybs-publishbox__actions">
-					<button type="button" className="ybs-btn" onClick={onSaveDraft} disabled={saving}>
-						{__('Save Draft', 'magepeople-yacht-booking-system')}
-					</button>
-					<button type="button" className="ybs-btn is-primary" onClick={onPublish} disabled={saving}>
-						{saving
-							? __('Saving…', 'magepeople-yacht-booking-system')
-							: isPublished
-								? __('Update', 'magepeople-yacht-booking-system')
-								: __('Publish', 'magepeople-yacht-booking-system')}
-					</button>
 				</div>
 			</div>
 		</div>

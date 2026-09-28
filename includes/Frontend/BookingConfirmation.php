@@ -179,6 +179,12 @@ class BookingConfirmation {
 					<?php endif; ?>
 				</dl>
 
+				<?php
+				// Downloads (ticket, invoice) - nothing here unless an add-on
+				// provides them, and never for a cancelled booking.
+				echo mageyabo_booking_documents_html( $booking ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped piecewise inside the helper; wp_kses_post would strip the SVG icon.
+				?>
+
 				<?php if ( 'offline' === $booking['payment_method'] && Settings::get( 'offline_instructions', '' ) ) : ?>
 					<div class="ybs-confirmation__instructions">
 						<h4><?php esc_html_e( 'Payment instructions', 'magepeople-yacht-booking-system' ); ?></h4>

@@ -857,6 +857,33 @@ function setSubmitEnabled( form, enabled ) {
  */
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
+/**
+ * Moves the drawer's progress strip (Summary · Checkout · Confirmed) to
+ * `step`: the steps before it are ticked, it is the current one.
+ */
+function setStep( form, step ) {
+	const drawer = drawerOf( form );
+	const steps = drawer && drawer.querySelector( '[data-ybs-bf-steps]' );
+
+	if ( ! steps ) {
+		return;
+	}
+
+	drawer.dataset.step = String( step );
+
+	steps.querySelectorAll( '[data-step]' ).forEach( ( item ) => {
+		const n = parseInt( item.dataset.step, 10 );
+		item.classList.toggle( 'is-done', n < step || 3 === step );
+		item.classList.toggle( 'is-current', n === step );
+
+		if ( n === step ) {
+			item.setAttribute( 'aria-current', 'step' );
+		} else {
+			item.removeAttribute( 'aria-current' );
+		}
+	} );
+}
+
 function openModal( form ) {
 	const drawer = drawerOf( form );
 
@@ -883,6 +910,12 @@ function openModal( form ) {
 	}
 
 	renderSummary( form );
+
+	// A WooCommerce drawer opens on its summary (checkout follows in the
+	// frame); the native one has the details form right under it.
+	if ( '3' !== drawer.dataset.step ) {
+		setStep( form, drawer.classList.contains( 'is-wc' ) && ! drawer.classList.contains( 'is-checkout' ) ? 1 : 2 );
+	}
 
 	// When the charter cannot be booked as chosen, say why inside the drawer
 	// too - not just on the page behind it.
@@ -1010,13 +1043,10 @@ function renderSummary( form ) {
 		yachtBox.innerHTML = '';
 		yachtBox.hidden = ! yacht.name;
 
-		if ( yacht.thumb ) {
-			const img = document.createElement( 'img' );
-			img.src = yacht.thumb;
-			img.alt = '';
-			img.className = 'ybs-bf-summary__thumb';
-			yachtBox.appendChild( img );
-		}
+		const badge = document.createElement( 'span' );
+		badge.className = 'ybs-bf-summary__badge';
+		badge.setAttribute( 'aria-hidden', 'true' );
+		yachtBox.appendChild( badge );
 
 		const text = document.createElement( 'div' );
 		const name = document.createElement( 'strong' );
@@ -1060,21 +1090,22 @@ function renderSummary( form ) {
 		} );
 
 		const rows = [
-			[ i18n.detailDates || 'Date & Time', window_ ? formatDateRange( window_.start, window_.end ) : '' ],
-			[ i18n.detailCharter || 'Charter', charter ],
-			[ i18n.detailBooking || 'Booking', find( form, '.ybs-bf-mode' ) ? selectedLabel( find( form, '.ybs-bf-mode' ) ) : '' ],
-			[ i18n.detailGuests || 'Guests', String( ( find( form, '.ybs-bf-guests' ) || {} ).value || 1 ) ],
-			[ i18n.detailExtras || 'Extras', extras.join( ', ' ) ],
+			[ i18n.detailDates || 'Date & Time', window_ ? formatDateRange( window_.start, window_.end ) : '', 'date' ],
+			[ i18n.detailCharter || 'Charter', charter, 'charter' ],
+			[ i18n.detailBooking || 'Booking', find( form, '.ybs-bf-mode' ) ? selectedLabel( find( form, '.ybs-bf-mode' ) ) : '', 'booking' ],
+			[ i18n.detailGuests || 'Guests', String( ( find( form, '.ybs-bf-guests' ) || {} ).value || 1 ), 'guests' ],
+			[ i18n.detailExtras || 'Extras', extras.join( ', ' ), 'extras' ],
 		];
 
 		details.innerHTML = '';
 
-		rows.forEach( ( [ label, value ] ) => {
+		rows.forEach( ( [ label, value, key ] ) => {
 			if ( ! value ) {
 				return;
 			}
 
 			const dt = document.createElement( 'dt' );
+			dt.className = 'is-' + key;
 			dt.textContent = label;
 			const dd = document.createElement( 'dd' );
 			dd.textContent = value;
@@ -1137,8 +1168,14 @@ function renderSummary( form ) {
 
 /* ---- Coupon code (built-in discount codes, see CouponService.php) ---- */
 
+/**
+ * The built-in coupon box only - never the Pro add-on's field, which uses the
+ * same classes but is wired by the add-on itself. Grabbing Pro's box here
+ * (which has no Remove button) threw during setup and left the whole form
+ * without a quote or a working Confirm button.
+ */
 function couponBox( form ) {
-	return find( form, '[data-ybs-bf-coupon]' );
+	return find( form, '[data-ybs-bf-coupon="builtin"]' );
 }
 
 function setCouponMessage( form, text, isError ) {
@@ -1258,6 +1295,46 @@ function formatDateRange( startStr, endStr ) {
 	return `${ dateFmt.format( start ) }, ${ timeFmt.format( start ) }`;
 }
 
+const DOWNLOAD_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+
+/**
+ * The same download buttons mageyabo_booking_documents_html() prints on the
+ * confirmation page, built from the `documents` the booking route returns.
+ */
+function documentButtons( documents, i18n ) {
+	const box = document.createElement( 'div' );
+	box.className = 'ybs-docs';
+
+	const label = document.createElement( 'span' );
+	label.className = 'ybs-docs__label';
+	label.textContent = i18n.yourDocuments || 'Your documents';
+
+	const buttons = document.createElement( 'div' );
+	buttons.className = 'ybs-docs__buttons';
+
+	documents.forEach( ( doc ) => {
+		if ( ! doc || ! doc.url ) {
+			return;
+		}
+
+		const a = document.createElement( 'a' );
+		a.className = 'ybs-docs__button is-' + String( doc.id || '' ).replace( /[^a-z0-9_-]/gi, '' );
+		a.href = doc.url;
+		a.target = '_blank';
+		a.rel = 'noopener';
+		a.innerHTML = DOWNLOAD_ICON;
+
+		const text = document.createElement( 'span' );
+		text.textContent = doc.label;
+		a.append( text );
+		buttons.append( a );
+	} );
+
+	box.append( label, buttons );
+
+	return box;
+}
+
 /**
  * The confirmation screen shown in place of the fields once a booking that
  * needs no further payment step (offline, or anything else that doesn't
@@ -1268,11 +1345,16 @@ function formatDateRange( startStr, endStr ) {
 function showBookingSuccess( form, data, payload, window_ ) {
 	const config = window.mageyaboFrontendConfig;
 	const i18n = config.i18n || {};
+	const drawer = drawerOf( form );
 	const fields = find( form, '[data-ybs-bf-modal-fields]' );
 	const cardBox = find( form, '[data-ybs-bf-stripe-card]' );
 	const successBox = find( form, '[data-ybs-bf-success]' );
 	const messageEl = find( form, '[data-ybs-bf-success-message]' );
 	const detailsEl = find( form, '[data-ybs-bf-success-details]' );
+	const yachtEl = find( form, '[data-ybs-bf-success-yacht]' );
+	const totalEl = find( form, '[data-ybs-bf-success-total]' );
+	const extrasEl = find( form, '[data-ybs-bf-success-extras]' );
+	const actionsEl = find( form, '[data-ybs-bf-success-actions]' );
 	const titleEl = find( form, '.ybs-bf-modal__title' );
 	const openModalButton = find( form, '.ybs-bf-open-modal' );
 
@@ -1280,19 +1362,17 @@ function showBookingSuccess( form, data, payload, window_ ) {
 		return false;
 	}
 
-	if ( fields ) {
-		fields.hidden = true;
+	[ fields, cardBox, find( form, '[data-ybs-bf-summary]' ), find( form, '[data-ybs-bf-drawer-footer]' ) ].forEach( ( el ) => {
+		if ( el ) {
+			el.hidden = true;
+		}
+	} );
+
+	if ( drawer ) {
+		drawer.classList.add( 'is-success' );
 	}
 
-	if ( cardBox ) {
-		cardBox.hidden = true;
-	}
-
-	const summary = find( form, '[data-ybs-bf-summary]' );
-
-	if ( summary ) {
-		summary.hidden = true;
-	}
+	setStep( form, 3 );
 
 	if ( titleEl ) {
 		titleEl.textContent = i18n.bookingConfirmedTitle || 'Booking Confirmed!';
@@ -1304,27 +1384,39 @@ function showBookingSuccess( form, data, payload, window_ ) {
 			: ( i18n.bookingConfirmed || 'Thank you - your booking request has been received.' );
 	}
 
+	// The ticket's head: the same yacht card the summary showed.
+	const summaryYachtEl = find( form, '[data-ybs-bf-summary-yacht]' );
+
+	if ( yachtEl && summaryYachtEl && ! summaryYachtEl.hidden && summaryYachtEl.childElementCount ) {
+		yachtEl.innerHTML = summaryYachtEl.innerHTML;
+
+		const reference = document.createElement( 'span' );
+		reference.className = 'ybs-bf-success__ref';
+		reference.textContent = data.reference || '#' + data.booking_id;
+		yachtEl.appendChild( reference );
+		yachtEl.hidden = false;
+	}
+
 	if ( detailsEl ) {
 		const gateways = config.gateways || {};
 		const paymentLabel = ( gateways[ payload.payment_method ] && gateways[ payload.payment_method ].label ) || payload.payment_method;
-		const total = data.pricing ? `${ config.currency }${ Number( data.pricing.total ).toFixed( 2 ) }` : '';
 
 		const rows = [
-			[ i18n.detailBookingId || 'Booking ID', '#' + data.booking_id ],
-			[ i18n.detailDates || 'Date & Time', formatDateRange( window_.start, window_.end ) ],
-			[ i18n.detailGuests || 'Guests', String( payload.guest_count ) ],
-			[ i18n.detailPayment || 'Payment Method', paymentLabel ],
-			[ i18n.detailTotal || 'Total', total ],
+			[ i18n.detailBookingId || 'Booking ID', yachtEl && ! yachtEl.hidden ? '' : ( data.reference || '#' + data.booking_id ), 'ref' ],
+			[ i18n.detailDates || 'Date & Time', formatDateRange( window_.start, window_.end ), 'date' ],
+			[ i18n.detailGuests || 'Guests', String( payload.guest_count ), 'guests' ],
+			[ i18n.detailPayment || 'Payment Method', paymentLabel, 'payment' ],
 		];
 
 		detailsEl.innerHTML = '';
 
-		rows.forEach( ( [ label, value ] ) => {
+		rows.forEach( ( [ label, value, key ] ) => {
 			if ( ! value ) {
 				return;
 			}
 
 			const dt = document.createElement( 'dt' );
+			dt.className = 'is-' + key;
 			dt.textContent = label;
 			const dd = document.createElement( 'dd' );
 			dd.textContent = value;
@@ -1332,18 +1424,43 @@ function showBookingSuccess( form, data, payload, window_ ) {
 		} );
 	}
 
+	if ( totalEl && data.pricing ) {
+		totalEl.innerHTML = '';
+		const label = document.createElement( 'span' );
+		label.textContent = i18n.detailTotal || 'Total';
+		const value = document.createElement( 'strong' );
+		value.textContent = `${ config.currency }${ Number( data.pricing.total ).toFixed( 2 ) }`;
+		totalEl.append( label, value );
+		totalEl.hidden = false;
+	}
+
+	// Ticket / invoice downloads, when an add-on provides them.
+	if ( extrasEl ) {
+		extrasEl.innerHTML = '';
+
+		if ( Array.isArray( data.documents ) && data.documents.length ) {
+			extrasEl.appendChild( documentButtons( data.documents, i18n ) );
+		}
+	}
+
 	// The same page both hosted gateways return to - so an offline booking
 	// ends up somewhere it can be looked at again later, not just in a popup
 	// that closes.
-	if ( data.confirmation_url && detailsEl ) {
+	if ( data.confirmation_url && actionsEl && ! actionsEl.querySelector( '.ybs-bf-success__link' ) ) {
 		const link = document.createElement( 'a' );
-		link.className = 'ybs-bf-success__link';
+		link.className = 'ybs-btn ybs-bf-success__link';
 		link.href = data.confirmation_url;
 		link.textContent = i18n.viewBooking || 'View your booking';
-		detailsEl.after( link );
+		actionsEl.prepend( link );
 	}
 
 	successBox.hidden = false;
+
+	const body = find( form, '.ybs-bf-drawer__body' );
+
+	if ( body ) {
+		body.scrollTop = 0;
+	}
 
 	// Nothing left to book on this form instance until the page is reloaded
 	// (the availability check above only holds for this exact window) - swap
@@ -1650,6 +1767,7 @@ function setCheckoutStage( form, checkoutUrl ) {
 	const title = drawerTitle( form );
 
 	drawer.classList.toggle( 'is-checkout', showCheckout );
+	setStep( form, showCheckout ? 2 : 1 );
 	stage.hidden = ! showCheckout;
 	drawer.querySelector( '[data-ybs-bf-back]' ).hidden = ! showCheckout;
 	drawer.querySelector( '[data-ybs-bf-summary]' ).hidden = showCheckout;
@@ -1762,6 +1880,7 @@ function onEmbeddedOrderReceived( event ) {
 	const title = drawerTitle( form );
 
 	drawer.querySelector( '[data-ybs-bf-back]' ).hidden = true;
+	setStep( form, 3 );
 
 	if ( title ) {
 		title.textContent = i18n.bookingConfirmedTitle || 'Booking Confirmed!';
@@ -1909,12 +2028,36 @@ export function initBookingForms() {
 			find( form, '[data-ybs-bf-back]' ).addEventListener( 'click', () => setCheckoutStage( form, '' ) );
 		} else {
 			const coupon = couponBox( form );
+			const couponInput = coupon && coupon.querySelector( '.ybs-bf-coupon-input' );
+			const couponApply = coupon && coupon.querySelector( '.ybs-bf-coupon-apply' );
+			const couponRemove = coupon && coupon.querySelector( '.ybs-bf-coupon-remove' );
 
-			if ( coupon ) {
-				const couponInput = coupon.querySelector( '.ybs-bf-coupon-input' );
+			const couponToggle = coupon && coupon.querySelector( '.ybs-bf-coupon__toggle' );
+			const couponPanel = coupon && coupon.querySelector( '.ybs-bf-coupon__panel' );
 
-				coupon.querySelector( '.ybs-bf-coupon-apply' ).addEventListener( 'click', () => applyCoupon( form ) );
-				coupon.querySelector( '.ybs-bf-coupon-remove' ).addEventListener( 'click', () => removeCoupon( form ) );
+			// "Have a coupon code?" opens the field; the line goes away once used.
+			if ( couponToggle && couponPanel ) {
+				couponToggle.addEventListener( 'click', () => {
+					couponPanel.hidden = false;
+					coupon.classList.remove( 'is-collapsed' );
+					couponToggle.setAttribute( 'aria-expanded', 'true' );
+					couponToggle.hidden = true;
+
+					if ( couponInput ) {
+						couponInput.focus();
+					}
+				} );
+			}
+
+			if ( couponApply ) {
+				couponApply.addEventListener( 'click', () => applyCoupon( form ) );
+			}
+
+			if ( couponRemove ) {
+				couponRemove.addEventListener( 'click', () => removeCoupon( form ) );
+			}
+
+			if ( couponInput ) {
 				couponInput.addEventListener( 'keydown', ( event ) => {
 					if ( 'Enter' === event.key ) {
 						event.preventDefault();

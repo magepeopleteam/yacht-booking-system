@@ -154,3 +154,65 @@ if ( ! function_exists( 'mageyabo_booking_reference' ) ) {
 		return sprintf( 'YB-%06d', (int) $booking_id );
 	}
 }
+
+/**
+ * Files a guest can download for their booking - a ticket, an invoice - as
+ * `array( 'id', 'label', 'url' )` rows. The plugin generates no documents
+ * itself, so this is empty unless an add-on (Pro's Documents) supplies them,
+ * and every place that shows the buttons shows nothing at all when it is.
+ *
+ * @param array $booking The booking row.
+ * @return array[]
+ */
+if ( ! function_exists( 'mageyabo_booking_guest_documents' ) ) {
+	function mageyabo_booking_guest_documents( $booking ) {
+		if ( empty( $booking['id'] ) || in_array( $booking['status'] ?? '', array( 'cancelled', 'refunded' ), true ) ) {
+			return array();
+		}
+
+		/**
+		 * @param array[] $documents Rows of `id`, `label`, `url`.
+		 * @param array   $booking   The booking row.
+		 */
+		$documents = (array) apply_filters( 'mageyabo_booking_guest_documents', array(), $booking );
+
+		return array_values(
+			array_filter(
+				$documents,
+				static function ( $doc ) {
+					return is_array( $doc ) && ! empty( $doc['url'] ) && ! empty( $doc['label'] );
+				}
+			)
+		);
+	}
+}
+
+/**
+ * The download buttons for a booking's documents, or '' when there are none.
+ *
+ * @param array $booking The booking row.
+ */
+if ( ! function_exists( 'mageyabo_booking_documents_html' ) ) {
+	function mageyabo_booking_documents_html( $booking ) {
+		$documents = mageyabo_booking_guest_documents( $booking );
+
+		if ( ! $documents ) {
+			return '';
+		}
+
+		$icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+		$html = '<div class="ybs-docs"><span class="ybs-docs__label">' . esc_html__( 'Your documents', 'magepeople-yacht-booking-system' ) . '</span><div class="ybs-docs__buttons">';
+
+		foreach ( $documents as $doc ) {
+			$html .= sprintf(
+				'<a class="ybs-docs__button is-%1$s" href="%2$s" target="_blank" rel="noopener">%3$s<span>%4$s</span></a>',
+				esc_attr( sanitize_key( $doc['id'] ?? '' ) ),
+				esc_url( $doc['url'] ),
+				$icon,
+				esc_html( $doc['label'] )
+			);
+		}
+
+		return $html . '</div></div>';
+	}
+}

@@ -15,6 +15,8 @@ import GalleryPicker from '../components/GalleryPicker';
 import RelatedYachtsPicker from '../components/RelatedYachtsPicker';
 import TagSelect from '../components/TagSelect';
 import PublishBox from '../components/PublishBox';
+import EditorHeader from '../components/EditorHeader';
+import { EMAIL_PRESETS } from '../components/emailPresets';
 import PaymentSettingsCard from '../components/PaymentSettingsCard';
 import TimeField from '../components/TimeField';
 
@@ -215,12 +217,16 @@ export default function YachtWizard({ yachtId }) {
 	}
 
 	return (
-		<div className="ybs-wizard">
-			<div className="ybs-page-header">
-				<div>
-					<h2>{yachtId ? __('Edit Yacht', 'magepeople-yacht-booking-system') : __('Add New Yacht', 'magepeople-yacht-booking-system')}</h2>
-				</div>
-			</div>
+		<div className="ybs-wizard has-editor-head">
+			<EditorHeader
+				title={form.title}
+				isNew={!yachtId}
+				status={form.status}
+				permalink={form.permalink}
+				saving={saving}
+				onPublish={() => save('publish')}
+				onSaveDraft={() => save('draft')}
+			/>
 
 			<nav className="ybs-wizard-steps" aria-label={__('Yacht setup steps', 'magepeople-yacht-booking-system')}>
 				{STEPS.map((item, index) => (
@@ -254,10 +260,7 @@ export default function YachtWizard({ yachtId }) {
 						slug={form.slug}
 						title={form.title}
 						permalink={form.permalink}
-						saving={saving}
 						onSlugChange={(value) => set('slug', value)}
-						onSaveDraft={() => save('draft')}
-						onPublish={() => save('publish')}
 					/>
 
 					{1 === step && (
@@ -550,43 +553,108 @@ function AddonAssignment({ yachtId }) {
 
 function StepPricing({ form, set, yachtId }) {
 	const mode = form.booking_mode || 'full';
-	const showShared = 'both' === mode;
+	// Which price grids this mode actually uses: full charters read the
+	// full-charter rates, shared bookings the per-seat ones (see
+	// PricingEngine::mode_rate()).
+	const showFull = 'shared' !== mode;
+	const showShared = 'full' !== mode;
 
 	return (
 		<>
 			<Card
 				title={__('Base Rates', 'magepeople-yacht-booking-system')}
 				subtitle={
-					showShared
-						? __('This yacht runs both full and shared charters - set a separate price grid for each.', 'magepeople-yacht-booking-system')
-						: __('Leave a rate blank to disable that booking type for this yacht.', 'magepeople-yacht-booking-system')
+					{
+						full: __('Full charters only - one price for the whole yacht. Leave a rate blank to disable that booking type.', 'magepeople-yacht-booking-system'),
+						shared: __('Shared charters only - guests pay per seat. Leave a rate blank to disable that booking type.', 'magepeople-yacht-booking-system'),
+						both: __('This yacht runs both full and shared charters - set a separate price grid for each.', 'magepeople-yacht-booking-system'),
+					}[mode] || ''
 				}
 			>
-				<Field
-					label={__('Booking Mode', 'magepeople-yacht-booking-system')}
-					hint={
-						'both' === mode
+				{/* Real radios dressed as the Settings screen's mode cards, so the
+				    choice is one click, and Tab / arrow keys work as for any radio group. */}
+				<fieldset className="ybs-field ybs-booking-mode">
+					<legend>{__('Booking Mode', 'magepeople-yacht-booking-system')}</legend>
+					<div className="ybs-mode-cards is-three">
+						{[
+							{
+								value: 'full',
+								icon: 'dashicons-flag',
+								title: __('Full Charter', 'magepeople-yacht-booking-system'),
+								desc: __('Guests book the whole yacht at one price.', 'magepeople-yacht-booking-system'),
+							},
+							{
+								value: 'shared',
+								icon: 'dashicons-groups',
+								title: __('Shared', 'magepeople-yacht-booking-system'),
+								desc: __('Guests book individual seats, priced per person.', 'magepeople-yacht-booking-system'),
+							},
+							{
+								value: 'both',
+								icon: 'dashicons-randomize',
+								title: __('Both', 'magepeople-yacht-booking-system'),
+								desc: __('Guests choose a full charter or a shared seat.', 'magepeople-yacht-booking-system'),
+							},
+						].map((option) => (
+							<label key={option.value} className={'ybs-mode-card' + (mode === option.value ? ' is-selected' : '')}>
+								<input
+									type="radio"
+									className="ybs-mode-card__input"
+									name="ybs-yacht-booking-mode"
+									value={option.value}
+									checked={mode === option.value}
+									onChange={() => set('booking_mode', option.value)}
+								/>
+								<span className={'ybs-mode-card__icon dashicons ' + option.icon} aria-hidden="true" />
+								<span className="ybs-mode-card__body">
+									<span className="ybs-mode-card__title-row">
+										<strong>{option.title}</strong>
+										{mode === option.value && (
+											<span className="ybs-mode-card__badge">{__('Selected', 'magepeople-yacht-booking-system')}</span>
+										)}
+									</span>
+									<span className="ybs-mode-card__desc">{option.desc}</span>
+								</span>
+							</label>
+						))}
+					</div>
+					<p className="ybs-hint">
+						{'both' === mode
 							? __('Two price grids are shown below - one for full charters, one for shared per-seat bookings.', 'magepeople-yacht-booking-system')
-							: __('Full charter, shared by seat, or both.', 'magepeople-yacht-booking-system')
-					}
-				>
-					<select value={mode} onChange={(e) => set('booking_mode', e.target.value)}>
-						<option value="full">{__('Full Charter', 'magepeople-yacht-booking-system')}</option>
-						<option value="shared">{__('Shared', 'magepeople-yacht-booking-system')}</option>
-						<option value="both">{__('Both', 'magepeople-yacht-booking-system')}</option>
-					</select>
-				</Field>
+							: __('Pick how guests book this yacht. Choose "Both" to offer full charters and shared seats side by side.', 'magepeople-yacht-booking-system')}
+					</p>
+				</fieldset>
 
-				<div className="ybs-field">
-					<label>{showShared ? __('Full Charter Prices', 'magepeople-yacht-booking-system') : __('Prices', 'magepeople-yacht-booking-system')}</label>
-					<RateGrid prefix="base_price_" form={form} set={set} />
-				</div>
+				{/* Each price grid sits on its own lightly tinted panel, so the
+				    full-charter and per-seat prices never read as one long list. */}
+				{showFull && (
+					<section className="ybs-rate-panel is-full" aria-labelledby="ybs-rate-panel-full">
+						<div className="ybs-rate-panel__head">
+							<span className="ybs-rate-panel__icon dashicons dashicons-flag" aria-hidden="true" />
+							<div>
+								<h4 id="ybs-rate-panel-full" className="ybs-rate-panel__title">{__('Full Charter Prices', 'magepeople-yacht-booking-system')}</h4>
+								<p className="ybs-rate-panel__desc">{__('Private hire of the whole yacht - one price per booking, whatever the group size.', 'magepeople-yacht-booking-system')}</p>
+							</div>
+						</div>
+						<RateGrid prefix="base_price_" form={form} set={set} />
+					</section>
+				)}
 
 				{showShared && (
-					<div className="ybs-field" style={{ marginTop: 16 }}>
-						<label>{__('Shared Prices (per seat)', 'magepeople-yacht-booking-system')}</label>
+					<section className="ybs-rate-panel is-shared" aria-labelledby="ybs-rate-panel-shared">
+						<div className="ybs-rate-panel__head">
+							<span className="ybs-rate-panel__icon dashicons dashicons-groups" aria-hidden="true" />
+							<div>
+								<h4 id="ybs-rate-panel-shared" className="ybs-rate-panel__title">{__('Shared Prices (per seat)', 'magepeople-yacht-booking-system')}</h4>
+								<p className="ybs-rate-panel__desc">
+									{'both' === mode
+										? __('Charged per guest, multiplied by the number of seats booked. A blank rate falls back to the full-charter rate.', 'magepeople-yacht-booking-system')
+										: __('Charged per guest, multiplied by the number of seats booked.', 'magepeople-yacht-booking-system')}
+								</p>
+							</div>
+						</div>
 						<RateGrid prefix="base_price_shared_" form={form} set={set} />
-					</div>
+					</section>
 				)}
 			</Card>
 
@@ -694,8 +762,48 @@ function StepPricing({ form, set, yachtId }) {
 
 const YACHT_EMAIL_EDITOR_ID = 'mageyabo_yacht_confirmation_email_body';
 
+/**
+ * The description as formatted text for the review - it is HTML from the
+ * editor, and printing it as a string showed raw tags. Scripts, frames,
+ * forms, inline event handlers and javascript: links are dropped before it
+ * is rendered.
+ */
+function previewHtml(html) {
+	const doc = new window.DOMParser().parseFromString(String(html || ''), 'text/html');
+
+	doc.querySelectorAll('script, style, iframe, object, embed, form, link, meta').forEach((el) => el.remove());
+
+	doc.body.querySelectorAll('*').forEach((el) => {
+		Array.from(el.attributes).forEach((attr) => {
+			const name = attr.name.toLowerCase();
+			const value = attr.value.trim().toLowerCase();
+
+			if (name.startsWith('on') || (['href', 'src', 'xlink:href', 'action'].includes(name) && value.startsWith('javascript:'))) {
+				el.removeAttribute(attr.name);
+			}
+		});
+	});
+
+	return doc.body.innerHTML;
+}
+
 function StepReview({ form, set }) {
 	const [showTestModal, setShowTestModal] = useState(false);
+	// Bumped when a sample is applied: the classic editor only reads its
+	// content when it mounts, so it is remounted with the new body.
+	const [emailEditorVersion, setEmailEditorVersion] = useState(0);
+
+	const applyEmailPreset = (preset) => {
+		const hasContent = (form.confirmation_email_subject || '').trim() || (form.confirmation_email_body || '').replace(/<[^>]*>/g, '').trim();
+
+		if (hasContent && !window.confirm(__('Replace the current subject and body with this sample?', 'magepeople-yacht-booking-system'))) {
+			return;
+		}
+
+		set('confirmation_email_subject', preset.subject);
+		set('confirmation_email_body', preset.body);
+		setEmailEditorVersion((version) => version + 1);
+	};
 	const mode = form.booking_mode || 'full';
 	const rateRows = (prefix, suffix) =>
 		RATE_FIELDS.map((field) => {
@@ -723,7 +831,9 @@ function StepReview({ form, set }) {
 				title={form.title || __('(Untitled Yacht)', 'magepeople-yacht-booking-system')}
 				subtitle={__('Review the details, then publish to make this yacht bookable on the frontend.', 'magepeople-yacht-booking-system')}
 			>
-				<p>{form.description}</p>
+				{form.description ? (
+					<div className="ybs-review-description" dangerouslySetInnerHTML={{ __html: previewHtml(form.description) }} />
+				) : null}
 				<table className="ybs-table">
 					<tbody>
 						<tr><th>{__('Capacity', 'magepeople-yacht-booking-system')}</th><td>{form.capacity}</td></tr>
@@ -732,8 +842,8 @@ function StepReview({ form, set }) {
 							<th>{__('Booking Mode', 'magepeople-yacht-booking-system')}</th>
 							<td>{'full' === mode ? __('Full Charter', 'magepeople-yacht-booking-system') : 'shared' === mode ? __('Shared', 'magepeople-yacht-booking-system') : __('Both', 'magepeople-yacht-booking-system')}</td>
 						</tr>
-						{'shared' !== mode && rateRows('base_price_', '')}
-						{'both' === mode && rateRows('base_price_shared_', __(' (shared)', 'magepeople-yacht-booking-system'))}
+						{'shared' !== mode && rateRows('base_price_', 'both' === mode ? __(' · full charter', 'magepeople-yacht-booking-system') : '')}
+						{'full' !== mode && rateRows('base_price_shared_', __(' · per seat', 'magepeople-yacht-booking-system'))}
 						<tr><th>{__('Location', 'magepeople-yacht-booking-system')}</th><td>{form.location_name}</td></tr>
 						<tr>
 							<th>{__('Related Yachts', 'magepeople-yacht-booking-system')}</th>
@@ -760,6 +870,16 @@ function StepReview({ form, set }) {
 						{__('Send Test Email', 'magepeople-yacht-booking-system')}
 					</button>
 				</div>
+				<div className="ybs-email-presets">
+					<span className="ybs-email-presets__label">{__('Start from a sample:', 'magepeople-yacht-booking-system')}</span>
+					<div className="ybs-email-presets__list">
+						{EMAIL_PRESETS.map((preset) => (
+							<button type="button" key={preset.id} className="ybs-email-presets__btn" onClick={() => applyEmailPreset(preset)}>
+								{preset.label}
+							</button>
+						))}
+					</div>
+				</div>
 				<Field label={__('Email Subject', 'magepeople-yacht-booking-system')} hint={__('Leave blank to use the global subject when a yacht-specific body is set.', 'magepeople-yacht-booking-system')}>
 					<input
 						type="text"
@@ -769,6 +889,7 @@ function StepReview({ form, set }) {
 				</Field>
 				<Field label={__('Email Body', 'magepeople-yacht-booking-system')}>
 					<ClassicEditor
+						key={emailEditorVersion}
 						id={YACHT_EMAIL_EDITOR_ID}
 						value={form.confirmation_email_body}
 						onChange={(html) => set('confirmation_email_body', html)}

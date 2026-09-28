@@ -528,9 +528,15 @@
 
 .ybs-ys-layout {
 	display: grid;
-	grid-template-columns: 1fr;
+	/* minmax(0, 1fr), not 1fr: a plain 1fr column never shrinks below its
+	   widest content, which pushed the page past the screen on phones. */
+	grid-template-columns: minmax(0, 1fr);
 	gap: 40px;
 	align-items: start;
+}
+
+.ybs-ys-layout > * {
+	min-width: 0;
 }
 
 @media (min-width: 1024px) {
@@ -1104,7 +1110,32 @@
 
 .ybs-ys-form .ybs-booking-form {
 	display: grid;
+	/* minmax(0, 1fr): a plain 1fr column grows to its widest field (the date
+	   input, the long mode option) and pushed every field past the card on
+	   phones. */
+	grid-template-columns: minmax(0, 1fr);
 	gap: 12px;
+}
+
+.ybs-ys-form .ybs-booking-form > *,
+.ybs-ys-form .ybs-field,
+.ybs-ys-form .ybs-field-row > * {
+	min-width: 0;
+}
+
+.ybs-ys-form .ybs-field input,
+.ybs-ys-form .ybs-field select,
+.ybs-ys-form .ybs-bf-open-modal {
+	max-width: 100%;
+	min-width: 0;
+}
+
+/* The card already pads the form; its own 24px on top of that left little
+   room for the fields on a phone. */
+@media (max-width: 600px) {
+	.ybs-ys-form .ybs-booking-form {
+		padding: 16px 14px;
+	}
 }
 
 /* The live, selection-driven quote is the only price shown in this card -
@@ -1722,9 +1753,12 @@
 
 @media (min-width: 640px) and (max-width: 1023.98px) {
 
-	/* Tablet: booking card sits above content in a comfortable width */
+	/* Tablet: booking card sits above content in a comfortable width,
+	   centred rather than hugging the left edge. */
 	.ybs-ys-sidebar {
+		width: 100%;
 		max-width: 640px;
+		margin-inline: auto;
 	}
 
 	.ybs-ys-specs {
