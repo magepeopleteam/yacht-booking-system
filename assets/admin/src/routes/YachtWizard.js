@@ -260,6 +260,19 @@ export default function YachtWizard({ yachtId }) {
 						onPublish={() => save('publish')}
 					/>
 
+					{1 === step && (
+						<Card title={__('Featured Image', 'magepeople-yacht-booking-system')}>
+							<MediaPicker
+								id={form.featured_media}
+								url={form.thumbnail}
+								onChange={(id, url) => {
+									set('featured_media', id);
+									set('thumbnail', url);
+								}}
+							/>
+						</Card>
+					)}
+
 					<PaymentSettingsCard />
 
 					{1 === step && (
@@ -355,21 +368,10 @@ function StepBasicInfo({ form, set, errors }) {
 	);
 }
 
-/** Media/taxonomy cards only make sense while editing Basic Info - shown in the sidebar only on step 1. */
+/** Media/taxonomy cards only make sense while editing Basic Info - shown in the sidebar only on step 1. Featured Image sits right under the Publish box instead, higher in the sidebar - see the wizard's aside. */
 function Step1Sidebar({ form, set, taxonomies, setTaxonomies, yachtId }) {
 	return (
 		<>
-			<Card title={__('Featured Image', 'magepeople-yacht-booking-system')}>
-				<MediaPicker
-					id={form.featured_media}
-					url={form.thumbnail}
-					onChange={(id, url) => {
-						set('featured_media', id);
-						set('thumbnail', url);
-					}}
-				/>
-			</Card>
-
 			<Card title={__('Gallery', 'magepeople-yacht-booking-system')} subtitle={__('Shown on the yacht listing page.', 'magepeople-yacht-booking-system')}>
 				<GalleryPicker items={form.gallery} onChange={(items) => set('gallery', items)} />
 			</Card>
