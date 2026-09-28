@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'MAGEYABO_VERSION', '1.2.5' );
-define( 'MAGEYABO_DB_VERSION', '5' );
+define( 'MAGEYABO_DB_VERSION', '6' );
 define( 'MAGEYABO_PLUGIN_FILE', __FILE__ );
 define( 'MAGEYABO_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MAGEYABO_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

@@ -10,6 +10,7 @@ import Bookings from './routes/Bookings';
 import Calendar from './routes/Calendar';
 import Guests from './routes/Guests';
 import Addons from './routes/Addons';
+import Coupons from './routes/Coupons';
 import SettingsScreen from './routes/Settings';
 import ProFeature from './routes/ProFeature';
 import ProFeatures from './routes/ProFeatures';
@@ -50,6 +51,13 @@ export default function App() {
 		case 'addons':
 			screen = <Addons />;
 			break;
+		case 'coupons': {
+			// The Pro add-on's own coupon screen wins when it is installed;
+			// otherwise the built-in discount codes are managed here.
+			const ProCoupons = getRoute( 'coupons' );
+			screen = ProCoupons ? <ProCoupons /> : <Coupons />;
+			break;
+		}
 		case 'settings':
 			screen = <SettingsScreen />;
 			break;

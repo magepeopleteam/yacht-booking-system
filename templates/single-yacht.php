@@ -159,7 +159,7 @@ if ( $mageyabo_classes ) {
 					<div class="ybs-ys-spec">
 						<span class="ybs-ys-spec__icon dashicons dashicons-leftright"></span>
 						<span class="ybs-ys-spec__label"><?php esc_html_e( 'Length', 'magepeople-yacht-booking-system' ); ?></span>
-						<span class="ybs-ys-spec__value"><?php echo esc_html( /* translators: %s: yacht length in metres. */ sprintf( __( '%s m', 'magepeople-yacht-booking-system' ), $mageyabo_length ) ); ?></span>
+						<span class="ybs-ys-spec__value"><?php echo esc_html( /* translators: %s: yacht length in feet. */ sprintf( __( '%s ft', 'magepeople-yacht-booking-system' ), $mageyabo_length ) ); ?></span>
 					</div>
 				<?php endif; ?>
 				<?php if ( $mageyabo_cabins ) : ?>
@@ -346,7 +346,7 @@ if ( $mageyabo_classes ) {
 									$mageyabo_other_min     = $mageyabo_other_rates ? min( wp_list_pluck( $mageyabo_other_rates, 'amount' ) ) : 0;
 									$mageyabo_other_meta    = array_filter(
 										array(
-											get_post_meta( $mageyabo_other->ID, 'mageyabo_length', true ) ? get_post_meta( $mageyabo_other->ID, 'mageyabo_length', true ) . ' m' : '',
+											get_post_meta( $mageyabo_other->ID, 'mageyabo_length', true ) ? get_post_meta( $mageyabo_other->ID, 'mageyabo_length', true ) . ' ft' : '',
 											get_post_meta( $mageyabo_other->ID, 'mageyabo_capacity', true ) ? get_post_meta( $mageyabo_other->ID, 'mageyabo_capacity', true ) . __( ' guests', 'magepeople-yacht-booking-system' ) : '',
 										)
 									);

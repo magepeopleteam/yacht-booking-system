@@ -3,6 +3,7 @@ namespace MageYaBo;
 
 use MageYaBo\Admin\Menu;
 use MageYaBo\Booking\AvailabilityService;
+use MageYaBo\Booking\CouponService;
 use MageYaBo\Cron\Maintenance;
 use MageYaBo\Frontend\Block;
 use MageYaBo\Frontend\BookingConfirmation;
@@ -12,9 +13,11 @@ use MageYaBo\Frontend\Templates;
 use MageYaBo\Install\Migrator;
 use MageYaBo\Notifications\BookingEmailer;
 use MageYaBo\Payments\Gateways;
+use MageYaBo\Payments\WooCommerceDrawer;
 use MageYaBo\PostTypes\Yacht;
 use MageYaBo\Rest\AddonsController;
 use MageYaBo\Rest\BookingsController;
+use MageYaBo\Rest\CouponsController;
 use MageYaBo\Rest\GuestsController;
 use MageYaBo\Rest\PricingRulesController;
 use MageYaBo\Rest\ReportsController;
@@ -70,6 +73,7 @@ final class Plugin {
 		add_action( 'rest_api_init', array( PricingRulesController::class, 'register_routes' ) );
 		add_action( 'rest_api_init', array( ReportsController::class, 'register_routes' ) );
 		add_action( 'rest_api_init', array( AddonsController::class, 'register_routes' ) );
+		add_action( 'rest_api_init', array( CouponsController::class, 'register_routes' ) );
 
 		/**
 		 * Add-ons and site code can register additional `mageyabo/v1` routes here -
@@ -81,8 +85,10 @@ final class Plugin {
 
 		AvailabilityService::register();
 		Gateways::register();
+		WooCommerceDrawer::register();
 		Maintenance::register();
 		BookingEmailer::register();
+		CouponService::register();
 
 		// No load_plugin_textdomain() call: WordPress has loaded translations
 		// for a wordpress.org-hosted plugin's own text domain automatically

@@ -24,6 +24,7 @@
 }
 
 .ybs-booking-form,
+.ybs-bf-drawer,
 .ybs-yacht-page {
 	--ybs-primary: #f97316;
 	--ybs-primary-dark: #ea580c;
@@ -426,88 +427,454 @@
 	display: none;
 }
 
-/* ---- Booking popup (guest details / payment / terms, opened from "Book
-   Now" - see openModal()/closeModal() in booking-form.js) ---- */
+/* ---- Booking drawer (opened from "Book Now" - see openModal()/closeModal()
+   and renderSummary() in booking-form.js). Slides in from the right: summary
+   on top, guest details / coupon / payment / terms below, total and the
+   Confirm button pinned to the bottom. Moved to <body> when it first opens,
+   so it is styled from its own class rather than from the form around it;
+   `--ybs-drawer-accent` is copied from the page it opened on. ---- */
 
-.ybs-bf-modal {
+.ybs-bf-drawer {
+	--ybs-drawer-accent: var( --ybs-primary );
+	--ybs-drawer-ease: cubic-bezier( .22, 1, .36, 1 );
 	position: fixed;
 	inset: 0;
 	z-index: 100000;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 16px;
+	color: var( --ybs-ink );
+	font-size: 15px;
+	line-height: 1.5;
 }
 
-.ybs-bf-modal[hidden] {
-	display: none;
+.ybs-bf-drawer[hidden],
+.ybs-bf-drawer [hidden] {
+	display: none !important;
+}
+
+.ybs-bf-drawer *,
+.ybs-bf-drawer *::before,
+.ybs-bf-drawer *::after {
+	box-sizing: border-box;
 }
 
 body.ybs-bf-modal-open {
 	overflow: hidden;
 }
 
-.ybs-bf-modal__backdrop {
+.ybs-bf-drawer__backdrop {
 	position: absolute;
 	inset: 0;
-	background: rgba( 15, 23, 42, .6 );
+	background: rgba( 15, 23, 42, .55 );
+	opacity: 0;
+	transition: opacity .3s ease;
 }
 
-.ybs-bf-modal__dialog {
-	position: relative;
-	width: 100%;
-	max-width: 520px;
-	max-height: 88vh;
-	overflow-y: auto;
-	padding: 28px;
-	border-radius: 16px;
-	background: #fff;
-	color: var( --ybs-ink );
-	font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-	box-shadow: 0 24px 60px rgba( 0, 0, 0, .35 );
-	box-sizing: border-box;
-}
-
-.ybs-bf-modal__dialog * {
-	box-sizing: border-box;
-}
-
-.ybs-bf-modal__title {
-	margin: 0 0 18px;
-	padding-right: 30px;
-	font-size: 19px;
-	font-weight: 800;
-	color: var( --ybs-ink );
-}
-
-.ybs-bf-modal__close {
+.ybs-bf-drawer__panel {
 	position: absolute;
-	top: 16px;
-	right: 16px;
-	width: 32px;
-	height: 32px;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	flex-direction: column;
+	width: min( 480px, 100% );
+	background: #fff;
+	box-shadow: -24px 0 60px rgba( 15, 23, 42, .18 );
+	transform: translateX( 100% );
+	transition: transform .32s var( --ybs-drawer-ease );
+	outline: none;
+}
+
+.ybs-bf-drawer.is-open .ybs-bf-drawer__backdrop {
+	opacity: 1;
+}
+
+.ybs-bf-drawer.is-open .ybs-bf-drawer__panel {
+	transform: none;
+}
+
+.ybs-bf-drawer__header {
 	display: flex;
 	align-items: center;
-	justify-content: center;
-	border: 0;
-	border-radius: 50%;
-	background: var( --ybs-bg, #f8fafc );
-	color: var( --ybs-ink-soft );
-	font-size: 20px;
-	line-height: 1;
-	cursor: pointer;
-	transition: background .15s ease, color .15s ease;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 18px 24px;
+	border-bottom: 1px solid var( --ybs-border );
 }
 
-.ybs-bf-modal__close:hover {
-	background: #f1f5f9;
+.ybs-bf-drawer__title {
+	margin: 0;
+	font-size: 19px;
+	font-weight: 700;
+	line-height: 1.3;
 	color: var( --ybs-ink );
+}
+
+.ybs-bf-drawer__close {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	border: 1px solid var( --ybs-border );
+	border-radius: 50%;
+	background: #fff;
+	color: var( --ybs-ink );
+	cursor: pointer;
+	transition: background .15s ease, border-color .15s ease;
+}
+
+.ybs-bf-drawer__close:hover {
+	border-color: var( --ybs-ink-faded );
+	background: #f8fafc;
+}
+
+.ybs-bf-drawer__close:focus-visible,
+.ybs-bf-drawer .ybs-btn:focus-visible,
+.ybs-bf-coupon-remove:focus-visible {
+	outline: 2px solid var( --ybs-drawer-accent );
+	outline-offset: 2px;
+}
+
+.ybs-bf-drawer__body {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	padding: 20px 24px 28px;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+}
+
+.ybs-bf-drawer__section-title {
+	margin: 0 0 12px;
+	font-family: inherit;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: .12em;
+	text-transform: uppercase;
+	color: var( --ybs-ink-soft );
+}
+
+/* Summary */
+
+.ybs-bf-summary {
+	padding: 16px;
+	border: 1px solid var( --ybs-border );
+	border-radius: 14px;
+	background: #f8fafc;
+}
+
+.ybs-bf-summary__yacht {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 14px;
+}
+
+.ybs-bf-summary__thumb {
+	flex: 0 0 auto;
+	width: 56px;
+	height: 56px;
+	border-radius: 10px;
+	object-fit: cover;
+}
+
+.ybs-bf-summary__name {
+	display: block;
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1.3;
+}
+
+.ybs-bf-summary__location {
+	display: block;
+	font-size: 13px;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-bf-summary__details {
+	display: grid;
+	grid-template-columns: auto minmax( 0, 1fr );
+	gap: 8px 16px;
+	margin: 0;
+	font-size: 14px;
+}
+
+.ybs-bf-summary__details dt {
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-bf-summary__details dd {
+	margin: 0;
+	font-weight: 600;
+	text-align: right;
+	overflow-wrap: anywhere;
+}
+
+.ybs-bf-summary__price {
+	margin-top: 14px;
+	padding-top: 12px;
+	border-top: 1px dashed var( --ybs-border );
+}
+
+.ybs-bf-summary__row {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 3px 0;
+	font-size: 14px;
+}
+
+.ybs-bf-summary__row.is-discount {
+	color: var( --ybs-success );
+	font-weight: 600;
+}
+
+.ybs-bf-summary__row.is-total {
+	margin-top: 6px;
+	padding-top: 10px;
+	border-top: 1px solid var( --ybs-border );
+	font-size: 16px;
+	font-weight: 700;
+}
+
+.ybs-bf-summary__row.is-due {
+	font-size: 13px;
+	color: var( --ybs-ink-soft );
+}
+
+/* Guest details */
+
+.ybs-bf-drawer .ybs-bf-modal__fields {
+	display: grid;
+	gap: 14px;
+}
+
+.ybs-bf-drawer .ybs-bf-modal__fields .ybs-bf-drawer__section-title {
+	margin-bottom: -2px;
+}
+
+.ybs-bf-drawer .ybs-field-row {
+	display: grid;
+	grid-template-columns: repeat( 2, minmax( 0, 1fr ) );
+	gap: 12px;
+}
+
+.ybs-bf-drawer .ybs-field {
+	margin: 0;
+}
+
+.ybs-bf-drawer__label {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-bf-drawer .ybs-field input[aria-invalid='true'] {
+	border-color: #dc2626;
+}
+
+/* Coupon */
+
+.ybs-bf-coupon {
+	padding: 14px 16px;
+	border: 1px dashed var( --ybs-ink-faded );
+	border-radius: 12px;
+}
+
+.ybs-bf-coupon__label {
+	display: block;
+	margin-bottom: 8px;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.ybs-bf-coupon__row {
+	display: flex;
+	gap: 8px;
+}
+
+.ybs-bf-coupon__row .ybs-bf-coupon-input {
+	flex: 1 1 auto;
+	min-width: 0;
+	height: 44px;
+	padding: 0 12px;
+	border: 1px solid var( --ybs-border );
+	border-radius: 8px;
+	background: #fff;
+	color: var( --ybs-ink );
+	font: inherit;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+}
+
+.ybs-bf-coupon__row .ybs-bf-coupon-input::placeholder {
+	letter-spacing: normal;
+	text-transform: none;
+}
+
+.ybs-bf-coupon__row .ybs-bf-coupon-input:focus {
+	border-color: var( --ybs-drawer-accent );
+	outline: none;
+	box-shadow: 0 0 0 3px color-mix( in srgb, var( --ybs-drawer-accent ) 20%, transparent );
+}
+
+.ybs-bf-coupon__row .ybs-bf-coupon-apply {
+	flex: 0 0 auto;
+	min-height: 44px;
+	padding: 0 18px;
+}
+
+.ybs-bf-coupon__applied {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px 12px;
+}
+
+.ybs-bf-coupon__tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 12px;
+	border-radius: 999px;
+	background: rgba( 22, 163, 74, .1 );
+	color: #15803d;
+	font-size: 13px;
+}
+
+.ybs-bf-coupon__tag strong {
+	letter-spacing: .06em;
+}
+
+.ybs-bf-coupon-remove {
+	min-height: 32px;
+	padding: 0 4px;
+	border: 0;
+	background: none;
+	color: var( --ybs-ink-soft );
+	font: inherit;
+	font-size: 13px;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.ybs-bf-coupon-remove:hover {
+	color: var( --ybs-ink );
+}
+
+.ybs-bf-coupon__message {
+	margin: 8px 0 0;
+	font-size: 13px;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-bf-coupon__message.is-error {
+	color: #dc2626;
+}
+
+/* Footer: total + confirm, always visible */
+
+.ybs-bf-drawer__error {
+	flex: 0 0 auto;
+	margin: 0;
+	padding: 10px 24px;
+	border-radius: 0;
+	font-size: 14px;
+}
+
+.ybs-bf-drawer__footer {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 16px 24px calc( 16px + env( safe-area-inset-bottom, 0px ) );
+	border-top: 1px solid var( --ybs-border );
+	background: #fff;
+	box-shadow: 0 -8px 24px rgba( 15, 23, 42, .06 );
+}
+
+.ybs-bf-drawer__total {
+	display: flex;
+	flex: 0 0 auto;
+	flex-direction: column;
+}
+
+.ybs-bf-drawer__total-label {
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-bf-drawer__total-value {
+	font-size: 22px;
+	font-weight: 800;
+	line-height: 1.2;
+	color: var( --ybs-ink );
+	white-space: nowrap;
+}
+
+/* Darkened a fifth so white text clears 4.5:1 on both the gold and the
+   default orange accent. */
+.ybs-bf-drawer .ybs-bf-submit,
+.ybs-bf-drawer .ybs-btn.is-primary {
+	border-color: color-mix( in srgb, var( --ybs-drawer-accent ) 80%, #000 );
+	background: color-mix( in srgb, var( --ybs-drawer-accent ) 80%, #000 );
+	color: #fff;
+}
+
+.ybs-bf-drawer__footer .ybs-bf-submit {
+	flex: 1 1 auto;
+	min-width: 0;
+	min-height: 50px;
+	border-radius: 12px;
+	font-size: 15px;
+	font-weight: 700;
+}
+
+.ybs-bf-drawer .ybs-bf-submit:hover:not( :disabled ),
+.ybs-bf-drawer .ybs-btn.is-primary:hover {
+	filter: brightness( .92 );
+}
+
+.ybs-bf-drawer .ybs-bf-submit:disabled {
+	opacity: .55;
+	cursor: not-allowed;
 }
 
 @media screen and ( max-width: 600px ) {
-	.ybs-bf-modal__dialog {
-		padding: 22px 18px;
-		border-radius: 14px;
+	.ybs-bf-drawer__panel {
+		width: 100%;
+	}
+
+	.ybs-bf-drawer__header {
+		padding: 14px 18px;
+	}
+
+	.ybs-bf-drawer__body {
+		padding: 16px 18px 24px;
+	}
+
+	.ybs-bf-drawer__footer {
+		padding: 14px 18px calc( 14px + env( safe-area-inset-bottom, 0px ) );
+	}
+
+	.ybs-bf-drawer .ybs-field-row {
+		grid-template-columns: minmax( 0, 1fr );
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.ybs-bf-drawer__panel,
+	.ybs-bf-drawer__backdrop {
+		transition: none;
 	}
 }
 
@@ -2571,5 +2938,119 @@ select.ybs-search-bar__control {
 	.ybs-bf-addon__qty {
 		grid-column: 2 / -1;
 		width: 100%;
+	}
+}
+
+.ybs-bf-drawer .ybs-bf-success__link {
+	display: block;
+	margin: 4px 0 16px;
+	text-align: center;
+}
+
+/* ---- WooCommerce checkout inside the drawer (WooCommerceDrawer.php) ---- */
+
+.ybs-bf-drawer__header .ybs-bf-drawer__title {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.ybs-bf-drawer__back {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: center;
+	gap: 6px;
+	min-height: 40px;
+	padding: 0 12px 0 8px;
+	border: 1px solid var( --ybs-border );
+	border-radius: 999px;
+	background: #fff;
+	color: var( --ybs-ink );
+	font: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.ybs-bf-drawer__back:hover {
+	background: #f8fafc;
+}
+
+.ybs-bf-drawer.is-checkout .ybs-bf-drawer__title {
+	font-size: 17px;
+}
+
+.ybs-bf-drawer__note {
+	margin: 0;
+	font-size: 14px;
+	color: var( --ybs-ink-soft );
+}
+
+.ybs-bf-drawer.is-wc .ybs-bf-drawer__panel {
+	transition: transform .32s var( --ybs-drawer-ease ), width .32s var( --ybs-drawer-ease );
+}
+
+/* Checkout needs more room than the summary. */
+.ybs-bf-drawer.is-checkout .ybs-bf-drawer__panel {
+	width: min( 640px, 100% );
+}
+
+.ybs-bf-drawer.is-checkout .ybs-bf-drawer__body {
+	gap: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+.ybs-bf-checkout {
+	position: relative;
+	display: flex;
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+.ybs-bf-checkout__frame {
+	display: block;
+	flex: 1 1 auto;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	background: #fff;
+}
+
+.ybs-bf-checkout__loading {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	background: #fff;
+	color: var( --ybs-ink-soft );
+	font-size: 14px;
+}
+
+.ybs-bf-spinner {
+	width: 22px;
+	height: 22px;
+	border: 2.5px solid var( --ybs-border );
+	border-top-color: var( --ybs-drawer-accent );
+	border-radius: 50%;
+	animation: ybs-bf-spin .8s linear infinite;
+}
+
+@keyframes ybs-bf-spin {
+	to {
+		transform: rotate( 360deg );
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+	.ybs-bf-spinner {
+		animation-duration: 2.4s;
+	}
+}
+
+@media screen and ( max-width: 600px ) {
+	.ybs-bf-drawer__back {
+		padding: 0 10px 0 6px;
 	}
 }

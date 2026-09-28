@@ -24,7 +24,7 @@ function renderCard( yacht, currency ) {
 		meta.push( `<div class="ybs-yl-card__meta"><span class="dashicons dashicons-groups"></span>${ yacht.capacity } ${ config.i18n.guestsLabel }</div>` );
 	}
 	if ( yacht.length ) {
-		meta.push( `<div class="ybs-yl-card__meta"><span class="dashicons dashicons-leftright"></span>${ yacht.length } m</div>` );
+		meta.push( `<div class="ybs-yl-card__meta"><span class="dashicons dashicons-leftright"></span>${ yacht.length } ft</div>` );
 	}
 
 	const priceValue = yacht.from_price > 0

@@ -53,6 +53,12 @@ class Shortcode {
 				'currency'             => Settings::get( 'currency_symbol', '$' ),
 				'gateways'             => $gateways,
 				'addonsEnabled'        => (bool) Settings::get( 'addons_enabled', true ),
+				'couponsEnabled'       => self::coupons_offered(),
+				// The notice-period check compares the chosen wall-clock time
+				// with the server's clock (AvailabilityService), so the form
+				// works out the earliest bookable start against the same one.
+				'serverTime'           => time(),
+				'wcAddToCartUrl'       => \MageYaBo\Payments\WooCommerceGateway::is_active() ? \MageYaBo\Payments\WooCommerceDrawer::add_to_cart_url() : '',
 				'stripePublishableKey' => $stripe_ready ? Settings::get( 'stripe_publishable_key' ) : '',
 				'i18n'                 => array(
 					'selectYacht'   => __( 'Select a yacht', 'magepeople-yacht-booking-system' ),
@@ -101,6 +107,24 @@ class Shortcode {
 					/* translators: %s: formatted balance amount. */
 					'depositBalance'  => __( 'Balance of %s due before departure.', 'magepeople-yacht-booking-system' ),
 					'viewBooking'     => __( 'View your booking', 'magepeople-yacht-booking-system' ),
+					'detailYacht'     => __( 'Yacht', 'magepeople-yacht-booking-system' ),
+					'detailCharter'   => __( 'Charter', 'magepeople-yacht-booking-system' ),
+					'detailBooking'   => __( 'Booking', 'magepeople-yacht-booking-system' ),
+					'detailExtras'    => __( 'Extras', 'magepeople-yacht-booking-system' ),
+					'dueNow'          => __( 'Due now', 'magepeople-yacht-booking-system' ),
+					'invalidDetails'  => __( 'Please enter your name, a valid email address and a phone number.', 'magepeople-yacht-booking-system' ),
+					'couponEmpty'     => __( 'Enter a coupon code first.', 'magepeople-yacht-booking-system' ),
+					'couponChecking'  => __( 'Checking code…', 'magepeople-yacht-booking-system' ),
+					/* translators: %s: amount saved, e.g. "$36.00". */
+					'couponSaved'     => __( 'You save %s', 'magepeople-yacht-booking-system' ),
+					/* translators: %s: coupon code. */
+					'couponDiscount'  => __( 'Discount (%s)', 'magepeople-yacht-booking-system' ),
+					'couponRemoved'   => __( 'Coupon removed.', 'magepeople-yacht-booking-system' ),
+					'checkoutTitle'   => __( 'Checkout', 'magepeople-yacht-booking-system' ),
+					'findingSlot'     => __( 'Finding the next available time…', 'magepeople-yacht-booking-system' ),
+					'backToSummary'   => __( 'Back to summary', 'magepeople-yacht-booking-system' ),
+					'addingToCart'    => __( 'Preparing checkout…', 'magepeople-yacht-booking-system' ),
+					'addToCartFailed' => __( 'The booking could not be added to your cart. Please try again.', 'magepeople-yacht-booking-system' ),
 			),
 		);
 
@@ -117,6 +141,67 @@ class Shortcode {
 		$config = (array) apply_filters( 'mageyabo_booking_form_config', $config );
 
 		wp_localize_script( 'mageyabo-frontend', 'mageyaboFrontendConfig', $config );
+	}
+
+	/**
+	 * Whether the booking drawer should offer a coupon field - only when the
+	 * built-in codes are in charge and at least one is switched on. The Pro
+	 * add-on renders its own field through `mageyabo_booking_form_extras`.
+	 */
+	private static function coupons_offered() {
+		return \MageYaBo\Booking\CouponService::enabled() && \MageYaBo\Booking\CouponRepository::has_active();
+	}
+
+	/**
+	 * What the booking drawer's summary shows about a yacht, carried as data
+	 * attributes so the summary can be drawn without another request.
+	 *
+	 * @param int $yacht_id Yacht post ID.
+	 * @return string Escaped attribute markup.
+	 */
+	private static function yacht_summary_attrs( $yacht_id ) {
+		$thumb = get_the_post_thumbnail_url( $yacht_id, 'thumbnail' );
+
+		return sprintf(
+			'data-yacht-name="%s" data-yacht-thumb="%s" data-yacht-location="%s" data-min-notice-hours="%d"',
+			esc_attr( get_the_title( $yacht_id ) ),
+			esc_url( $thumb ? $thumb : '' ),
+			esc_attr( (string) get_post_meta( $yacht_id, 'mageyabo_location_name', true ) ),
+			(int) get_post_meta( $yacht_id, 'mageyabo_min_notice_hours', true )
+		);
+	}
+
+	/**
+	 * The drawer's header and booking summary - the same in the native flow
+	 * and the WooCommerce one. Opens `.ybs-bf-drawer__body`; the caller
+	 * closes it.
+	 *
+	 * @param string $drawer_id Unique id prefix for this drawer.
+	 * @return string
+	 */
+	private static function drawer_head( $drawer_id ) {
+		ob_start();
+		?>
+						<header class="ybs-bf-drawer__header">
+							<button type="button" class="ybs-bf-drawer__back" data-ybs-bf-back hidden>
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+								<?php esc_html_e( 'Back to summary', 'magepeople-yacht-booking-system' ); ?>
+							</button>
+							<h3 class="ybs-bf-modal__title ybs-bf-drawer__title" id="<?php echo esc_attr( $drawer_id ); ?>-title"><?php esc_html_e( 'Complete your booking', 'magepeople-yacht-booking-system' ); ?></h3>
+							<button type="button" class="ybs-bf-drawer__close" data-ybs-bf-modal-close aria-label="<?php esc_attr_e( 'Close', 'magepeople-yacht-booking-system' ); ?>">
+								<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+							</button>
+						</header>
+
+						<div class="ybs-bf-drawer__body">
+							<section class="ybs-bf-summary" data-ybs-bf-summary aria-labelledby="<?php echo esc_attr( $drawer_id ); ?>-summary">
+								<h4 class="ybs-bf-drawer__section-title" id="<?php echo esc_attr( $drawer_id ); ?>-summary"><?php esc_html_e( 'Booking summary', 'magepeople-yacht-booking-system' ); ?></h4>
+								<div class="ybs-bf-summary__yacht" data-ybs-bf-summary-yacht></div>
+								<dl class="ybs-bf-summary__details" data-ybs-bf-summary-details></dl>
+								<div class="ybs-bf-summary__price" data-ybs-bf-summary-price></div>
+							</section>
+		<?php
+		return ob_get_clean();
 	}
 
 	public static function render_booking_form( $atts ) {
@@ -159,6 +244,8 @@ class Shortcode {
 				data-ybs-booking-form
 				data-ybs-wc="1"
 				data-yacht-id="<?php echo esc_attr( $yacht_id ); ?>"
+				data-wc-product-id="<?php echo esc_attr( $wc_product_id ); ?>"
+				<?php echo self::yacht_summary_attrs( $yacht_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
 				data-capacity="<?php echo esc_attr( $capacity ); ?>"
 				data-booking-types-full="<?php echo esc_attr( implode( ',', $full_types ) ); ?>"
 				data-booking-types-shared="<?php echo esc_attr( implode( ',', $shared_types ) ); ?>"
@@ -175,6 +262,7 @@ class Shortcode {
 				class="ybs-booking-form"
 				data-ybs-booking-form
 				data-yacht-id="<?php echo esc_attr( $yacht_id ); ?>"
+				<?php echo $yacht_id ? self::yacht_summary_attrs( $yacht_id ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
 				data-capacity="<?php echo esc_attr( $capacity ); ?>"
 				data-booking-types-full="<?php echo esc_attr( implode( ',', $full_types ) ); ?>"
 				data-booking-types-shared="<?php echo esc_attr( implode( ',', $shared_types ) ); ?>"
@@ -188,7 +276,6 @@ class Shortcode {
 						<option value="full"><?php esc_html_e( 'Full Charter - whole yacht', 'magepeople-yacht-booking-system' ); ?></option>
 						<option value="shared"><?php esc_html_e( 'Shared - per seat', 'magepeople-yacht-booking-system' ); ?></option>
 					</select>
-					<p class="ybs-hint"><?php esc_html_e( 'Once shared seats are booked for a time slot, that slot can only take further shared bookings.', 'magepeople-yacht-booking-system' ); ?></p>
 				</div>
 			<?php endif; ?>
 
@@ -204,6 +291,7 @@ class Shortcode {
 								data-ybs-mode="<?php echo esc_attr( get_post_meta( $yacht->ID, 'mageyabo_booking_mode', true ) ?: 'full' ); ?>"
 								data-booking-types-full="<?php echo esc_attr( implode( ',', PricingEngine::available_booking_types( $yacht->ID, 'full' ) ) ); ?>"
 								data-booking-types-shared="<?php echo esc_attr( implode( ',', PricingEngine::available_booking_types( $yacht->ID, 'shared' ) ) ); ?>"
+								<?php echo self::yacht_summary_attrs( $yacht->ID ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
 							><?php echo esc_html( $yacht->post_title ); ?></option>
 						<?php endforeach; ?>
 					</select>
@@ -232,7 +320,16 @@ class Shortcode {
 				</div>
 				<div class="ybs-field ybs-bf-hourly-fields">
 					<label><?php esc_html_e( 'Duration (hours)', 'magepeople-yacht-booking-system' ); ?></label>
-					<input type="number" class="ybs-bf-duration" min="1" value="2" />
+					<?php
+					// Start inside the yacht's own hourly limits (stored in
+					// minutes), so the first quote is never "too short".
+					$min_hours = $yacht_id ? (int) ceil( (int) get_post_meta( $yacht_id, 'mageyabo_min_duration', true ) / 60 ) : 0;
+					$max_hours = $yacht_id ? (int) floor( (int) get_post_meta( $yacht_id, 'mageyabo_max_duration', true ) / 60 ) : 0;
+					$min_hours = max( 1, $min_hours );
+					$start     = max( 2, $min_hours );
+					$start     = $max_hours >= $min_hours && $max_hours > 0 ? min( $start, $max_hours ) : $start;
+					?>
+					<input type="number" class="ybs-bf-duration" min="<?php echo esc_attr( $min_hours ); ?>"<?php echo $max_hours >= $min_hours && $max_hours > 0 ? ' max="' . esc_attr( $max_hours ) . '"' : ''; ?> value="<?php echo esc_attr( $start ); ?>" />
 				</div>
 				<div class="ybs-field ybs-bf-multiday-fields" hidden>
 					<label><?php esc_html_e( 'Nights', 'magepeople-yacht-booking-system' ); ?></label>
@@ -286,99 +383,164 @@ class Shortcode {
 			<div class="ybs-bf-price ybs-notice is-info" hidden></div>
 
 			<?php if ( $wc_product_id ) : ?>
-				<p class="ybs-hint"><?php esc_html_e( 'Your details will be collected on the checkout page.', 'magepeople-yacht-booking-system' ); ?></p>
+				<?php
+				/*
+				 * WooCommerce checkout: "Book Now" opens the same drawer with the
+				 * booking summary; "Confirm Booking" adds the charter to the cart
+				 * over AJAX and the drawer then loads the real checkout, stripped
+				 * of the theme's header and footer (see WooCommerceDrawer). The
+				 * guest's details, WooCommerce coupons and payment are all taken
+				 * there. Without JavaScript the plain add-to-cart post still works.
+				 */
+				$drawer_id = wp_unique_id( 'ybs-bf-drawer-' );
+				?>
 				<div class="ybs-bf-error ybs-notice is-error" hidden></div>
-				<button type="submit" name="add-to-cart" value="<?php echo esc_attr( $wc_product_id ); ?>" class="ybs-btn is-primary ybs-bf-submit"><?php esc_html_e( 'Book Now', 'magepeople-yacht-booking-system' ); ?></button>
+				<button type="button" class="ybs-btn is-primary ybs-bf-open-modal" aria-haspopup="dialog" aria-controls="<?php echo esc_attr( $drawer_id ); ?>"><?php esc_html_e( 'Book Now', 'magepeople-yacht-booking-system' ); ?></button>
+				<noscript>
+					<button type="submit" name="add-to-cart" value="<?php echo esc_attr( $wc_product_id ); ?>" class="ybs-btn is-primary"><?php esc_html_e( 'Book Now', 'magepeople-yacht-booking-system' ); ?></button>
+				</noscript>
+
+				<div class="ybs-bf-drawer is-wc" id="<?php echo esc_attr( $drawer_id ); ?>" hidden data-ybs-bf-modal>
+					<div class="ybs-bf-drawer__backdrop" data-ybs-bf-modal-close></div>
+					<div class="ybs-bf-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="<?php echo esc_attr( $drawer_id ); ?>-title" tabindex="-1">
+						<?php echo self::drawer_head( $drawer_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
+
+							<p class="ybs-bf-drawer__note" data-ybs-bf-wc-note><?php esc_html_e( 'Next you will enter your details and pay securely at checkout, without leaving this page.', 'magepeople-yacht-booking-system' ); ?></p>
+
+							<div class="ybs-bf-checkout" data-ybs-bf-checkout hidden>
+								<div class="ybs-bf-checkout__loading" data-ybs-bf-checkout-loading role="status">
+									<span class="ybs-bf-spinner" aria-hidden="true"></span>
+									<?php esc_html_e( 'Loading secure checkout…', 'magepeople-yacht-booking-system' ); ?>
+								</div>
+								<iframe class="ybs-bf-checkout__frame" data-ybs-bf-checkout-frame title="<?php esc_attr_e( 'Checkout', 'magepeople-yacht-booking-system' ); ?>" src="about:blank"></iframe>
+							</div>
+						</div>
+
+						<div class="ybs-bf-error ybs-notice is-error ybs-bf-drawer__error" data-ybs-bf-drawer-error role="alert" hidden></div>
+
+						<footer class="ybs-bf-drawer__footer" data-ybs-bf-drawer-footer>
+							<div class="ybs-bf-drawer__total">
+								<span class="ybs-bf-drawer__total-label" data-ybs-bf-drawer-total-label><?php esc_html_e( 'Total', 'magepeople-yacht-booking-system' ); ?></span>
+								<strong class="ybs-bf-drawer__total-value" data-ybs-bf-drawer-total></strong>
+							</div>
+							<button type="button" class="ybs-btn is-primary ybs-bf-submit ybs-bf-wc-confirm"><?php esc_html_e( 'Confirm Booking', 'magepeople-yacht-booking-system' ); ?></button>
+						</footer>
+					</div>
+				</div>
 			</form>
 			<?php else : ?>
 				<?php /*
 				 * Guest details, payment method, and terms only appear once the
-				 * visitor commits to booking - clicking "Book Now" here opens
-				 * them in a focused popup instead of showing everything on the
-				 * page at once. The quote above (price / "too close to another
-				 * booking" style availability errors) is decided before the
-				 * popup opens; the popup itself is just the last step of
-				 * actually completing that booking.
-				 */ ?>
-				<button type="button" class="ybs-btn is-primary ybs-bf-open-modal"><?php esc_html_e( 'Book Now', 'magepeople-yacht-booking-system' ); ?></button>
+				 * visitor commits to booking - "Book Now" slides in a drawer from
+				 * the right: what they are booking at the top (filled in by
+				 * renderSummary() in booking-form.js from the live quote), then
+				 * their details, an optional coupon code, payment and terms, with
+				 * the total and Confirm button pinned to the bottom. The
+				 * availability quote is decided before it opens; the drawer is
+				 * just the last step of completing that booking.
+				 */
+				$drawer_id = wp_unique_id( 'ybs-bf-drawer-' );
+				?>
+				<button type="button" class="ybs-btn is-primary ybs-bf-open-modal" aria-haspopup="dialog" aria-controls="<?php echo esc_attr( $drawer_id ); ?>"><?php esc_html_e( 'Book Now', 'magepeople-yacht-booking-system' ); ?></button>
 
-				<div class="ybs-bf-modal" hidden data-ybs-bf-modal>
-					<div class="ybs-bf-modal__backdrop" data-ybs-bf-modal-close></div>
-					<div class="ybs-bf-modal__dialog" role="dialog" aria-modal="true" aria-label="<?php esc_attr_e( 'Complete your booking', 'magepeople-yacht-booking-system' ); ?>">
-						<button type="button" class="ybs-bf-modal__close" data-ybs-bf-modal-close aria-label="<?php esc_attr_e( 'Close', 'magepeople-yacht-booking-system' ); ?>">&times;</button>
-						<h3 class="ybs-bf-modal__title"><?php esc_html_e( 'Complete your booking', 'magepeople-yacht-booking-system' ); ?></h3>
+				<div class="ybs-bf-drawer" id="<?php echo esc_attr( $drawer_id ); ?>" hidden data-ybs-bf-modal>
+					<div class="ybs-bf-drawer__backdrop" data-ybs-bf-modal-close></div>
+					<div class="ybs-bf-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="<?php echo esc_attr( $drawer_id ); ?>-title" tabindex="-1">
+						<?php echo self::drawer_head( $drawer_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inside. ?>
 
-						<?php /*
-						 * Everything a guest fills in to place the booking. Hidden as one
-						 * block (rather than each field separately) once "Confirm Booking"
-						 * has actually created the booking and - for Stripe - handed back a
-						 * client secret to mount below; there's nothing left to edit here at
-						 * that point, only the card form underneath.
-						 */ ?>
-						<div class="ybs-bf-modal__fields" data-ybs-bf-modal-fields>
-							<div class="ybs-field-row">
+							<?php /*
+							 * Everything a guest fills in to place the booking. Hidden as one
+							 * block once "Confirm Booking" has created the booking and - for
+							 * Stripe - handed back a client secret to mount below; there is
+							 * nothing left to edit here at that point.
+							 */ ?>
+							<div class="ybs-bf-modal__fields" data-ybs-bf-modal-fields>
+								<h4 class="ybs-bf-drawer__section-title"><?php esc_html_e( 'Your details', 'magepeople-yacht-booking-system' ); ?></h4>
+
 								<div class="ybs-field">
-									<label><?php esc_html_e( 'Full Name', 'magepeople-yacht-booking-system' ); ?></label>
-									<input type="text" name="mageyabo_name" class="ybs-bf-name" required />
+									<label for="<?php echo esc_attr( $drawer_id ); ?>-name"><?php esc_html_e( 'Full Name', 'magepeople-yacht-booking-system' ); ?></label>
+									<input type="text" id="<?php echo esc_attr( $drawer_id ); ?>-name" name="mageyabo_name" class="ybs-bf-name" autocomplete="name" required />
 								</div>
-								<div class="ybs-field">
-									<label><?php esc_html_e( 'Email', 'magepeople-yacht-booking-system' ); ?></label>
-									<input type="email" name="mageyabo_email" class="ybs-bf-email" required />
+								<div class="ybs-field-row">
+									<div class="ybs-field">
+										<label for="<?php echo esc_attr( $drawer_id ); ?>-email"><?php esc_html_e( 'Email', 'magepeople-yacht-booking-system' ); ?></label>
+										<input type="email" id="<?php echo esc_attr( $drawer_id ); ?>-email" name="mageyabo_email" class="ybs-bf-email" autocomplete="email" required />
+									</div>
+									<div class="ybs-field">
+										<label for="<?php echo esc_attr( $drawer_id ); ?>-phone"><?php esc_html_e( 'Phone', 'magepeople-yacht-booking-system' ); ?></label>
+										<input type="tel" id="<?php echo esc_attr( $drawer_id ); ?>-phone" name="mageyabo_phone" class="ybs-bf-phone" autocomplete="tel" required />
+									</div>
 								</div>
+
+								<?php if ( self::coupons_offered() ) : ?>
+									<div class="ybs-bf-coupon" data-ybs-bf-coupon>
+										<label class="ybs-bf-coupon__label" for="<?php echo esc_attr( $drawer_id ); ?>-coupon"><?php esc_html_e( 'Coupon code', 'magepeople-yacht-booking-system' ); ?></label>
+										<div class="ybs-bf-coupon__row" data-ybs-bf-coupon-entry>
+											<input type="text" id="<?php echo esc_attr( $drawer_id ); ?>-coupon" class="ybs-bf-coupon-input" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="<?php esc_attr_e( 'Enter code', 'magepeople-yacht-booking-system' ); ?>" />
+											<button type="button" class="ybs-btn ybs-bf-coupon-apply"><?php esc_html_e( 'Apply', 'magepeople-yacht-booking-system' ); ?></button>
+										</div>
+										<div class="ybs-bf-coupon__applied" data-ybs-bf-coupon-applied hidden>
+											<span class="ybs-bf-coupon__tag">
+												<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+												<strong data-ybs-bf-coupon-code></strong>
+												<span data-ybs-bf-coupon-saving></span>
+											</span>
+											<button type="button" class="ybs-bf-coupon-remove"><?php esc_html_e( 'Remove', 'magepeople-yacht-booking-system' ); ?></button>
+										</div>
+										<p class="ybs-bf-coupon__message" data-ybs-bf-coupon-message role="status" aria-live="polite" hidden></p>
+									</div>
+								<?php endif; ?>
+
 								<div class="ybs-field">
-									<label><?php esc_html_e( 'Phone', 'magepeople-yacht-booking-system' ); ?></label>
-									<input type="text" name="mageyabo_phone" class="ybs-bf-phone" required />
+									<span class="ybs-bf-drawer__label" id="<?php echo esc_attr( $drawer_id ); ?>-pm"><?php esc_html_e( 'Payment Method', 'magepeople-yacht-booking-system' ); ?></span>
+									<?php /* Populated by populatePaymentMethods() in booking-form.js as a row of
+									clickable cards (one radio per enabled gateway) - see .ybs-bf-pm-card in style.css. */ ?>
+									<div class="ybs-bf-pm-list" data-ybs-bf-pm-list role="radiogroup" aria-labelledby="<?php echo esc_attr( $drawer_id ); ?>-pm"></div>
+								</div>
+
+								<div class="ybs-field ybs-bf-terms-field">
+									<label class="ybs-bf-terms-label">
+										<input type="checkbox" class="ybs-bf-terms" name="mageyabo_terms" value="1" required />
+										<span><?php esc_html_e( 'I accept the terms and conditions.', 'magepeople-yacht-booking-system' ); ?></span>
+									</label>
 								</div>
 							</div>
 
-							<div class="ybs-field">
-								<label><?php esc_html_e( 'Payment Method', 'magepeople-yacht-booking-system' ); ?></label>
-								<?php /* Populated by populatePaymentMethods() in booking-form.js as a row of
-								clickable cards (one radio per enabled gateway) rather than a plain <select> -
-								see .ybs-bf-pm-card in style.css. */ ?>
-								<div class="ybs-bf-pm-list" data-ybs-bf-pm-list role="radiogroup" aria-label="<?php esc_attr_e( 'Payment Method', 'magepeople-yacht-booking-system' ); ?>"></div>
+							<?php /*
+							 * Revealed in place of the fields once Stripe is the chosen method
+							 * and the booking has been created - Stripe's Embedded Checkout
+							 * renders the card fields here, so the guest never leaves the page.
+							 */ ?>
+							<div class="ybs-bf-stripe-card" data-ybs-bf-stripe-card hidden>
+								<p class="ybs-hint"><?php esc_html_e( 'Almost done - enter your card details below to complete payment.', 'magepeople-yacht-booking-system' ); ?></p>
+								<div class="ybs-bf-stripe-card__mount" data-ybs-bf-stripe-mount></div>
 							</div>
 
-							<div class="ybs-field ybs-bf-terms-field">
-								<label class="ybs-bf-terms-label">
-									<input type="checkbox" class="ybs-bf-terms" name="mageyabo_terms" value="1" required />
-									<span><?php esc_html_e( 'I accept the terms and conditions.', 'magepeople-yacht-booking-system' ); ?></span>
-								</label>
+							<?php /*
+							 * Revealed in place of the fields once a booking that needs no
+							 * further payment step is created, filled in by
+							 * showBookingSuccess() in booking-form.js.
+							 */ ?>
+							<div class="ybs-bf-success" data-ybs-bf-success hidden>
+								<div class="ybs-bf-success__icon" aria-hidden="true">
+									<span class="dashicons dashicons-yes-alt"></span>
+								</div>
+								<p class="ybs-bf-success__message" data-ybs-bf-success-message></p>
+								<dl class="ybs-bf-success__details" data-ybs-bf-success-details></dl>
+								<button type="button" class="ybs-btn is-primary" data-ybs-bf-modal-close><?php esc_html_e( 'Close', 'magepeople-yacht-booking-system' ); ?></button>
 							</div>
+						</div>
 
+						<?php /* In the pinned footer, so a problem is always in view - even with the form scrolled. */ ?>
+						<div class="ybs-bf-error ybs-notice is-error ybs-bf-drawer__error" data-ybs-bf-drawer-error role="alert" hidden></div>
+
+						<footer class="ybs-bf-drawer__footer" data-ybs-bf-drawer-footer>
+							<div class="ybs-bf-drawer__total">
+								<span class="ybs-bf-drawer__total-label" data-ybs-bf-drawer-total-label><?php esc_html_e( 'Total', 'magepeople-yacht-booking-system' ); ?></span>
+								<strong class="ybs-bf-drawer__total-value" data-ybs-bf-drawer-total></strong>
+							</div>
 							<button type="button" class="ybs-btn is-primary ybs-bf-submit"><?php esc_html_e( 'Confirm Booking', 'magepeople-yacht-booking-system' ); ?></button>
-						</div>
-
-						<?php /*
-						 * Revealed in place of the block above once Stripe is the chosen
-						 * method and the booking has been created - Stripe's own Embedded
-						 * Checkout (loaded via Stripe.js, mounted by booking-form.js) renders
-						 * the actual card number/expiry/CVC fields here, so the guest enters
-						 * their card without ever leaving the page.
-						 */ ?>
-						<div class="ybs-bf-stripe-card" data-ybs-bf-stripe-card hidden>
-							<p class="ybs-hint"><?php esc_html_e( "Almost done - enter your card details below to complete payment.", 'magepeople-yacht-booking-system' ); ?></p>
-							<div class="ybs-bf-stripe-card__mount" data-ybs-bf-stripe-mount></div>
-						</div>
-
-						<?php /*
-						 * Revealed in place of the fields once a booking that needs no
-						 * further payment step (offline, or anything else that doesn't
-						 * hand back a redirect/client secret) is actually created - a
-						 * proper confirmation screen inside the same popup, not just a
-						 * one-line notice, with the booking's own details filled in by
-						 * showBookingSuccess() in booking-form.js.
-						 */ ?>
-						<div class="ybs-bf-success" data-ybs-bf-success hidden>
-							<div class="ybs-bf-success__icon" aria-hidden="true">
-								<span class="dashicons dashicons-yes-alt"></span>
-							</div>
-							<p class="ybs-bf-success__message" data-ybs-bf-success-message></p>
-							<dl class="ybs-bf-success__details" data-ybs-bf-success-details></dl>
-							<button type="button" class="ybs-btn is-primary" data-ybs-bf-modal-close><?php esc_html_e( 'Close', 'magepeople-yacht-booking-system' ); ?></button>
-						</div>
-
-						<div class="ybs-bf-error ybs-notice is-error" hidden></div>
+						</footer>
 					</div>
 				</div>
 			</div>
@@ -705,7 +867,7 @@ class Shortcode {
 						<span class="ybs-yp-stat"><span class="dashicons dashicons-groups"></span><?php echo esc_html( /* translators: %d: maximum number of guests. */ sprintf( __( '%d guests max', 'magepeople-yacht-booking-system' ), $capacity ) ); ?></span>
 					<?php endif; ?>
 					<?php if ( $length ) : ?>
-						<span class="ybs-yp-stat"><span class="dashicons dashicons-leftright"></span><?php echo esc_html( /* translators: %s: yacht length in metres. */ sprintf( __( '%s m', 'magepeople-yacht-booking-system' ), $length ) ); ?></span>
+						<span class="ybs-yp-stat"><span class="dashicons dashicons-leftright"></span><?php echo esc_html( /* translators: %s: yacht length in feet. */ sprintf( __( '%s ft', 'magepeople-yacht-booking-system' ), $length ) ); ?></span>
 					<?php endif; ?>
 					<?php if ( $cabins ) : ?>
 						<span class="ybs-yp-stat"><span class="dashicons dashicons-admin-home"></span><?php echo esc_html( /* translators: %d: number of cabins. */ sprintf( _n( '%d cabin', '%d cabins', $cabins, 'magepeople-yacht-booking-system' ), $cabins ) ); ?></span>
@@ -838,7 +1000,7 @@ class Shortcode {
 															<span class="ybs-yacht-card__meta-item"><span class="dashicons dashicons-groups"></span><?php echo esc_html( /* translators: %d: number of guests. */ sprintf( __( '%d guests', 'magepeople-yacht-booking-system' ), $other_capacity ) ); ?></span>
 														<?php endif; ?>
 														<?php if ( $other_length ) : ?>
-															<span class="ybs-yacht-card__meta-item"><span class="dashicons dashicons-leftright"></span><?php echo esc_html( /* translators: %s: length in metres. */ sprintf( __( '%s m', 'magepeople-yacht-booking-system' ), $other_length ) ); ?></span>
+															<span class="ybs-yacht-card__meta-item"><span class="dashicons dashicons-leftright"></span><?php echo esc_html( /* translators: %s: length in feet. */ sprintf( __( '%s ft', 'magepeople-yacht-booking-system' ), $other_length ) ); ?></span>
 														<?php endif; ?>
 													</div>
 												<?php endif; ?>

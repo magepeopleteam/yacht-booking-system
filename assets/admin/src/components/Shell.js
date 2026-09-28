@@ -11,6 +11,7 @@ const BUILTIN_NAV = [
 	{ id: 'calendar', label: __('Calendar', 'magepeople-yacht-booking-system'), icon: 'dashicons-calendar-alt' },
 	{ id: 'guests', label: __('Guests', 'magepeople-yacht-booking-system'), icon: 'dashicons-groups' },
 	{ id: 'addons', label: __('Add-ons', 'magepeople-yacht-booking-system'), icon: 'dashicons-cart' },
+	{ id: 'coupons', label: __('Coupons', 'magepeople-yacht-booking-system'), icon: 'dashicons-tag' },
 ];
 
 // Kept apart from the list above so add-on screens slot in between the two,
@@ -36,6 +37,7 @@ function extraNav() {
  */
 function navItems() {
 	const extra = extraNav();
+	const claimed = new Set(extra.map((item) => item.id));
 	const proFeaturesEntry = navFeatures().length
 		? [{
 			id: 'pro-features',
@@ -45,7 +47,11 @@ function navItems() {
 		}]
 		: [];
 
-	return [...BUILTIN_NAV, ...extra, ...proFeaturesEntry, ...TRAILING_NAV];
+	// An add-on that brings its own Coupons screen takes the built-in entry's
+	// place, rather than the rail showing two.
+	const builtin = BUILTIN_NAV.filter((item) => !claimed.has(item.id));
+
+	return [...builtin, ...extra, ...proFeaturesEntry, ...TRAILING_NAV];
 }
 
 export default function Shell({ active, children }) {

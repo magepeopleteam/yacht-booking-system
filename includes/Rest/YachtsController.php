@@ -2,6 +2,7 @@
 namespace MageYaBo\Rest;
 
 use MageYaBo\Booking\AvailabilityService;
+use MageYaBo\Booking\PricingEngine;
 use MageYaBo\PostTypes\Yacht;
 use WP_REST_Server;
 use WP_REST_Request;
@@ -108,6 +109,16 @@ class YachtsController extends Controller {
 
 		register_rest_route(
 			self::NAMESPACE_,
+			'/yachts/(?P<id>\d+)/next-available',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( __CLASS__, 'next_available' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		register_rest_route(
+			self::NAMESPACE_,
 			'/yachts/(?P<id>\d+)/calendar',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -125,6 +136,95 @@ class YachtsController extends Controller {
 				'permission_callback' => array( __CLASS__, 'can_manage_settings' ),
 			)
 		);
+	}
+
+	/**
+	 * The first window from `from` onwards that this yacht can actually take
+	 * for the given charter type, duration, guests and mode - so the booking
+	 * form can default to a slot that is free instead of one that is booked,
+	 * inside another booking's buffer, on an off day or inside the notice
+	 * period. Runs the same AvailabilityService check and PricingEngine
+	 * blocking rules the booking itself will, so it cannot disagree with them.
+	 *
+	 * Hourly starts are tried every 30 minutes across the yacht's daily
+	 * window; slot types use their fixed window; multi-day starts at the
+	 * daily window's start. Looks up to 60 days ahead.
+	 */
+	public static function next_available( WP_REST_Request $request ) {
+		$yacht_id = (int) $request['id'];
+
+		if ( Yacht::POST_TYPE !== get_post_type( $yacht_id ) || 'publish' !== get_post_status( $yacht_id ) ) {
+			return new WP_Error( 'mageyabo_invalid_yacht', __( 'Yacht not found.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
+		}
+
+		$types        = array( 'hourly', 'half_day', 'morning_slot', 'evening_slot', 'daily', 'multiday' );
+		$booking_type = in_array( $request->get_param( 'booking_type' ), $types, true ) ? $request->get_param( 'booking_type' ) : 'hourly';
+		$booking_mode = 'shared' === $request->get_param( 'booking_mode' ) ? 'shared' : 'full';
+		$guest_count  = max( 1, (int) $request->get_param( 'guest_count' ) );
+		$hours        = max( 0.5, min( 24, (float) ( $request->get_param( 'duration' ) ?: 2 ) ) );
+		$nights       = max( 1, min( 30, (int) ( $request->get_param( 'nights' ) ?: 2 ) ) );
+		$from         = (string) $request->get_param( 'from' );
+		$today        = gmdate( 'Y-m-d' );
+		$from         = preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) && $from > $today ? $from : $today;
+
+		$windows = Yacht::time_windows( $yacht_id );
+		list( $day_start, $day_end ) = $windows['daily'];
+
+		$to_minutes = static function ( $hhmm ) {
+			list( $h, $m ) = array_map( 'intval', explode( ':', $hhmm ) + array( 0, 0 ) );
+			return $h * 60 + $m;
+		};
+
+		// What to try on each day, as [start, end] minute offsets from midnight.
+		$candidates = array();
+
+		if ( 'hourly' === $booking_type ) {
+			$length = (int) round( $hours * 60 );
+			for ( $start = $to_minutes( $day_start ); $start + $length <= $to_minutes( $day_end ); $start += 30 ) {
+				$candidates[] = array( $start, $start + $length );
+			}
+		} elseif ( 'multiday' === $booking_type ) {
+			$candidates[] = array( $to_minutes( $day_start ), $to_minutes( $day_start ) + $nights * 1440 );
+		} else {
+			list( $slot_start, $slot_end ) = $windows[ $booking_type ] ?? $windows['daily'];
+			$candidates[] = array( $to_minutes( $slot_start ), $to_minutes( $slot_end ) );
+		}
+
+		if ( ! $candidates ) {
+			return new WP_Error( 'mageyabo_not_available', __( 'No available time found for this charter.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
+		}
+
+		$day    = strtotime( $from . ' 00:00:00 UTC' );
+		$checks = 0;
+
+		for ( $d = 0; $d < 60 && $checks < 600; $d++, $day += DAY_IN_SECONDS ) {
+			foreach ( $candidates as $window ) {
+				$checks++;
+				$start = gmdate( 'Y-m-d H:i:s', $day + $window[0] * 60 );
+				$end   = gmdate( 'Y-m-d H:i:s', $day + $window[1] * 60 );
+
+				$availability = AvailabilityService::check( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode );
+
+				if ( ! $availability['available'] ) {
+					continue;
+				}
+
+				// Off days and blocking pricing rules live in the pricing
+				// engine, not the availability check.
+				if ( is_wp_error( PricingEngine::calculate( $yacht_id, $booking_type, $start, $end, $guest_count, $booking_mode ) ) ) {
+					continue;
+				}
+
+				return rest_ensure_response(
+					array(
+						'start_datetime' => $start,
+						'end_datetime'   => $end,
+					)
+				);
+			}
+		}
+
+		return new WP_Error( 'mageyabo_not_available', __( 'No available time found in the next 60 days.', 'magepeople-yacht-booking-system' ), array( 'status' => 404 ) );
 	}
 
 	public static function quote( WP_REST_Request $request ) {
@@ -633,6 +733,7 @@ class YachtsController extends Controller {
 					'post_type'    => Yacht::POST_TYPE,
 					'post_title'   => $sample['title'],
 					'post_content' => $sample['description'],
+					'post_excerpt' => $sample['excerpt'] ?? '',
 					'post_status'  => 'publish',
 				),
 				true
@@ -652,19 +753,19 @@ class YachtsController extends Controller {
 				return new WP_Error( 'mageyabo_dummy_media_failed', __( 'The sample yacht photos could not be imported. Check that WordPress can write to the uploads directory, then try again.', 'magepeople-yacht-booking-system' ), array( 'status' => 500 ) );
 			}
 
-			$class_term = get_term_by( 'name', $sample['class'], 'mageyabo_yacht_class' );
+			$class_id = self::dummy_term_id( $sample['class'], 'mageyabo_yacht_class' );
 
-			if ( $class_term ) {
-				wp_set_object_terms( $post_id, array( $class_term->term_id ), 'mageyabo_yacht_class' );
+			if ( $class_id ) {
+				wp_set_object_terms( $post_id, array( $class_id ), 'mageyabo_yacht_class' );
 			}
 
 			$occasion_ids = array();
 
 			foreach ( $sample['occasions'] as $occasion_name ) {
-				$term = get_term_by( 'name', $occasion_name, 'mageyabo_yacht_occasion' );
+				$term_id = self::dummy_term_id( $occasion_name, 'mageyabo_yacht_occasion' );
 
-				if ( $term ) {
-					$occasion_ids[] = $term->term_id;
+				if ( $term_id ) {
+					$occasion_ids[] = $term_id;
 				}
 			}
 
@@ -700,207 +801,480 @@ class YachtsController extends Controller {
 	}
 
 	/**
-	 * Same 3 FAQ rows for every sample yacht, so the "Frequently asked"
-	 * section on a freshly seeded single-yacht page isn't empty.
+	 * A sample yacht's class or occasion term, created when a site has
+	 * deleted it or never had it ("Party" is not a default occasion).
 	 *
-	 * @return array
+	 * @param string $name     Term name.
+	 * @param string $taxonomy Taxonomy.
+	 * @return int Term ID, or 0 on failure.
 	 */
-	private static function dummy_faq_items() {
-		return array(
-			array(
-				'question' => __( 'What is included in the charter price?', 'magepeople-yacht-booking-system' ),
-				'answer'   => __( 'The quoted price covers the yacht, crew, fuel for the booked itinerary and standard safety equipment. Catering, drinks and water toys can be added as extras during booking.', 'magepeople-yacht-booking-system' ),
-			),
-			array(
-				'question' => __( 'Can I bring my own food and drinks on board?', 'magepeople-yacht-booking-system' ),
-				'answer'   => __( 'Yes - you are welcome to bring your own food and beverages. Let us know in advance and the crew can also arrange catering for you.', 'magepeople-yacht-booking-system' ),
-			),
-			array(
-				'question' => __( 'What is the cancellation policy?', 'magepeople-yacht-booking-system' ),
-				'answer'   => __( 'A full refund is available up to 7 days before departure. Cancellations made closer to the charter date follow the policy shown at checkout.', 'magepeople-yacht-booking-system' ),
-			),
-		);
+	private static function dummy_term_id( $name, $taxonomy ) {
+		$term = get_term_by( 'name', $name, $taxonomy );
+		if ( $term ) {
+			return (int) $term->term_id;
+		}
+
+		$created = wp_insert_term( $name, $taxonomy );
+
+		return is_wp_error( $created ) ? 0 : (int) $created['term_id'];
 	}
 
+	/**
+	 * The sample fleet: the same six yachts, copy, rates and booking rules as
+	 * the Yachtiva theme's demo content, so both import paths produce an
+	 * identical, fully described fleet.
+	 *
+	 * @return array[]
+	 */
 	private static function dummy_yacht_samples() {
 		return array(
 			array(
 				'title'       => __( 'Ocean Breeze', 'magepeople-yacht-booking-system' ),
 				'photo'       => 'ocean-breeze.jpg',
 				'gallery'     => array( 'ocean-breeze.jpg', 'ocean-breeze-02.jpg', 'ocean-breeze-03.jpg', 'ocean-breeze-04.jpg', 'ocean-breeze-05.jpg' ),
-				'description' => __( 'A sleek 42ft motor yacht perfect for sunset cruises and small celebrations along the coast.', 'magepeople-yacht-booking-system' ),
+				'excerpt'     => __( 'A sleek 42ft motor yacht perfect for sunset cruises and small celebrations along the coast.', 'magepeople-yacht-booking-system' ),
+				'description' => __( '<p>Ocean Breeze is a 42-foot motor yacht built in 2018 and based at Miami Marina, a short walk from the restaurants and rooftop bars of downtown Miami. She is sized for the kind of afternoon most people picture when they think of a day on the water: a small group of friends or family, a cooler of drinks, music on the deck speakers and nothing on the schedule except the next swim stop. With room for up to twelve guests and a crew of two, she feels relaxed rather than crowded, and she is just as easy to book for a couple of hours as for a full day.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>On board</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>The layout keeps everyone together. A wide cockpit with shaded bench seating opens onto the swim platform at the stern, while the forward sun pad is the place to stretch out once the yacht is underway. Below deck there are two private cabins and a head with a freshwater shower, so guests can change after a swim or take a quiet break out of the sun. The air-conditioned saloon has a Bluetooth sound system and a galley with a fridge and ice maker that keeps drinks cold through the longest afternoon.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Where you will go</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>Most charters head out across Biscayne Bay for skyline views off Brickell and a slow pass along the waterfront homes of Star Island, then anchor at one of the bay’s sandbars where the water turns clear and shallow. On a full-day charter the captain can run further south toward Key Biscayne and its quieter anchorages. Sunset cruises are timed so the city lights come on as you glide back into the marina.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Best for</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>Ocean Breeze is a favourite for birthdays, small celebrations and sunset cocktails. She sits in the Comfort class, which makes her one of the most approachable yachts in the fleet, with hourly, half-day, full-day and shared-seat options. Your captain and crew handle the navigation, anchoring and safety briefing, so all you need to bring is sunscreen, a swimsuit and the people you want to spend the day with.</p>', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Comfort',
 				'occasions'   => array( 'Birthday', 'Sunset Cocktail' ),
 				'meta'        => array(
-					'capacity'                => '12',
-					'cabins'                  => '2',
-					'crew_size'               => '2',
-					'length'                  => '42',
-					'build_year'              => '2018',
-					'location_name'           => 'Miami Marina, FL',
-					'location_lat'            => '25.7743',
-					'location_lng'            => '-80.1937',
-					'base_price_hourly'       => '150',
-					'base_price_halfday'      => '650',
-					'base_price_daily'        => '1200',
-					'base_price_morning_slot' => '500',
-					'base_price_evening_slot' => '700',
-					'min_notice_hours'        => '12',
-					'buffer_minutes'          => '30',
-					'min_duration'            => '120',
-					'max_duration'            => '480',
-					'booking_mode'            => 'full',
-					'faq'                     => self::dummy_faq_items(),
+					'capacity'                       => '12',
+					'cabins'                         => '2',
+					'crew_size'                      => '2',
+					'length'                         => '42',
+					'build_year'                     => '2018',
+					'location_name'                  => 'Miami Marina, FL',
+					'location_lat'                   => '25.7781',
+					'location_lng'                   => '-80.1867',
+					'base_price_hourly'              => '150',
+					'base_price_halfday'             => '350',
+					'base_price_morning_slot'        => '390',
+					'base_price_evening_slot'        => '440',
+					'base_price_daily'               => '500',
+					'base_price_multiday'            => '450',
+					'base_price_shared_hourly'       => '20',
+					'base_price_shared_halfday'      => '45',
+					'base_price_shared_morning_slot' => '50',
+					'base_price_shared_evening_slot' => '55',
+					'base_price_shared_daily'        => '65',
+					'base_price_shared_multiday'     => '55',
+					'booking_mode'                   => 'both',
+					'min_notice_hours'               => '24',
+					'buffer_minutes'                 => '60',
+					'min_duration'                   => '120',
+					'max_duration'                   => '480',
+					'daily_start_time'               => '08:00',
+					'daily_end_time'                 => '20:00',
+					'halfday_start_time'             => '08:00',
+					'halfday_end_time'               => '12:00',
+					'morning_slot_start'             => '08:00',
+					'morning_slot_end'               => '13:00',
+					'evening_slot_start'             => '15:00',
+					'evening_slot_end'               => '20:00',
+					'included_items'                 => array(
+						array( 'text' => __( 'Professional captain and deckhand', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Life jackets and safety equipment for every guest', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Bottled water, ice and soft drinks', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Beach towels', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Bluetooth sound system', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Swim platform with boarding ladder', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Freshwater shower', 'magepeople-yacht-booking-system' ) ),
+					),
+					'faq'                            => array(
+						array(
+							'question' => __( 'Can we bring our own food and drinks?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Yes. You are welcome to bring snacks, a picnic or drinks; the galley fridge and ice maker keep everything cold. Please avoid red wine and glass bottles on deck, and let us know when you book if you would like catering arranged for you.', 'magepeople-yacht-booking-system' ),
+						),
+						array(
+							'question' => __( 'Is Ocean Breeze a good fit for children?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'She is. Children’s life jackets are on board, the cockpit has high sides and the crew keeps swim stops to calm, shallow water. Just include the children in your guest count when you book.', 'magepeople-yacht-booking-system' ),
+						),
+						array(
+							'question' => __( 'Which slot is best for sunset?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Choose the evening slot. It leaves the marina mid-afternoon, anchors for a swim, and times the return across Biscayne Bay for the sunset over the Miami skyline.', 'magepeople-yacht-booking-system' ),
+						),
+					),
 				),
 			),
 			array(
 				'title'       => __( 'Sapphire Horizon', 'magepeople-yacht-booking-system' ),
 				'photo'       => 'sapphire-horizon.jpg',
 				'gallery'     => array( 'sapphire-horizon.jpg', 'sapphire-horizon-02.jpg', 'sapphire-horizon-03.jpg', 'sapphire-horizon-04.jpg', 'sapphire-horizon-05.jpg' ),
-				'description' => __( 'A spacious 68ft luxury cruiser with a sundeck lounge, ideal for corporate charters and weddings.', 'magepeople-yacht-booking-system' ),
+				'excerpt'     => __( 'A 68ft flagship with three decks, a certified crew of five, and range for full-week charters.', 'magepeople-yacht-booking-system' ),
+				'description' => __( '<p>Sapphire Horizon is the flagship of the fleet: a 68-foot, three-deck motor yacht built in 2021 and berthed in Port Hercule, the deep-water harbour at the foot of Monaco’s old town. Everything about her is designed for occasions that need to go right the first time, from client hospitality during the Grand Prix season to milestone celebrations and full-week cruises along the Riviera. She welcomes up to thirty guests for day charters and is run by a certified crew of five, including a captain, a chef-steward and dedicated deck and interior crew.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>On board</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>The main deck saloon is laid out like a private lounge, with sofas, a formal dining table and floor-to-ceiling windows that frame the coastline. Up top, the flybridge has a second helm, a wet bar and a large sun deck with shaded seating, while the foredeck offers a quieter spot with sun pads. Four en-suite cabins give guests somewhere to rest or change, and the swim platform lowers to water level for easy access to the sea toys.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Where you will go</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>From Monaco the obvious first stop is the calm bay beneath Cap-d’Ail, but Sapphire Horizon has the range to go much further. Day charters often cruise west past Cap Ferrat and Villefranche for lunch at anchor, or east toward the Italian border and Menton. On multi-day charters the crew can plan routes to Saint-Tropez, Cannes and the Îles de Lérins, adjusting each day to the weather and your plans.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Best for</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>This First Class yacht is built for corporate events, executive retreats and celebrations where service matters as much as the view. Tell us about your guests and your schedule when you book, and the crew will prepare the yacht, the route and the menu around them.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Good to know</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>Because the crew prepares the yacht and provisions in advance, Sapphire Horizon needs at least 48 hours’ notice. Hourly charters run for a minimum of three hours, which is the shortest time that does the coastline justice. Soft-soled shoes are best on the teak decks, and a light layer is useful on the flybridge once the sun goes down.</p>', 'magepeople-yacht-booking-system' ),
 				'class'       => 'First Class',
-				'occasions'   => array( 'Wedding', 'Corporate' ),
+				'occasions'   => array( 'Corporate' ),
 				'meta'        => array(
-					'capacity'                => '30',
-					'cabins'                  => '4',
-					'crew_size'               => '5',
-					'length'                  => '68',
-					'build_year'              => '2021',
-					'location_name'           => 'Port Hercule, Monaco',
-					'location_lat'            => '43.7325',
-					'location_lng'            => '7.4256',
-					'base_price_hourly'       => '450',
-					'base_price_halfday'      => '2200',
-					'base_price_daily'        => '4200',
-					'base_price_morning_slot' => '1800',
-					'base_price_evening_slot' => '2400',
-					'min_notice_hours'        => '24',
-					'buffer_minutes'          => '60',
-					'min_duration'            => '180',
-					'max_duration'            => '600',
-					'booking_mode'            => 'full',
-					'faq'                     => self::dummy_faq_items(),
+					'capacity'                       => '30',
+					'cabins'                         => '4',
+					'crew_size'                      => '5',
+					'length'                         => '68',
+					'build_year'                     => '2021',
+					'location_name'                  => 'Port Hercule, Monaco',
+					'location_lat'                   => '43.7347',
+					'location_lng'                   => '7.4215',
+					'base_price_hourly'              => '450',
+					'base_price_halfday'             => '1100',
+					'base_price_morning_slot'        => '1210',
+					'base_price_evening_slot'        => '1380',
+					'base_price_daily'               => '1800',
+					'base_price_multiday'            => '1620',
+					'base_price_shared_hourly'       => '25',
+					'base_price_shared_halfday'      => '55',
+					'base_price_shared_morning_slot' => '60',
+					'base_price_shared_evening_slot' => '70',
+					'base_price_shared_daily'        => '90',
+					'base_price_shared_multiday'     => '80',
+					'booking_mode'                   => 'both',
+					'min_notice_hours'               => '48',
+					'buffer_minutes'                 => '90',
+					'min_duration'                   => '180',
+					'max_duration'                   => '480',
+					'daily_start_time'               => '08:00',
+					'daily_end_time'                 => '20:00',
+					'halfday_start_time'             => '08:00',
+					'halfday_end_time'               => '12:00',
+					'morning_slot_start'             => '08:00',
+					'morning_slot_end'               => '13:00',
+					'evening_slot_start'             => '15:00',
+					'evening_slot_end'               => '20:00',
+					'included_items'                 => array(
+						array( 'text' => __( 'Captain and certified crew of five, including a chef-steward', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Welcome champagne and canapés', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Bottled water, soft drinks and fresh fruit', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Life jackets and full safety equipment', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Bath and beach towels', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Snorkelling equipment and paddleboards', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Premium sound system on every deck', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Onboard Wi-Fi', 'magepeople-yacht-booking-system' ) ),
+					),
+					'faq'                            => array(
+						array(
+							'question' => __( 'Can we host a presentation or meeting on board?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Yes. The main saloon seats a working group comfortably and has a screen and Wi-Fi for presentations. Mention it when you book so the crew can set the room up before you board.', 'magepeople-yacht-booking-system' ),
+						),
+						array(
+							'question' => __( 'Is a chef included?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Your crew includes a chef-steward who prepares light meals and canapés. For a plated lunch or dinner, share your menu preferences and any dietary needs when you book and the crew will confirm the options.', 'magepeople-yacht-booking-system' ),
+						),
+						array(
+							'question' => __( 'Can Sapphire Horizon be chartered for several days?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'She can. Choose the multi-day option in the booking form; the crew then plans the route and overnight anchorages with you before departure.', 'magepeople-yacht-booking-system' ),
+						),
+					),
 				),
 			),
 			array(
 				'title'       => __( 'Island Serenade', 'magepeople-yacht-booking-system' ),
 				'photo'       => 'island-serenade.jpg',
 				'gallery'     => array( 'island-serenade.jpg', 'island-serenade-02.jpg', 'island-serenade-03.jpg', 'island-serenade-04.jpg', 'island-serenade-05.jpg' ),
-				'description' => __( 'A breezy 36ft catamaran built for laid-back island hopping and small bachelorette groups.', 'magepeople-yacht-booking-system' ),
+				'excerpt'     => __( 'An easy-going 36ft catamaran built for Balearic afternoons — swim platform, sun deck, cold drinks.', 'magepeople-yacht-booking-system' ),
+				'description' => __( '<p>Island Serenade is a 36-foot sailing catamaran built in 2019 and moored at Marina Ibiza, just across the water from the old town of Dalt Vila. Catamarans are made for the Balearic summer: two hulls keep her stable and level at anchor, the wide deck gives everyone space to spread out, and her shallow draught lets the captain take you closer to the beaches than most yachts can manage. She carries up to ten guests with a crew of two, which keeps the day relaxed and personal.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>On board</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>At the stern, a shaded cockpit with a dining table is the natural place to gather for lunch or cold drinks. Forward, the trampoline nets between the hulls are the best seat on the boat, hanging just above the water as you sail. Two cabins and a bathroom sit in the hulls below, and twin swim platforms with ladders make getting in and out of the sea easy for every age. Snorkel masks and a stand-up paddleboard are on board for the swim stops.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Where you will go</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>The classic Island Serenade day crosses to Formentera, anchoring off the white sand and turquoise water of Ses Illetes before sailing home in the afternoon breeze. Shorter charters explore the coves along Ibiza’s south coast, from Cala Jondal to Es Cavallet. Sunset sails head west toward Es Vedrà, the rocky islet that turns gold as the sun goes down.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Best for</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>In the Comfort Plus class, Island Serenade suits couples, families and small groups who want a slower, more natural day at sea, with the sails up when the wind allows. She is especially popular for sunset cocktails, so book the evening slot early in high season.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Good to know</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>Hourly charters run for between two and six hours, which covers everything from a quick swim to a long lazy afternoon. The deck is barefoot, so leave your shoes in the basket at the stern when you board. Bring a hat and reef-safe sunscreen, as there is plenty of open deck and the Mediterranean sun is strong.</p>', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Comfort Plus',
-				'occasions'   => array( 'Bachelorette', 'Anniversary / Proposal' ),
+				'occasions'   => array( 'Sunset Cocktail' ),
 				'meta'        => array(
-					'capacity'                => '10',
-					'cabins'                  => '2',
-					'crew_size'               => '1',
-					'length'                  => '36',
-					'build_year'              => '2016',
-					'location_name'           => 'Marina Ibiza, Spain',
-					'location_lat'            => '38.9067',
-					'location_lng'            => '1.4206',
-					'base_price_hourly'       => '120',
-					'base_price_halfday'      => '520',
-					'base_price_daily'        => '980',
-					'base_price_morning_slot' => '400',
-					'base_price_evening_slot' => '560',
-					'min_notice_hours'        => '8',
-					'buffer_minutes'          => '30',
-					'min_duration'            => '120',
-					'max_duration'            => '360',
-					'booking_mode'            => 'full',
-					'faq'                     => self::dummy_faq_items(),
+					'capacity'                       => '10',
+					'cabins'                         => '2',
+					'crew_size'                      => '2',
+					'length'                         => '36',
+					'build_year'                     => '2019',
+					'location_name'                  => 'Marina Ibiza, Spain',
+					'location_lat'                   => '38.9163',
+					'location_lng'                   => '1.4431',
+					'base_price_hourly'              => '120',
+					'base_price_halfday'             => '280',
+					'base_price_morning_slot'        => '310',
+					'base_price_evening_slot'        => '350',
+					'base_price_daily'               => '400',
+					'base_price_multiday'            => '360',
+					'base_price_shared_hourly'       => '20',
+					'base_price_shared_halfday'      => '40',
+					'base_price_shared_morning_slot' => '45',
+					'base_price_shared_evening_slot' => '55',
+					'base_price_shared_daily'        => '60',
+					'base_price_shared_multiday'     => '55',
+					'booking_mode'                   => 'both',
+					'min_notice_hours'               => '24',
+					'buffer_minutes'                 => '60',
+					'min_duration'                   => '120',
+					'max_duration'                   => '360',
+					'daily_start_time'               => '08:00',
+					'daily_end_time'                 => '20:00',
+					'halfday_start_time'             => '08:00',
+					'halfday_end_time'               => '12:00',
+					'morning_slot_start'             => '08:00',
+					'morning_slot_end'               => '13:00',
+					'evening_slot_start'             => '15:00',
+					'evening_slot_end'               => '20:00',
+					'included_items'                 => array(
+						array( 'text' => __( 'Skipper and deckhand', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Life jackets and safety equipment for every guest', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Bottled water, ice and soft drinks', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Snorkel masks and fins', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Stand-up paddleboard', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Beach towels', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Bluetooth speaker', 'magepeople-yacht-booking-system' ) ),
+					),
+					'faq'                            => array(
+						array(
+							'question' => __( 'Can we sail to Formentera?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Yes, on a full-day charter. The crossing takes about an hour each way, which leaves plenty of time at anchor off Ses Illetes. Half-day and slot charters stay along the Ibiza coast.', 'magepeople-yacht-booking-system' ),
+						),
+						array(
+							'question' => __( 'Will we actually sail?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Whenever the wind allows, yes. On calm days the catamaran motors between stops, and your skipper will hoist the sails as soon as there is a useful breeze.', 'magepeople-yacht-booking-system' ),
+						),
+						array(
+							'question' => __( 'Is a catamaran better if someone gets seasick?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Usually, yes. Two hulls roll far less than a single hull, especially at anchor, so a catamaran is one of the most comfortable options for guests who are new to the sea.', 'magepeople-yacht-booking-system' ),
+						),
+					),
 				),
 			),
 			array(
 				'title'       => __( 'Golden Mirage', 'magepeople-yacht-booking-system' ),
 				'photo'       => 'golden-mirage.jpg',
 				'gallery'     => array( 'golden-mirage.jpg', 'golden-mirage-02.jpg', 'golden-mirage-03.jpg', 'golden-mirage-04.jpg', 'golden-mirage-05.jpg' ),
-				'description' => __( 'A striking 55ft superyacht with a jacuzzi deck, built for high-end business entertaining.', 'magepeople-yacht-booking-system' ),
+				'excerpt'     => __( 'A corporate-grade 55ft sport yacht with conference lounge, Wi-Fi, and valet marina pickup.', 'magepeople-yacht-booking-system' ),
+				'description' => __( '<p>Golden Mirage is a 55-foot sport yacht built in 2020 and based in Dubai Marina, designed for guests who want to mix business with the best views in the city. She pairs the clean lines and speed of a sport yacht with an interior set up for working: a conference lounge with a screen, fast Wi-Fi throughout and quiet air-conditioned cabins. Up to twenty guests can come aboard, looked after by a crew of three, and valet pickup at the marina means your group can arrive straight from the office.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>On board</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>The main saloon doubles as a meeting room, with a table that seats a working group and a display for presentations or video calls. Outside, the aft deck is shaded for daytime cruising and becomes a lounge for drinks in the evening, while the bow sun pads offer the best seats on the way past the skyline. Three cabins below give guests privacy to change or step away for a call.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Where you will go</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>Most cruises leave Dubai Marina and run along the fronds of Palm Jumeirah to the Atlantis hotel, then turn back toward the sail-shaped Burj Al Arab for photographs from the water. Longer charters continue to the Ain Dubai observation wheel at Bluewaters Island or anchor off Jumeirah Beach for a swim. After dark, the marina skyline lights up and makes a striking backdrop for client dinners.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Best for</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>Golden Mirage belongs to the Business class and is the fleet’s first choice for corporate hospitality, team outings, product launches and client entertaining. Share your agenda when you book and the crew will time the route around your meeting, then switch the yacht over to hospitality mode when the work is done.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Good to know</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>Golden Mirage needs 48 hours’ notice so the crew can set up the conference lounge, arrange valet parking and confirm any catering. Hourly charters start at two hours. Smart-casual dress works well for most corporate events, and the air-conditioned saloon stays comfortable even in the height of the Dubai summer.</p>', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Business',
-				'occasions'   => array( 'Corporate', 'Birthday' ),
+				'occasions'   => array( 'Corporate' ),
 				'meta'        => array(
-					'capacity'                => '20',
-					'cabins'                  => '3',
-					'crew_size'               => '4',
-					'length'                  => '55',
-					'build_year'              => '2019',
-					'location_name'           => 'Dubai Marina, UAE',
-					'location_lat'            => '25.0805',
-					'location_lng'            => '55.1403',
-					'base_price_hourly'       => '320',
-					'base_price_halfday'      => '1500',
-					'base_price_daily'        => '2800',
-					'base_price_morning_slot' => '1200',
-					'base_price_evening_slot' => '1600',
-					'min_notice_hours'        => '24',
-					'buffer_minutes'          => '45',
-					'min_duration'            => '120',
-					'max_duration'            => '480',
-					'booking_mode'            => 'full',
-					'faq'                     => self::dummy_faq_items(),
+					'capacity'                       => '20',
+					'cabins'                         => '3',
+					'crew_size'                      => '3',
+					'length'                         => '55',
+					'build_year'                     => '2020',
+					'location_name'                  => 'Dubai Marina, UAE',
+					'location_lat'                   => '25.0805',
+					'location_lng'                   => '55.1403',
+					'base_price_hourly'              => '320',
+					'base_price_halfday'             => '750',
+					'base_price_morning_slot'        => '830',
+					'base_price_evening_slot'        => '940',
+					'base_price_daily'               => '1200',
+					'base_price_multiday'            => '1080',
+					'base_price_shared_hourly'       => '25',
+					'base_price_shared_halfday'      => '55',
+					'base_price_shared_morning_slot' => '60',
+					'base_price_shared_evening_slot' => '70',
+					'base_price_shared_daily'        => '90',
+					'base_price_shared_multiday'     => '80',
+					'booking_mode'                   => 'both',
+					'min_notice_hours'               => '48',
+					'buffer_minutes'                 => '60',
+					'min_duration'                   => '120',
+					'max_duration'                   => '480',
+					'daily_start_time'               => '08:00',
+					'daily_end_time'                 => '20:00',
+					'halfday_start_time'             => '08:00',
+					'halfday_end_time'               => '12:00',
+					'morning_slot_start'             => '08:00',
+					'morning_slot_end'               => '13:00',
+					'evening_slot_start'             => '15:00',
+					'evening_slot_end'               => '20:00',
+					'included_items'                 => array(
+						array( 'text' => __( 'Captain and crew of three', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Valet pickup at Dubai Marina', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'High-speed onboard Wi-Fi', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Conference lounge with presentation screen', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Bottled water, soft drinks and coffee service', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Life jackets and safety equipment', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Towels and air-conditioned cabins', 'magepeople-yacht-booking-system' ) ),
+					),
+					'faq'                            => array(
+						array(
+							'question' => __( 'Is the Wi-Fi fast enough for video calls?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'The yacht carries a marine internet system that handles video calls well near the coast. Coverage can drop further offshore, so let the crew know about any important call and they will keep the route close to shore at that time.', 'magepeople-yacht-booking-system' ),
+						),
+						array(
+							'question' => __( 'How does valet pickup work?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Give your arrival time when you book. A crew member meets your group at the marina entrance, takes care of your cars and luggage, and walks you to the berth.', 'magepeople-yacht-booking-system' ),
+						),
+						array(
+							'question' => __( 'Can we arrange catering for a client event?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Yes. Add catering while you book or mention your requirements, and the crew will confirm menus that suit your guests, including halal and vegetarian options.', 'magepeople-yacht-booking-system' ),
+						),
+					),
 				),
 			),
 			array(
 				'title'       => __( 'Aegean Muse', 'magepeople-yacht-booking-system' ),
 				'photo'       => 'aegean-muse.jpg',
 				'gallery'     => array( 'aegean-muse.jpg', 'aegean-muse-02.jpg', 'aegean-muse-03.jpg', 'aegean-muse-04.jpg', 'aegean-muse-05.jpg' ),
-				'description' => __( 'A whitewashed 48ft sailing yacht drifting past the caldera - built for sunset proposals.', 'magepeople-yacht-booking-system' ),
+				'excerpt'     => __( 'A Cyclades classic for island-hopping days — shaded aft deck, freshwater swim shower, snorkel kit.', 'magepeople-yacht-booking-system' ),
+				'description' => __( '<p>Aegean Muse is a 48-foot motor yacht built in 2017 and based at Vlychada Marina on the quiet south coast of Santorini, away from the crowds of the caldera ports. She has the classic lines of a Cycladic cruiser and the practical touches that matter on a long island day: a generously shaded aft deck, a freshwater swim shower and a full set of snorkelling gear. Up to fourteen guests can join her, with a captain and deckhand who know every cove on the island.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>On board</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>The aft deck is the heart of the yacht, with a large shaded table where lunch is served at anchor and cushioned seating for the passages between stops. The foredeck sun pads are ideal for taking in the cliffs as you cruise. Below deck there are three cabins and a bathroom, so guests can change and rest out of the midday heat, and the swim platform with its freshwater shower makes rinsing off the salt effortless.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Where you will go</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>A typical day follows Santorini’s southern shore, stopping at the Red Beach and the White Beach, which are best seen from the water, before crossing the caldera to swim in the warm volcanic springs off Palea Kameni. Full-day charters can include a walk on the Nea Kameni volcano or a lunch stop at Thirassia. The evening slot is timed so that you watch the famous sunset from the water beneath Oia, then cruise home in the dusk.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Best for</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>Aegean Muse sits in the Comfort class and is a natural choice for birthdays, family days and sunset cocktails with friends. Tell us what kind of day you have in mind, whether that is long swims, lazy lunches or chasing the sunset, and the crew will shape the route around it.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Good to know</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>Hourly charters on Aegean Muse run for at least two hours, enough to reach the Red Beach and swim. Bring swimwear, a hat and sunscreen, and water shoes if you plan to walk on Nea Kameni. The yacht leaves from Vlychada rather than the busy caldera ports, and there is free parking a short walk from the berth.</p>', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Comfort',
-				'occasions'   => array( 'Anniversary / Proposal', 'Sunset Cocktail' ),
+				'occasions'   => array( 'Birthday', 'Sunset Cocktail' ),
 				'meta'        => array(
-					'capacity'                => '14',
-					'cabins'                  => '2',
-					'crew_size'               => '2',
-					'length'                  => '48',
-					'build_year'              => '2017',
-					'location_name'           => 'Vlychada Marina, Santorini',
-					'location_lat'            => '36.3492',
-					'location_lng'            => '25.4615',
-					'base_price_hourly'       => '180',
-					'base_price_halfday'      => '780',
-					'base_price_daily'        => '1400',
-					'base_price_morning_slot' => '600',
-					'base_price_evening_slot' => '820',
-					'min_notice_hours'        => '12',
-					'buffer_minutes'          => '30',
-					'min_duration'            => '120',
-					'max_duration'            => '480',
-					'booking_mode'            => 'full',
-					'faq'                     => self::dummy_faq_items(),
+					'capacity'                       => '14',
+					'cabins'                         => '3',
+					'crew_size'                      => '2',
+					'length'                         => '48',
+					'build_year'                     => '2017',
+					'location_name'                  => 'Vlychada Marina, Santorini',
+					'location_lat'                   => '36.3374',
+					'location_lng'                   => '25.4336',
+					'base_price_hourly'              => '180',
+					'base_price_halfday'             => '420',
+					'base_price_morning_slot'        => '460',
+					'base_price_evening_slot'        => '530',
+					'base_price_daily'               => '600',
+					'base_price_multiday'            => '540',
+					'base_price_shared_hourly'       => '20',
+					'base_price_shared_halfday'      => '45',
+					'base_price_shared_morning_slot' => '50',
+					'base_price_shared_evening_slot' => '55',
+					'base_price_shared_daily'        => '65',
+					'base_price_shared_multiday'     => '60',
+					'booking_mode'                   => 'both',
+					'min_notice_hours'               => '24',
+					'buffer_minutes'                 => '60',
+					'min_duration'                   => '120',
+					'max_duration'                   => '480',
+					'daily_start_time'               => '08:00',
+					'daily_end_time'                 => '20:00',
+					'halfday_start_time'             => '08:00',
+					'halfday_end_time'               => '12:00',
+					'morning_slot_start'             => '08:00',
+					'morning_slot_end'               => '13:00',
+					'evening_slot_start'             => '15:00',
+					'evening_slot_end'               => '20:00',
+					'included_items'                 => array(
+						array( 'text' => __( 'Captain and deckhand', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Greek lunch at anchor on full-day charters', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Bottled water, soft drinks and local wine', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Snorkelling equipment', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Freshwater swim shower', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Life jackets and safety equipment', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Beach towels', 'magepeople-yacht-booking-system' ) ),
+					),
+					'faq'                            => array(
+						array(
+							'question' => __( 'Will we see the Oia sunset?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Yes, on the evening slot. The captain positions the yacht beneath Oia in time for the sunset, then cruises back to Vlychada after dark.', 'magepeople-yacht-booking-system' ),
+						),
+						array(
+							'question' => __( 'Can we swim in the hot springs?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Most itineraries stop at the volcanic springs off Palea Kameni. The water is warm and iron-rich, so bring a swimsuit you don’t mind staining slightly orange.', 'magepeople-yacht-booking-system' ),
+						),
+						array(
+							'question' => __( 'What happens if the meltemi wind is strong?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'In summer the meltemi can blow hard. When it does, your captain adjusts the route to the sheltered side of the island so the day stays comfortable, and will contact you in advance if conditions are not safe to sail.', 'magepeople-yacht-booking-system' ),
+						),
+					),
 				),
 			),
 			array(
 				'title'       => __( 'Southern Star', 'magepeople-yacht-booking-system' ),
 				'photo'       => 'southern-star.jpg',
 				'gallery'     => array( 'southern-star.jpg', 'southern-star-02.jpg', 'southern-star-03.jpg', 'southern-star-04.jpg', 'southern-star-05.jpg' ),
-				'description' => __( 'A lively 60ft party yacht with a sound system and open deck, built for big celebrations - bookable as a full charter or by the seat.', 'magepeople-yacht-booking-system' ),
+				'excerpt'     => __( 'A 60ft party platform with DJ booth, dance deck, and bar service for up to forty guests.', 'magepeople-yacht-booking-system' ),
+				'description' => __( '<p>Southern Star is a 60-foot party yacht built in 2022 and based on Sydney Harbour, created for celebrations that need room to move. She takes up to forty guests, with a crew of four running the helm, the bar and the deck. A built-in DJ booth, a dedicated dance deck and a full bar make her the most social yacht in the fleet, and the harbour itself provides one of the most spectacular backdrops in the world.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>On board</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>The main deck is laid out for a party, with a bar at the centre, lounge seating along the sides and an open dance floor that flows onto the aft deck. The DJ booth connects to a professional sound and lighting system, and you are welcome to bring your own DJ or plug in a playlist. Up top, the open sun deck gives the best views of the city, while four cabins and two bathrooms below offer a quieter space away from the music.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Where you will go</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>Cruises leave the inner harbour and pass beneath the Sydney Harbour Bridge and in front of the Opera House, the photos every guest wants. The route then heads east toward Shark Island, Watsons Bay and the harbour beaches, with a stop at anchor in a sheltered bay for a swim on warm days. Evening charters return to the inner harbour to see the city light up after dark.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Best for</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>In the Party class, Southern Star is built for birthdays, engagement parties, end-of-year celebrations and big nights out with friends. Tell us about your group and the atmosphere you want when you book, and the crew will set up the yacht, the music and the bar service to match.</p>', 'magepeople-yacht-booking-system' )
+					. __( '<h3>Good to know</h3>', 'magepeople-yacht-booking-system' )
+					. __( '<p>Hourly charters run for at least three hours, and the crew needs 90 minutes between groups to reset the bar and the decks. Please include every guest in your booking, since the yacht is licensed for no more than forty people on board. Flat shoes are safest on deck, especially once the dancing starts.</p>', 'magepeople-yacht-booking-system' ),
 				'class'       => 'Party',
-				'occasions'   => array( 'Bachelorette', 'Birthday' ),
+				'occasions'   => array( 'Birthday', 'Party' ),
 				'meta'        => array(
 					'capacity'                       => '40',
-					'cabins'                         => '3',
+					'cabins'                         => '4',
 					'crew_size'                      => '4',
 					'length'                         => '60',
-					'build_year'                     => '2020',
+					'build_year'                     => '2022',
 					'location_name'                  => 'Sydney Harbour, Australia',
-					'location_lat'                   => '-33.8523',
-					'location_lng'                   => '151.2108',
+					'location_lat'                   => '-33.8568',
+					'location_lng'                   => '151.2153',
 					'base_price_hourly'              => '280',
-					'base_price_halfday'             => '1250',
-					'base_price_daily'               => '2300',
-					'base_price_morning_slot'        => '950',
-					'base_price_evening_slot'        => '1350',
-					'base_price_shared_hourly'       => '35',
-					'base_price_shared_halfday'      => '140',
-					'base_price_shared_daily'        => '260',
-					'base_price_shared_morning_slot' => '110',
-					'base_price_shared_evening_slot' => '160',
-					'min_notice_hours'               => '12',
-					'buffer_minutes'                 => '45',
-					'min_duration'                   => '120',
-					'max_duration'                   => '480',
+					'base_price_halfday'             => '640',
+					'base_price_morning_slot'        => '700',
+					'base_price_evening_slot'        => '800',
+					'base_price_daily'               => '950',
+					'base_price_multiday'            => '860',
+					'base_price_shared_hourly'       => '10',
+					'base_price_shared_halfday'      => '25',
+					'base_price_shared_morning_slot' => '25',
+					'base_price_shared_evening_slot' => '30',
+					'base_price_shared_daily'        => '35',
+					'base_price_shared_multiday'     => '30',
 					'booking_mode'                   => 'both',
-					'faq'                            => self::dummy_faq_items(),
+					'min_notice_hours'               => '24',
+					'buffer_minutes'                 => '90',
+					'min_duration'                   => '180',
+					'max_duration'                   => '480',
+					'daily_start_time'               => '08:00',
+					'daily_end_time'                 => '20:00',
+					'halfday_start_time'             => '08:00',
+					'halfday_end_time'               => '12:00',
+					'morning_slot_start'             => '08:00',
+					'morning_slot_end'               => '13:00',
+					'evening_slot_start'             => '15:00',
+					'evening_slot_end'               => '20:00',
+					'included_items'                 => array(
+						array( 'text' => __( 'Captain and crew of four', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'DJ booth with professional sound and lighting', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Bar service with glassware and ice', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Bottled water and soft drinks', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Life jackets and safety equipment', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Swim platform with boarding ladder', 'magepeople-yacht-booking-system' ) ),
+						array( 'text' => __( 'Towels', 'magepeople-yacht-booking-system' ) ),
+					),
+					'faq'                            => array(
+						array(
+							'question' => __( 'Can we bring our own DJ?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Absolutely. The DJ booth has standard connections for decks and laptops. Let us know when you book and the crew will arrange a sound check before your guests arrive.', 'magepeople-yacht-booking-system' ),
+						),
+						array(
+							'question' => __( 'Can we bring our own drinks?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Bar service is included, and you can either supply your own drinks or choose a drinks package when you book. The crew serves responsibly and will stop service for anyone who has had too much.', 'magepeople-yacht-booking-system' ),
+						),
+						array(
+							'question' => __( 'Is there a minimum booking?', 'magepeople-yacht-booking-system' ),
+							'answer'   => __( 'Hourly charters on Southern Star run for at least three hours, which gives you time to cruise the harbour, anchor for a swim and still enjoy the party.', 'magepeople-yacht-booking-system' ),
+						),
+					),
 				),
 			),
 		);

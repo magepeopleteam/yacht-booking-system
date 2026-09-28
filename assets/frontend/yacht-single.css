@@ -445,7 +445,10 @@
 	scroll-behavior: smooth;
 	scrollbar-width: none;
 	-ms-overflow-style: none;
-	padding-bottom: 4px;
+	/* Room for the tiles' shadow and hover lift, which the scroll container
+	   would otherwise clip; the negative margin keeps the layout in place. */
+	padding: 8px 6px 22px;
+	margin: -8px -6px -18px;
 }
 
 .ybs-ys-specs::-webkit-scrollbar {
@@ -459,8 +462,11 @@
 	align-items: center;
 	gap: 12px;
 	background: #fff;
-	border: 1px solid var(--ys-line-soft);
+	/* The page itself is white, so the tile needs an edge and a lift to
+	   read as a card rather than a transparent cell. */
+	border: 1px solid #e2e2e2;
 	border-radius: var(--ys-r-img);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 18px rgba(0, 0, 0, 0.06);
 	padding: 14px 16px;
 	transition: transform 0.35s var(--ys-ease), box-shadow 0.35s ease, border-color 0.35s ease;
 }
@@ -1234,6 +1240,7 @@
 /* ---------- CTA banner ---------- */
 
 .ybs-ys-cta {
+	margin-top: 60px;
 	border: 1.5px solid var(--ys-gold);
 	border-radius: 24px;
 	padding: 40px 24px;
@@ -1603,7 +1610,7 @@
 	.ybs-ys-specs {
 		grid-template-columns: repeat(2, 1fr);
 		gap: 10px;
-		margin-bottom: 32px;
+		margin-bottom: 14px; /* 32px minus the shadow room added above */
 	}
 
 	.ybs-ys-spec {

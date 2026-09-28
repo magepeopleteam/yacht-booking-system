@@ -6,23 +6,23 @@ const SLOT_WINDOWS = {
 };
 
 function computeWindow( form ) {
-	const type = form.querySelector( '.ybs-bf-type' ).value;
-	const date = form.querySelector( '.ybs-bf-date' ).value;
+	const type = find( form, '.ybs-bf-type' ).value;
+	const date = find( form, '.ybs-bf-date' ).value;
 
 	if ( ! type || ! date ) {
 		return null;
 	}
 
 	if ( 'hourly' === type ) {
-		const startTime = form.querySelector( '.ybs-bf-start-time' ).value || '10:00';
-		const duration = parseFloat( form.querySelector( '.ybs-bf-duration' ).value || '2' );
+		const startTime = find( form, '.ybs-bf-start-time' ).value || '10:00';
+		const duration = parseFloat( find( form, '.ybs-bf-duration' ).value || '2' );
 		const start = new Date( `${ date }T${ startTime }:00` );
 		const end = new Date( start.getTime() + duration * 60 * 60 * 1000 );
 		return { start: toMysql( start ), end: toMysql( end ) };
 	}
 
 	if ( 'multiday' === type ) {
-		const nights = parseInt( form.querySelector( '.ybs-bf-nights' ).value || '2', 10 );
+		const nights = parseInt( find( form, '.ybs-bf-nights' ).value || '2', 10 );
 		const start = new Date( `${ date }T08:00:00` );
 		const end = new Date( start.getTime() + nights * 24 * 60 * 60 * 1000 );
 		return { start: toMysql( start ), end: toMysql( end ) };
@@ -37,12 +37,183 @@ function toMysql( date ) {
 	return `${ date.getFullYear() }-${ pad( date.getMonth() + 1 ) }-${ pad( date.getDate() ) } ${ pad( date.getHours() ) }:${ pad( date.getMinutes() ) }:00`;
 }
 
+/* ---- Minimum notice: never default to a date the yacht cannot take ---- */
+
+const serverClockOffset = ( () => {
+	const serverTime = window.mageyaboFrontendConfig && Number( window.mageyaboFrontendConfig.serverTime );
+	return serverTime ? serverTime * 1000 - Date.now() : 0;
+} )();
+
+function minNoticeHours( form ) {
+	const picker = form.querySelector( '.ybs-bf-yacht' );
+	const source = picker && picker.value && picker.selectedOptions[ 0 ] ? picker.selectedOptions[ 0 ].dataset : form.dataset;
+
+	return Math.max( 0, parseInt( source.minNoticeHours || '0', 10 ) || 0 );
+}
+
+/**
+ * The earliest start the server will accept, in the same "Y-m-d H:i:s"
+ * wall-clock form computeWindow() produces - the server reads that string as
+ * UTC and compares it with time() + notice, so this does exactly the same.
+ * Five minutes of slack covers the gap between choosing and submitting.
+ */
+function earliestStart( form ) {
+	const earliest = new Date( Date.now() + serverClockOffset + ( minNoticeHours( form ) * 60 + 5 ) * 60 * 1000 );
+	const pad = ( n ) => String( n ).padStart( 2, '0' );
+
+	return `${ earliest.getUTCFullYear() }-${ pad( earliest.getUTCMonth() + 1 ) }-${ pad( earliest.getUTCDate() ) } ${ pad( earliest.getUTCHours() ) }:${ pad( earliest.getUTCMinutes() ) }:00`;
+}
+
+/**
+ * Keeps the date on one the yacht can actually take: the date field cannot
+ * go earlier than the notice period allows, and when the chosen date (with
+ * the current charter type's start time) is too soon, it moves forward to
+ * the first day that is not. `force` starts the search from tomorrow - the
+ * form's long-standing default - rather than from the current value.
+ */
+function ensureBookableDate( form, force = false ) {
+	const dateInput = form.querySelector( '.ybs-bf-date' );
+
+	if ( ! dateInput ) {
+		return;
+	}
+
+	const earliest = earliestStart( form );
+	dateInput.min = earliest.slice( 0, 10 );
+
+	const current = computeWindow( form );
+
+	if ( ! force && current && current.start >= earliest ) {
+		return;
+	}
+
+	const day = new Date( `${ ( force || ! dateInput.value ? defaultDateValue() : dateInput.value ) }T12:00:00` );
+	const pad = ( n ) => String( n ).padStart( 2, '0' );
+
+	for ( let i = 0; i < 90; i++ ) {
+		dateInput.value = `${ day.getFullYear() }-${ pad( day.getMonth() + 1 ) }-${ pad( day.getDate() ) }`;
+
+		const window_ = computeWindow( form );
+
+		if ( window_ && window_.start >= earliest ) {
+			return;
+		}
+
+		day.setDate( day.getDate() + 1 );
+	}
+}
+
+/**
+ * When the form's own default (not something the visitor chose) turns out to
+ * be taken - another booking, its turnaround buffer, an off day - ask the
+ * server for the first window that is free for this yacht, charter type,
+ * duration, guests and mode, and select it. Tried once per combination of
+ * those, so an unbookable yacht cannot loop.
+ *
+ * @return {Promise<boolean>} whether a free window was selected.
+ */
+async function selectNextAvailable( form ) {
+	const config = window.mageyaboFrontendConfig || {};
+	const yachtId = currentYachtId( form );
+	const typeSelect = form.querySelector( '.ybs-bf-type' );
+	const dateInput = form.querySelector( '.ybs-bf-date' );
+
+	if ( ! yachtId || ! typeSelect || ! dateInput || form.dataset.userPickedTime ) {
+		return false;
+	}
+
+	const params = new URLSearchParams( {
+		booking_type: typeSelect.value,
+		booking_mode: currentMode( form ),
+		guest_count: ( form.querySelector( '.ybs-bf-guests' ) || {} ).value || 1,
+		duration: ( form.querySelector( '.ybs-bf-duration' ) || {} ).value || 2,
+		nights: ( form.querySelector( '.ybs-bf-nights' ) || {} ).value || 2,
+		from: dateInput.min || '',
+	} );
+
+	const key = `${ yachtId }|${ params }`;
+
+	if ( form.dataset.autoSlotKey === key ) {
+		return false;
+	}
+
+	form.dataset.autoSlotKey = key;
+
+	try {
+		const response = await fetch( `${ config.restRoot }yachts/${ yachtId }/next-available?${ params }` );
+
+		if ( ! response.ok ) {
+			return false;
+		}
+
+		const slot = await response.json();
+
+		if ( ! slot || ! slot.start_datetime || form.dataset.userPickedTime ) {
+			return false;
+		}
+
+		dateInput.value = slot.start_datetime.slice( 0, 10 );
+
+		const startTime = form.querySelector( '.ybs-bf-start-time' );
+
+		if ( startTime && 'hourly' === typeSelect.value ) {
+			startTime.value = slot.start_datetime.slice( 11, 16 );
+		}
+
+		return true;
+	} catch ( e ) {
+		return false;
+	}
+}
+
 function defaultDateValue() {
 	const date = new Date();
 	date.setDate( date.getDate() + 1 );
 
 	const pad = ( n ) => String( n ).padStart( 2, '0' );
 	return `${ date.getFullYear() }-${ pad( date.getMonth() + 1 ) }-${ pad( date.getDate() ) }`;
+}
+
+/**
+ * The booking drawer is moved to <body> the first time it opens (see
+ * openModal()), so a fixed panel is never trapped inside a transformed or
+ * sticky ancestor. Everything that used to be looked up inside the form is
+ * looked up in the form first and then in its drawer.
+ */
+function drawerOf( form ) {
+	if ( ! form._ybsDrawer ) {
+		form._ybsDrawer = form.querySelector( '[data-ybs-bf-modal]' );
+	}
+
+	return form._ybsDrawer;
+}
+
+function find( form, selector ) {
+	const inForm = form.querySelector( selector );
+
+	if ( inForm ) {
+		return inForm;
+	}
+
+	const drawer = drawerOf( form );
+
+	return drawer && ! form.contains( drawer ) ? drawer.querySelector( selector ) : null;
+}
+
+function findAll( form, selector ) {
+	const matches = Array.from( form.querySelectorAll( selector ) );
+	const drawer = drawerOf( form );
+
+	if ( drawer && ! form.contains( drawer ) ) {
+		matches.push( ...drawer.querySelectorAll( selector ) );
+	}
+
+	return matches;
+}
+
+function money( value ) {
+	const config = window.mageyaboFrontendConfig || {};
+	return `${ config.currency || '$' }${ Number( value || 0 ).toFixed( 2 ) }`;
 }
 
 function debounce( fn, delay ) {
@@ -54,13 +225,13 @@ function debounce( fn, delay ) {
 }
 
 function toggleFields( form ) {
-	const type = form.querySelector( '.ybs-bf-type' ).value;
+	const type = find( form, '.ybs-bf-type' ).value;
 
-	form.querySelectorAll( '.ybs-bf-hourly-fields' ).forEach( ( el ) => {
+	findAll( form, '.ybs-bf-hourly-fields' ).forEach( ( el ) => {
 		el.hidden = 'hourly' !== type;
 	} );
 
-	form.querySelectorAll( '.ybs-bf-multiday-fields' ).forEach( ( el ) => {
+	findAll( form, '.ybs-bf-multiday-fields' ).forEach( ( el ) => {
 		el.hidden = 'multiday' !== type;
 	} );
 }
@@ -71,9 +242,9 @@ function toggleFields( form ) {
  * visitor choosing an option that the pricing engine must reject.
  */
 function syncBookingTypes( form ) {
-	const yachtSelect = form.querySelector( '.ybs-bf-yacht' );
+	const yachtSelect = find( form, '.ybs-bf-yacht' );
 	const source = yachtSelect ? yachtSelect.selectedOptions[ 0 ] : form;
-	const typeSelect = form.querySelector( '.ybs-bf-type' );
+	const typeSelect = find( form, '.ybs-bf-type' );
 
 	if ( ! source || ! typeSelect ) {
 		return;
@@ -114,7 +285,7 @@ function syncBookingTypes( form ) {
  * "what's the select's value".
  */
 function populatePaymentMethods( form ) {
-	const list = form.querySelector( '[data-ybs-bf-pm-list]' );
+	const list = find( form, '[data-ybs-bf-pm-list]' );
 
 	if ( ! list ) {
 		return;
@@ -168,7 +339,7 @@ function populatePaymentMethods( form ) {
 }
 
 function selectedPaymentMethod( form ) {
-	const checked = form.querySelector( '.ybs-bf-payment:checked' );
+	const checked = find( form, '.ybs-bf-payment:checked' );
 	return checked ? checked.value : '';
 }
 
@@ -199,10 +370,10 @@ function getStripeClient( publishableKey ) {
  */
 async function mountStripeCheckout( form, payment ) {
 	const config = window.mageyaboFrontendConfig;
-	const fields = form.querySelector( '[data-ybs-bf-modal-fields]' );
-	const cardBox = form.querySelector( '[data-ybs-bf-stripe-card]' );
-	const mountEl = form.querySelector( '[data-ybs-bf-stripe-mount]' );
-	const errorBox = form.querySelector( '.ybs-bf-error' );
+	const fields = find( form, '[data-ybs-bf-modal-fields]' );
+	const cardBox = find( form, '[data-ybs-bf-stripe-card]' );
+	const mountEl = find( form, '[data-ybs-bf-stripe-mount]' );
+	const errorBox = find( form, '.ybs-bf-error' );
 
 	if ( fields ) {
 		fields.hidden = true;
@@ -259,14 +430,14 @@ async function mountStripeCheckout( form, payment ) {
  * change, and empties itself when no yacht is chosen.
  */
 async function loadAddons( form ) {
-	const box = form.querySelector( '[data-ybs-bf-addons]' );
+	const box = find( form, '[data-ybs-bf-addons]' );
 
 	if ( ! box ) {
 		return;
 	}
 
 	const config = window.mageyaboFrontendConfig;
-	const list = form.querySelector( '[data-ybs-bf-addons-list]' );
+	const list = find( form, '[data-ybs-bf-addons-list]' );
 	const yachtId = currentYachtId( form );
 
 	list.innerHTML = '';
@@ -352,7 +523,7 @@ async function loadAddons( form ) {
 function selectedAddons( form ) {
 	const pairs = [];
 
-	form.querySelectorAll( '.ybs-bf-addon' ).forEach( ( row ) => {
+	findAll( form, '.ybs-bf-addon' ).forEach( ( row ) => {
 		const checkbox = row.querySelector( '.ybs-bf-addon__check' );
 
 		if ( ! checkbox || ! checkbox.checked ) {
@@ -495,7 +666,7 @@ if ( typeof window !== 'undefined' ) {
 function renderPrice( form, pricing, remaining ) {
 	const config = window.mageyaboFrontendConfig;
 	const i18n = config.i18n || {};
-	const priceBox = form.querySelector( '.ybs-bf-price' );
+	const priceBox = find( form, '.ybs-bf-price' );
 	const money = ( value ) => `${ config.currency }${ Number( value ).toFixed( 2 ) }`;
 
 	priceBox.innerHTML = '';
@@ -567,12 +738,12 @@ function renderPrice( form, pricing, remaining ) {
 }
 
 function currentYachtId( form ) {
-	const select = form.querySelector( '.ybs-bf-yacht' );
+	const select = find( form, '.ybs-bf-yacht' );
 	return select ? select.value : form.dataset.yachtId;
 }
 
 function currentCapacity( form ) {
-	const yachtSelect = form.querySelector( '.ybs-bf-yacht' );
+	const yachtSelect = find( form, '.ybs-bf-yacht' );
 
 	if ( yachtSelect ) {
 		const option = yachtSelect.selectedOptions[ 0 ];
@@ -586,7 +757,7 @@ function currentCapacity( form ) {
 // actually take - capacity for a full charter, remaining seats for a
 // shared one (refreshQuote tightens the max further once it knows that).
 function clampGuests( form ) {
-	const input = form.querySelector( '.ybs-bf-guests' );
+	const input = find( form, '.ybs-bf-guests' );
 
 	if ( ! input || '' === input.max ) {
 		return;
@@ -608,7 +779,7 @@ function clampGuests( form ) {
 }
 
 function resetGuestsMax( form ) {
-	const input = form.querySelector( '.ybs-bf-guests' );
+	const input = find( form, '.ybs-bf-guests' );
 
 	if ( ! input ) {
 		return;
@@ -626,13 +797,13 @@ function resetGuestsMax( form ) {
 }
 
 function currentMode( form ) {
-	const modeSelect = form.querySelector( '.ybs-bf-mode' );
+	const modeSelect = find( form, '.ybs-bf-mode' );
 
 	if ( modeSelect ) {
 		return modeSelect.value || 'full';
 	}
 
-	const yachtSelect = form.querySelector( '.ybs-bf-yacht' );
+	const yachtSelect = find( form, '.ybs-bf-yacht' );
 	const selectedMode = yachtSelect && yachtSelect.selectedOptions[ 0 ]
 		? yachtSelect.selectedOptions[ 0 ].dataset.ybsMode
 		: '';
@@ -651,15 +822,15 @@ function updateHiddenFields( form ) {
 
 	const window_ = computeWindow( form );
 	const set = ( name, value ) => {
-		const input = form.querySelector( `input[name="${ name }"]` );
+		const input = find( form, `input[name="${ name }"]` );
 		if ( input ) {
 			input.value = value;
 		}
 	};
 
-	set( 'mageyabo_booking_type', form.querySelector( '.ybs-bf-type' ).value );
+	set( 'mageyabo_booking_type', find( form, '.ybs-bf-type' ).value );
 	set( 'mageyabo_booking_mode', currentMode( form ) );
-	set( 'mageyabo_guest_count', form.querySelector( '.ybs-bf-guests' ).value || 1 );
+	set( 'mageyabo_guest_count', find( form, '.ybs-bf-guests' ).value || 1 );
 	set( 'mageyabo_start_datetime', window_ ? window_.start : '' );
 	set( 'mageyabo_end_datetime', window_ ? window_.end : '' );
 	set( 'mageyabo_addons', selectedAddons( form ) );
@@ -670,7 +841,7 @@ function updateHiddenFields( form ) {
 }
 
 function setSubmitEnabled( form, enabled ) {
-	const button = form.querySelector( '.ybs-bf-submit' );
+	const button = find( form, '.ybs-bf-submit' );
 
 	if ( button ) {
 		button.disabled = ! enabled;
@@ -678,40 +849,389 @@ function setSubmitEnabled( form, enabled ) {
 }
 
 /**
- * Guest details, payment method, and the terms checkbox only exist inside
- * this popup (custom-payment-method forms only - a WooCommerce checkout
- * form has none of this and skips straight to "add-to-cart"). It opens on
- * "Book Now" regardless of whether the current quote is valid, so an
- * availability problem ("too close to another booking", an off-day, and so
- * on) is something the visitor actually sees explained, rather than a
- * button that's disabled for no visible reason.
+ * "Book Now" slides the booking drawer in from the right: the summary of
+ * what is being booked, then guest details, coupon, payment and terms. It
+ * opens whether or not the current quote is valid, so an availability
+ * problem is something the visitor sees explained in the drawer rather than
+ * a button that is disabled for no visible reason.
  */
-function openModal( form ) {
-	const modal = form.querySelector( '[data-ybs-bf-modal]' );
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-	if ( ! modal ) {
+function openModal( form ) {
+	const drawer = drawerOf( form );
+
+	if ( ! drawer ) {
 		return;
 	}
 
-	modal.hidden = false;
+	if ( drawer.parentElement !== document.body ) {
+		document.body.appendChild( drawer );
+	}
+
+	form._ybsLastFocus = document.activeElement;
+
+	// Carry the page's accent across: gold on a yacht page (its
+	// `--ys-gold`), the booking form's own primary everywhere else.
+	const styles = window.getComputedStyle( form );
+	const accent = ( styles.getPropertyValue( '--ys-gold-strong' ) || styles.getPropertyValue( '--ybs-primary' ) ).trim();
+
+	if ( accent ) {
+		drawer.style.setProperty( '--ybs-drawer-accent', accent );
+		// Focus rings and the selected payment card follow it too.
+		drawer.style.setProperty( '--ybs-primary', accent );
+		drawer.style.setProperty( '--ybs-primary-soft', `color-mix(in srgb, ${ accent } 16%, transparent)` );
+	}
+
+	renderSummary( form );
+
+	// When the charter cannot be booked as chosen, say why inside the drawer
+	// too - not just on the page behind it.
+	const drawerError = drawer.querySelector( '[data-ybs-bf-drawer-error]' );
+	const pageError = form.querySelector( '.ybs-bf-error' );
+
+	if ( drawerError && pageError && pageError !== drawerError && '1' !== form.dataset.validQuote && ! pageError.hidden && pageError.textContent ) {
+		drawerError.textContent = pageError.textContent;
+		drawerError.hidden = false;
+	}
+
+	drawer.hidden = false;
 	document.body.classList.add( 'ybs-bf-modal-open' );
 
-	const firstField = modal.querySelector( '.ybs-bf-name' );
+	// One frame with the drawer displayed but off-canvas, so the slide-in
+	// transition has a start state to animate from.
+	window.requestAnimationFrame( () => {
+		window.requestAnimationFrame( () => drawer.classList.add( 'is-open' ) );
+	} );
 
-	if ( firstField ) {
-		firstField.focus();
+	const firstField = drawer.querySelector( '.ybs-bf-name' );
+	const panel = drawer.querySelector( '.ybs-bf-drawer__panel' );
+	const target = firstField && ! firstField.closest( '[hidden]' ) ? firstField : panel;
+
+	if ( target ) {
+		target.focus( { preventScroll: true } );
 	}
 }
 
 function closeModal( form ) {
-	const modal = form.querySelector( '[data-ybs-bf-modal]' );
+	const drawer = drawerOf( form );
 
-	if ( ! modal ) {
+	if ( ! drawer || drawer.hidden ) {
 		return;
 	}
 
-	modal.hidden = true;
+	drawer.classList.remove( 'is-open' );
 	document.body.classList.remove( 'ybs-bf-modal-open' );
+
+	const reduceMotion = window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches;
+
+	window.setTimeout( () => {
+		if ( ! drawer.classList.contains( 'is-open' ) ) {
+			drawer.hidden = true;
+		}
+	}, reduceMotion ? 0 : 320 );
+
+	if ( form._ybsLastFocus && document.contains( form._ybsLastFocus ) ) {
+		form._ybsLastFocus.focus( { preventScroll: true } );
+	}
+}
+
+/**
+ * Keeps Tab inside the open drawer, so keyboard users cannot wander into the
+ * page behind the backdrop.
+ */
+function trapFocus( form, event ) {
+	const drawer = drawerOf( form );
+
+	if ( ! drawer || drawer.hidden || 'Tab' !== event.key ) {
+		return;
+	}
+
+	const focusable = Array.from( drawer.querySelectorAll( FOCUSABLE ) ).filter( ( el ) => ! el.closest( '[hidden]' ) && el.offsetParent !== null );
+
+	if ( ! focusable.length ) {
+		return;
+	}
+
+	const first = focusable[ 0 ];
+	const last = focusable[ focusable.length - 1 ];
+
+	if ( event.shiftKey && ( document.activeElement === first || ! drawer.contains( document.activeElement ) ) ) {
+		event.preventDefault();
+		last.focus();
+	} else if ( ! event.shiftKey && document.activeElement === last ) {
+		event.preventDefault();
+		first.focus();
+	}
+}
+
+/**
+ * The yacht currently being booked: the form's own when it is on a yacht's
+ * page, otherwise the picker's selected option.
+ */
+function summaryYacht( form ) {
+	const picker = find( form, '.ybs-bf-yacht' );
+	const source = picker && picker.selectedOptions[ 0 ] && picker.value ? picker.selectedOptions[ 0 ].dataset : form.dataset;
+
+	return {
+		name: source.yachtName || '',
+		thumb: source.yachtThumb || '',
+		location: source.yachtLocation || '',
+	};
+}
+
+function selectedLabel( select ) {
+	return select && select.selectedOptions[ 0 ] ? select.selectedOptions[ 0 ].textContent.trim() : '';
+}
+
+/**
+ * The drawer's top half: which yacht, when, what kind of charter, how many
+ * guests, which extras - then the live price breakdown from the last quote,
+ * mirrored into the sticky footer total.
+ */
+function renderSummary( form ) {
+	const drawer = drawerOf( form );
+
+	if ( ! drawer ) {
+		return;
+	}
+
+	const config = window.mageyaboFrontendConfig || {};
+	const i18n = config.i18n || {};
+	const pricing = form._ybsQuote || null;
+
+	const yachtBox = drawer.querySelector( '[data-ybs-bf-summary-yacht]' );
+	const details = drawer.querySelector( '[data-ybs-bf-summary-details]' );
+	const priceBox = drawer.querySelector( '[data-ybs-bf-summary-price]' );
+	const totalEl = drawer.querySelector( '[data-ybs-bf-drawer-total]' );
+	const totalLabel = drawer.querySelector( '[data-ybs-bf-drawer-total-label]' );
+
+	if ( yachtBox ) {
+		const yacht = summaryYacht( form );
+		yachtBox.innerHTML = '';
+		yachtBox.hidden = ! yacht.name;
+
+		if ( yacht.thumb ) {
+			const img = document.createElement( 'img' );
+			img.src = yacht.thumb;
+			img.alt = '';
+			img.className = 'ybs-bf-summary__thumb';
+			yachtBox.appendChild( img );
+		}
+
+		const text = document.createElement( 'div' );
+		const name = document.createElement( 'strong' );
+		name.className = 'ybs-bf-summary__name';
+		name.textContent = yacht.name;
+		text.appendChild( name );
+
+		if ( yacht.location ) {
+			const location = document.createElement( 'span' );
+			location.className = 'ybs-bf-summary__location';
+			location.textContent = yacht.location;
+			text.appendChild( location );
+		}
+
+		yachtBox.appendChild( text );
+	}
+
+	if ( details ) {
+		const window_ = computeWindow( form );
+		const typeSelect = find( form, '.ybs-bf-type' );
+		let charter = selectedLabel( typeSelect );
+
+		if ( typeSelect && 'hourly' === typeSelect.value ) {
+			const hours = parseFloat( ( find( form, '.ybs-bf-duration' ) || {} ).value || '0' );
+			charter = hours ? `${ charter } · ${ hours } h` : charter;
+		} else if ( typeSelect && 'multiday' === typeSelect.value ) {
+			const nights = parseInt( ( find( form, '.ybs-bf-nights' ) || {} ).value || '0', 10 );
+			charter = nights ? `${ charter } · ${ nights }` : charter;
+		}
+
+		const extras = [];
+
+		findAll( form, '.ybs-bf-addon' ).forEach( ( row ) => {
+			const checkbox = row.querySelector( '.ybs-bf-addon__check' );
+
+			if ( checkbox && checkbox.checked ) {
+				const qty = parseInt( ( row.querySelector( '.ybs-bf-addon__qty' ) || {} ).value || '1', 10 ) || 1;
+				const name = ( row.querySelector( '.ybs-bf-addon__name' ) || {} ).textContent || '';
+				extras.push( qty > 1 ? `${ name } × ${ qty }` : name );
+			}
+		} );
+
+		const rows = [
+			[ i18n.detailDates || 'Date & Time', window_ ? formatDateRange( window_.start, window_.end ) : '' ],
+			[ i18n.detailCharter || 'Charter', charter ],
+			[ i18n.detailBooking || 'Booking', find( form, '.ybs-bf-mode' ) ? selectedLabel( find( form, '.ybs-bf-mode' ) ) : '' ],
+			[ i18n.detailGuests || 'Guests', String( ( find( form, '.ybs-bf-guests' ) || {} ).value || 1 ) ],
+			[ i18n.detailExtras || 'Extras', extras.join( ', ' ) ],
+		];
+
+		details.innerHTML = '';
+
+		rows.forEach( ( [ label, value ] ) => {
+			if ( ! value ) {
+				return;
+			}
+
+			const dt = document.createElement( 'dt' );
+			dt.textContent = label;
+			const dd = document.createElement( 'dd' );
+			dd.textContent = value;
+			details.append( dt, dd );
+		} );
+	}
+
+	if ( priceBox ) {
+		priceBox.innerHTML = '';
+
+		if ( pricing ) {
+			const coupon = pricing.coupon;
+			const lines = [ [ i18n.charter || 'Charter', money( pricing.base_price + pricing.adjustment_total ) ] ];
+
+			if ( pricing.addons_total > 0 ) {
+				lines.push( [ i18n.extrasTotal || 'Extras', money( pricing.addons_total ) ] );
+			}
+
+			if ( pricing.discount_total > 0 ) {
+				const label = coupon && coupon.code
+					? ( i18n.couponDiscount || 'Discount (%s)' ).replace( '%s', coupon.code )
+					: ( i18n.discount || 'Discount' );
+				lines.push( [ label, `-${ money( pricing.discount_total ) }`, 'is-discount' ] );
+			}
+
+			if ( pricing.tax_total > 0 ) {
+				lines.push( [ i18n.tax || 'Tax', money( pricing.tax_total ) ] );
+			}
+
+			lines.push( [ i18n.total || 'Total', money( pricing.total ), 'is-total' ] );
+
+			if ( pricing.deposit_amount > 0 ) {
+				lines.push( [ i18n.dueNow || 'Due now', money( pricing.deposit_amount ), 'is-due' ] );
+			}
+
+			lines.forEach( ( [ label, value, modifier ] ) => {
+				const row = document.createElement( 'div' );
+				row.className = 'ybs-bf-summary__row' + ( modifier ? ' ' + modifier : '' );
+				const labelEl = document.createElement( 'span' );
+				labelEl.textContent = label;
+				const valueEl = document.createElement( 'span' );
+				valueEl.textContent = value;
+				row.append( labelEl, valueEl );
+				priceBox.appendChild( row );
+			} );
+		}
+
+		priceBox.hidden = ! pricing;
+	}
+
+	if ( totalEl ) {
+		const due = pricing && pricing.deposit_amount > 0;
+		totalEl.textContent = pricing ? money( due ? pricing.deposit_amount : pricing.total ) : '—';
+
+		if ( totalLabel ) {
+			totalLabel.textContent = due ? ( i18n.dueNow || 'Due now' ) : ( i18n.total || 'Total' );
+		}
+	}
+}
+
+/* ---- Coupon code (built-in discount codes, see CouponService.php) ---- */
+
+function couponBox( form ) {
+	return find( form, '[data-ybs-bf-coupon]' );
+}
+
+function setCouponMessage( form, text, isError ) {
+	const box = couponBox( form );
+	const message = box && box.querySelector( '[data-ybs-bf-coupon-message]' );
+
+	if ( ! message ) {
+		return;
+	}
+
+	message.textContent = text || '';
+	message.hidden = ! text;
+	message.classList.toggle( 'is-error', !! isError );
+}
+
+function showCouponEntry( form, showEntry ) {
+	const box = couponBox( form );
+
+	if ( ! box ) {
+		return;
+	}
+
+	box.querySelector( '[data-ybs-bf-coupon-entry]' ).hidden = ! showEntry;
+	box.querySelector( '[data-ybs-bf-coupon-applied]' ).hidden = showEntry;
+}
+
+/**
+ * Reads the quote's verdict on the code in play: accepted (show it as an
+ * applied tag with the saving) or refused (drop it, say why). A code that
+ * stops qualifying later - fewer guests pushing the total under its minimum
+ * spend, say - is dropped the same way on the next quote.
+ */
+function handleCouponResult( form, pricing ) {
+	const box = couponBox( form );
+
+	if ( ! box || ! form.dataset.couponCode ) {
+		return;
+	}
+
+	const i18n = ( window.mageyaboFrontendConfig || {} ).i18n || {};
+	const applyButton = box.querySelector( '.ybs-bf-coupon-apply' );
+	applyButton.disabled = false;
+
+	if ( pricing && pricing.coupon ) {
+		box.querySelector( '[data-ybs-bf-coupon-code]' ).textContent = pricing.coupon.code;
+		box.querySelector( '[data-ybs-bf-coupon-saving]' ).textContent = ( i18n.couponSaved || 'You save %s' ).replace( '%s', money( pricing.coupon.discount ) );
+		showCouponEntry( form, false );
+		setCouponMessage( form, '' );
+	} else {
+		delete form.dataset.couponCode;
+		showCouponEntry( form, true );
+		setCouponMessage( form, ( pricing && pricing.coupon_error ) || i18n.notAvailable, true );
+	}
+
+	delete form.dataset.couponPending;
+}
+
+function applyCoupon( form ) {
+	const box = couponBox( form );
+	const i18n = ( window.mageyaboFrontendConfig || {} ).i18n || {};
+	const input = box.querySelector( '.ybs-bf-coupon-input' );
+	const code = input.value.trim().toUpperCase();
+
+	if ( ! code ) {
+		setCouponMessage( form, i18n.couponEmpty || 'Enter a coupon code first.', true );
+		input.focus();
+		return;
+	}
+
+	input.value = code;
+	form.dataset.couponCode = code;
+	form.dataset.couponPending = '1';
+	box.querySelector( '.ybs-bf-coupon-apply' ).disabled = true;
+	setCouponMessage( form, i18n.couponChecking || 'Checking code…', false );
+
+	refreshQuote( form );
+}
+
+function removeCoupon( form, announce = true ) {
+	const box = couponBox( form );
+	const i18n = ( window.mageyaboFrontendConfig || {} ).i18n || {};
+
+	delete form.dataset.couponCode;
+	delete form.dataset.couponPending;
+
+	if ( box ) {
+		box.querySelector( '.ybs-bf-coupon-input' ).value = '';
+		box.querySelector( '.ybs-bf-coupon-apply' ).disabled = false;
+		showCouponEntry( form, true );
+		setCouponMessage( form, announce ? i18n.couponRemoved || 'Coupon removed.' : '', false );
+	}
+
+	refreshQuote( form );
 }
 
 /**
@@ -748,13 +1268,13 @@ function formatDateRange( startStr, endStr ) {
 function showBookingSuccess( form, data, payload, window_ ) {
 	const config = window.mageyaboFrontendConfig;
 	const i18n = config.i18n || {};
-	const fields = form.querySelector( '[data-ybs-bf-modal-fields]' );
-	const cardBox = form.querySelector( '[data-ybs-bf-stripe-card]' );
-	const successBox = form.querySelector( '[data-ybs-bf-success]' );
-	const messageEl = form.querySelector( '[data-ybs-bf-success-message]' );
-	const detailsEl = form.querySelector( '[data-ybs-bf-success-details]' );
-	const titleEl = form.querySelector( '.ybs-bf-modal__title' );
-	const openModalButton = form.querySelector( '.ybs-bf-open-modal' );
+	const fields = find( form, '[data-ybs-bf-modal-fields]' );
+	const cardBox = find( form, '[data-ybs-bf-stripe-card]' );
+	const successBox = find( form, '[data-ybs-bf-success]' );
+	const messageEl = find( form, '[data-ybs-bf-success-message]' );
+	const detailsEl = find( form, '[data-ybs-bf-success-details]' );
+	const titleEl = find( form, '.ybs-bf-modal__title' );
+	const openModalButton = find( form, '.ybs-bf-open-modal' );
 
 	if ( ! successBox ) {
 		return false;
@@ -766,6 +1286,12 @@ function showBookingSuccess( form, data, payload, window_ ) {
 
 	if ( cardBox ) {
 		cardBox.hidden = true;
+	}
+
+	const summary = find( form, '[data-ybs-bf-summary]' );
+
+	if ( summary ) {
+		summary.hidden = true;
 	}
 
 	if ( titleEl ) {
@@ -840,14 +1366,15 @@ async function refreshQuote( form ) {
 	setSubmitEnabled( form, false );
 
 	const yachtId = currentYachtId( form );
-	const priceBox = form.querySelector( '.ybs-bf-price' );
-	const errorBox = form.querySelector( '.ybs-bf-error' );
+	const priceBox = find( form, '.ybs-bf-price' );
+	const errorBox = find( form, '.ybs-bf-error' );
 
 	errorBox.hidden = true;
 
 	if ( ! yachtId ) {
 		priceBox.hidden = true;
 		setSubmitEnabled( form, false );
+		form._ybsQuote = null;
 		return;
 	}
 
@@ -856,11 +1383,12 @@ async function refreshQuote( form ) {
 	if ( ! window_ ) {
 		priceBox.hidden = true;
 		setSubmitEnabled( form, false );
+		form._ybsQuote = null;
 		return;
 	}
 
-	const guests = form.querySelector( '.ybs-bf-guests' ).value || 1;
-	const type = form.querySelector( '.ybs-bf-type' ).value;
+	const guests = find( form, '.ybs-bf-guests' ).value || 1;
+	const type = find( form, '.ybs-bf-type' ).value;
 	const config = window.mageyaboFrontendConfig;
 
 	priceBox.hidden = false;
@@ -881,6 +1409,10 @@ async function refreshQuote( form ) {
 			params.set( 'addons', addons );
 		}
 
+		if ( form.dataset.couponCode ) {
+			params.set( 'coupon_code', form.dataset.couponCode );
+		}
+
 		// Whatever the extensions want asked about - a coupon code, say.
 		Object.entries( collect( 'quoteParams', form ) ).forEach( ( [ key, value ] ) => {
 			if ( '' !== value && null !== value && undefined !== value ) {
@@ -898,10 +1430,38 @@ async function refreshQuote( form ) {
 		}
 
 		if ( ! response.ok ) {
+			// Our own default is taken: quietly move to the next free window
+			// instead of greeting the visitor with an error.
+			if ( 409 === response.status && ! form.dataset.userPickedTime ) {
+				priceBox.textContent = config.i18n.findingSlot || 'Finding the next available time…';
+
+				if ( await selectNextAvailable( form ) ) {
+					refreshQuote( form );
+					return;
+				}
+
+				if ( requestId !== form.dataset.quoteRequestId ) {
+					return;
+				}
+			}
+
 			priceBox.hidden = true;
 			errorBox.hidden = false;
 			errorBox.textContent = data.message || config.i18n.notAvailable;
 			form.dataset.validQuote = '';
+			form._ybsQuote = null;
+			renderSummary( form );
+
+			if ( form.dataset.couponPending ) {
+				delete form.dataset.couponPending;
+				setCouponMessage( form, '' );
+				const applyButton = find( form, '.ybs-bf-coupon-apply' );
+
+				if ( applyButton ) {
+					applyButton.disabled = false;
+				}
+			}
+
 			// Slot unavailable (booked, off-day, too close to another
 			// booking, ...) - keep the book button unclickable.
 			setSubmitEnabled( form, false );
@@ -911,7 +1471,7 @@ async function refreshQuote( form ) {
 		const remaining = data.availability && data.availability.remaining_capacity;
 
 		if ( 'shared' === currentMode( form ) && null !== remaining && undefined !== remaining ) {
-			const guestsInput = form.querySelector( '.ybs-bf-guests' );
+			const guestsInput = find( form, '.ybs-bf-guests' );
 
 			if ( guestsInput && Number( remaining ) > 0 ) {
 				guestsInput.max = Number( remaining );
@@ -919,7 +1479,10 @@ async function refreshQuote( form ) {
 			}
 		}
 
+		form._ybsQuote = data.pricing;
+		handleCouponResult( form, data.pricing );
 		renderPrice( form, data.pricing, remaining );
+		renderSummary( form );
 		notify( 'onQuote', form, data.pricing );
 
 		form.dataset.validQuote = '1';
@@ -935,7 +1498,7 @@ async function refreshQuote( form ) {
 }
 
 async function submitBooking( form ) {
-	const errorBox = form.querySelector( '.ybs-bf-error' );
+	const errorBox = find( form, '.ybs-bf-error' );
 	const config = window.mageyaboFrontendConfig;
 	errorBox.hidden = true;
 
@@ -948,7 +1511,18 @@ async function submitBooking( form ) {
 		return;
 	}
 
-	if ( ! form.querySelector( '.ybs-bf-terms' ).checked ) {
+	const detailInputs = [ '.ybs-bf-name', '.ybs-bf-email', '.ybs-bf-phone' ].map( ( selector ) => find( form, selector ) ).filter( Boolean );
+	const invalid = detailInputs.find( ( input ) => ! input.value.trim() || ! input.checkValidity() );
+
+	if ( invalid ) {
+		errorBox.hidden = false;
+		errorBox.textContent = config.i18n.invalidDetails || 'Please enter your name, a valid email address and a phone number.';
+		detailInputs.forEach( ( input ) => input.setAttribute( 'aria-invalid', ! input.value.trim() || ! input.checkValidity() ? 'true' : 'false' ) );
+		invalid.focus();
+		return;
+	}
+
+	if ( ! find( form, '.ybs-bf-terms' ).checked ) {
 		errorBox.hidden = false;
 		errorBox.textContent = config.i18n.termsRequired;
 		return;
@@ -965,22 +1539,23 @@ async function submitBooking( form ) {
 	const payload = {
 		...collect( 'submitData', form ),
 		yacht_id: Number( yachtId ),
-		booking_type: form.querySelector( '.ybs-bf-type' ).value,
+		booking_type: find( form, '.ybs-bf-type' ).value,
 		booking_mode: currentMode( form ),
 		start_datetime: window_.start,
 		end_datetime: window_.end,
-		guest_count: Number( form.querySelector( '.ybs-bf-guests' ).value || 1 ),
+		guest_count: Number( find( form, '.ybs-bf-guests' ).value || 1 ),
 		addons: addonsObject( form ),
 		payment_method: selectedPaymentMethod( form ),
 		terms_accepted: true,
+		...( form.dataset.couponCode ? { coupon_code: form.dataset.couponCode } : {} ),
 		guest: {
-			name: form.querySelector( '.ybs-bf-name' ).value,
-			email: form.querySelector( '.ybs-bf-email' ).value,
-			phone: form.querySelector( '.ybs-bf-phone' ).value,
+			name: find( form, '.ybs-bf-name' ).value,
+			email: find( form, '.ybs-bf-email' ).value,
+			phone: find( form, '.ybs-bf-phone' ).value,
 		},
 	};
 
-	const submitButton = form.querySelector( '.ybs-bf-submit' );
+	const submitButton = find( form, '.ybs-bf-submit' );
 	submitButton.disabled = true;
 
 	try {
@@ -996,7 +1571,22 @@ async function submitBooking( form ) {
 			errorBox.hidden = false;
 			errorBox.textContent = data.message || config.i18n.notAvailable;
 			submitButton.disabled = false;
+
+			// The code stopped qualifying between the quote and the click -
+			// drop it and re-quote, so the total on screen is the real one.
+			if ( 'mageyabo_coupon_rejected' === data.code ) {
+				removeCoupon( form, false );
+				setCouponMessage( form, data.message, true );
+			}
+
 			return;
+		}
+
+		// Nothing left to confirm - hide the pinned total and button.
+		const footer = find( form, '[data-ybs-bf-drawer-footer]' );
+
+		if ( footer ) {
+			footer.hidden = true;
 		}
 
 		// Stripe (embedded): the booking exists, but payment isn't - mount its
@@ -1032,7 +1622,164 @@ async function submitBooking( form ) {
 	}
 }
 
+/* ---- WooCommerce checkout inside the drawer (see WooCommerceDrawer.php) ---- */
+
+const wcForms = [];
+
+function drawerTitle( form ) {
+	const title = find( form, '.ybs-bf-drawer__title' );
+
+	if ( title && ! title.dataset.defaultTitle ) {
+		title.dataset.defaultTitle = title.textContent;
+	}
+
+	return title;
+}
+
+/**
+ * Swaps the drawer between its two WooCommerce stages: the booking summary
+ * with "Confirm Booking", and the embedded checkout that follows it.
+ */
+function setCheckoutStage( form, checkoutUrl ) {
+	const drawer = drawerOf( form );
+	const i18n = ( window.mageyaboFrontendConfig || {} ).i18n || {};
+	const showCheckout = !! checkoutUrl;
+	const stage = drawer.querySelector( '[data-ybs-bf-checkout]' );
+	const frame = drawer.querySelector( '[data-ybs-bf-checkout-frame]' );
+	const loading = drawer.querySelector( '[data-ybs-bf-checkout-loading]' );
+	const title = drawerTitle( form );
+
+	drawer.classList.toggle( 'is-checkout', showCheckout );
+	stage.hidden = ! showCheckout;
+	drawer.querySelector( '[data-ybs-bf-back]' ).hidden = ! showCheckout;
+	drawer.querySelector( '[data-ybs-bf-summary]' ).hidden = showCheckout;
+	drawer.querySelector( '[data-ybs-bf-drawer-footer]' ).hidden = showCheckout;
+	drawer.querySelector( '[data-ybs-bf-drawer-error]' ).hidden = true;
+
+	const note = drawer.querySelector( '[data-ybs-bf-wc-note]' );
+
+	if ( note ) {
+		note.hidden = showCheckout;
+	}
+
+	if ( title ) {
+		title.textContent = showCheckout ? i18n.checkoutTitle || 'Checkout' : title.dataset.defaultTitle;
+	}
+
+	if ( showCheckout ) {
+		loading.hidden = false;
+		frame.onload = () => {
+			if ( 'about:blank' !== frame.getAttribute( 'src' ) ) {
+				loading.hidden = true;
+			}
+		};
+		frame.src = checkoutUrl;
+	} else {
+		frame.onload = null;
+		frame.src = 'about:blank';
+	}
+}
+
+/**
+ * "Confirm Booking" on a WooCommerce form: add the charter to the cart
+ * (the server validates and prices it exactly as the classic add-to-cart
+ * post would) and load the checkout into the drawer - or show WooCommerce's
+ * own reason for refusing it.
+ */
+async function confirmWooCommerceBooking( form ) {
+	const config = window.mageyaboFrontendConfig || {};
+	const i18n = config.i18n || {};
+	const drawer = drawerOf( form );
+	const errorBox = drawer.querySelector( '[data-ybs-bf-drawer-error]' );
+	const button = drawer.querySelector( '.ybs-bf-wc-confirm' );
+	const showError = ( message ) => {
+		errorBox.textContent = message;
+		errorBox.hidden = false;
+	};
+
+	errorBox.hidden = true;
+
+	if ( ! currentYachtId( form ) || ! computeWindow( form ) || '1' !== form.dataset.validQuote ) {
+		showError( i18n.notAvailable || 'Not available for the selected time.' );
+		return;
+	}
+
+	if ( ! config.wcAddToCartUrl ) {
+		showError( i18n.addToCartFailed || 'The booking could not be added to your cart. Please try again.' );
+		return;
+	}
+
+	updateHiddenFields( form );
+
+	const data = new window.FormData( form );
+	data.set( 'product_id', form.dataset.wcProductId || '' );
+	data.set( 'quantity', '1' );
+
+	const label = button.textContent;
+	button.disabled = true;
+	button.textContent = i18n.addingToCart || 'Preparing checkout…';
+
+	try {
+		const response = await fetch( config.wcAddToCartUrl, { method: 'POST', body: data, credentials: 'same-origin' } );
+		const json = await response.json();
+
+		if ( ! json || ! json.success || ! json.data || ! json.data.checkout_url ) {
+			const messages = json && json.data && json.data.messages;
+			showError( Array.isArray( messages ) && messages.length ? messages.join( ' ' ) : i18n.addToCartFailed || 'The booking could not be added to your cart. Please try again.' );
+			return;
+		}
+
+		setCheckoutStage( form, json.data.checkout_url );
+	} catch ( e ) {
+		showError( i18n.addToCartFailed || 'The booking could not be added to your cart. Please try again.' );
+	} finally {
+		button.disabled = false;
+		button.textContent = label;
+	}
+}
+
+/**
+ * The embedded thank-you page reports the finished order; the drawer title
+ * says so and "Book Now" on the page becomes a confirmed note, as in the
+ * native flow.
+ */
+function onEmbeddedOrderReceived( event ) {
+	if ( event.origin !== window.location.origin || ! event.data || 'mageyabo:order-received' !== event.data.type ) {
+		return;
+	}
+
+	const form = wcForms.find( ( candidate ) => {
+		const frame = drawerOf( candidate ) && drawerOf( candidate ).querySelector( '[data-ybs-bf-checkout-frame]' );
+		return frame && frame.contentWindow === event.source;
+	} );
+
+	if ( ! form ) {
+		return;
+	}
+
+	const i18n = ( window.mageyaboFrontendConfig || {} ).i18n || {};
+	const drawer = drawerOf( form );
+	const title = drawerTitle( form );
+
+	drawer.querySelector( '[data-ybs-bf-back]' ).hidden = true;
+
+	if ( title ) {
+		title.textContent = i18n.bookingConfirmedTitle || 'Booking Confirmed!';
+	}
+
+	const openButton = find( form, '.ybs-bf-open-modal' );
+
+	if ( openButton ) {
+		const note = document.createElement( 'p' );
+		note.className = 'ybs-notice is-success ybs-bf-confirmed-note';
+		note.textContent = i18n.bookingConfirmedTitle || 'Booking Confirmed!';
+		openButton.replaceWith( note );
+	}
+}
+
 export function initBookingForms() {
+	window.addEventListener( 'message', onEmbeddedOrderReceived );
+
 	document.querySelectorAll( '[data-ybs-booking-form]' ).forEach( ( form ) => {
 		const wcMode = '1' === form.dataset.ybsWc;
 
@@ -1043,23 +1790,44 @@ export function initBookingForms() {
 			populatePaymentMethods( form );
 		}
 
-		const dateInput = form.querySelector( '.ybs-bf-date' );
+		const dateInput = find( form, '.ybs-bf-date' );
 
-		if ( dateInput && ! dateInput.value ) {
-			dateInput.value = defaultDateValue();
+		if ( dateInput ) {
+			ensureBookableDate( form, ! dateInput.value );
 		}
 
 		resetGuestsMax( form );
 
+		// Once the visitor picks a date or start time themselves, it is
+		// theirs: never moved to "the next available" behind their back.
+		form.querySelectorAll( '.ybs-bf-date, .ybs-bf-start-time' ).forEach( ( field ) => {
+			const markPicked = ( event ) => {
+				if ( event.isTrusted ) {
+					form.dataset.userPickedTime = '1';
+				}
+			};
+
+			field.addEventListener( 'input', markPicked );
+			field.addEventListener( 'change', markPicked );
+		} );
+
 		const debouncedRefresh = debounce( () => refreshQuote( form ), 400 );
 
-		form.querySelectorAll( '.ybs-bf-mode, .ybs-bf-type, .ybs-bf-date, .ybs-bf-yacht' ).forEach( ( field ) => {
+		findAll( form, '.ybs-bf-mode, .ybs-bf-type, .ybs-bf-date, .ybs-bf-yacht' ).forEach( ( field ) => {
 			field.addEventListener( 'change', () => {
 				if ( field.classList.contains( 'ybs-bf-mode' ) || field.classList.contains( 'ybs-bf-yacht' ) ) {
 					syncBookingTypes( form );
 				}
 
 				toggleFields( form );
+
+				// A different yacht, charter type or mode can change the notice
+				// period or the start time - move the date on if it is now too
+				// soon. A date the visitor picked themselves is left alone.
+				if ( ! field.classList.contains( 'ybs-bf-date' ) ) {
+					ensureBookableDate( form );
+				}
+
 				// A yacht/mode switch changes what "too many guests" means -
 				// full mode caps at the yacht's capacity, so reset there
 				// before refreshQuote tightens it further for shared mode.
@@ -1085,7 +1853,7 @@ export function initBookingForms() {
 		// Number fields (start time, duration, nights, guests) update live
 		// while typing/using the spinner, not just on blur - debounced so
 		// rapid clicks on the stepper don't fire a quote per click.
-		form.querySelectorAll( '.ybs-bf-start-time, .ybs-bf-duration, .ybs-bf-nights, .ybs-bf-guests' ).forEach( ( field ) => {
+		findAll( form, '.ybs-bf-start-time, .ybs-bf-duration, .ybs-bf-nights, .ybs-bf-guests' ).forEach( ( field ) => {
 			field.addEventListener( 'input', debouncedRefresh );
 			field.addEventListener( 'change', () => refreshQuote( form ) );
 		} );
@@ -1093,57 +1861,73 @@ export function initBookingForms() {
 		// Guests specifically also gets clamped immediately as the visitor
 		// types, independent of the debounced quote refresh above - typing
 		// a number over the cap snaps back down right away.
-		const guestsField = form.querySelector( '.ybs-bf-guests' );
+		const guestsField = find( form, '.ybs-bf-guests' );
 
 		if ( guestsField ) {
 			guestsField.addEventListener( 'input', () => clampGuests( form ) );
 		}
 
-		if ( wcMode ) {
-			// WooCommerce checkout: the form posts add-to-cart natively; JS
-			// only syncs the computed booking window into hidden fields and
-			// blocks submission when the selection is incomplete.
-			form.addEventListener( 'submit', ( event ) => {
-				const errorBox = form.querySelector( '.ybs-bf-error' );
-				const yachtId = currentYachtId( form );
-				const window_ = computeWindow( form );
-				// In WooCommerce mode the guest fields/terms live on the
-				// checkout billing form, so only the charter window matters.
-				const termsInput = form.querySelector( '.ybs-bf-terms' );
-				const terms = ! termsInput || termsInput.checked;
+		// The drawer - opening, closing, Escape, keeping focus inside - is the
+		// same for both checkout paths.
+		const openModalButton = find( form, '.ybs-bf-open-modal' );
 
-				if ( ! yachtId || ! window_ || ! terms || '1' !== form.dataset.validQuote ) {
-					event.preventDefault();
-					errorBox.hidden = false;
-					errorBox.textContent =
-						( window.mageyaboFrontendConfig && window.mageyaboFrontendConfig.i18n.notAvailable ) || 'This slot is not available.';
+		if ( openModalButton ) {
+			openModalButton.addEventListener( 'click', () => openModal( form ) );
+		}
+
+		findAll( form, '[data-ybs-bf-modal-close]' ).forEach( ( el ) => {
+			el.addEventListener( 'click', () => closeModal( form ) );
+		} );
+
+		const modal = drawerOf( form );
+
+		if ( modal ) {
+			document.addEventListener( 'keydown', ( event ) => {
+				if ( modal.hidden ) {
 					return;
 				}
 
-				updateHiddenFields( form );
+				if ( 'Escape' === event.key ) {
+					closeModal( form );
+				} else {
+					trapFocus( form, event );
+				}
 			} );
+		}
+
+		if ( wcMode ) {
+			wcForms.push( form );
+
+			// Enter in a field would post the form natively; the drawer is the
+			// way through now.
+			form.addEventListener( 'submit', ( event ) => {
+				event.preventDefault();
+				openModal( form );
+			} );
+
+			find( form, '.ybs-bf-wc-confirm' ).addEventListener( 'click', () => confirmWooCommerceBooking( form ) );
+			find( form, '[data-ybs-bf-back]' ).addEventListener( 'click', () => setCheckoutStage( form, '' ) );
 		} else {
-			const openModalButton = form.querySelector( '.ybs-bf-open-modal' );
+			const coupon = couponBox( form );
 
-			if ( openModalButton ) {
-				openModalButton.addEventListener( 'click', () => openModal( form ) );
-			}
+			if ( coupon ) {
+				const couponInput = coupon.querySelector( '.ybs-bf-coupon-input' );
 
-			form.querySelectorAll( '[data-ybs-bf-modal-close]' ).forEach( ( el ) => {
-				el.addEventListener( 'click', () => closeModal( form ) );
-			} );
-
-			const modal = form.querySelector( '[data-ybs-bf-modal]' );
-
-			if ( modal ) {
-				document.addEventListener( 'keydown', ( event ) => {
-					if ( 'Escape' === event.key && ! modal.hidden ) {
-						closeModal( form );
+				coupon.querySelector( '.ybs-bf-coupon-apply' ).addEventListener( 'click', () => applyCoupon( form ) );
+				coupon.querySelector( '.ybs-bf-coupon-remove' ).addEventListener( 'click', () => removeCoupon( form ) );
+				couponInput.addEventListener( 'keydown', ( event ) => {
+					if ( 'Enter' === event.key ) {
+						event.preventDefault();
+						applyCoupon( form );
 					}
 				} );
 			}
 
-			form.querySelector( '.ybs-bf-submit' ).addEventListener( 'click', () => submitBooking( form ) );
+			findAll( form, '.ybs-bf-name, .ybs-bf-email, .ybs-bf-phone' ).forEach( ( input ) => {
+				input.addEventListener( 'input', () => input.removeAttribute( 'aria-invalid' ) );
+			} );
+
+			find( form, '.ybs-bf-submit' ).addEventListener( 'click', () => submitBooking( form ) );
 		}
 
 		// Show a price immediately with the form's own defaults, rather than

@@ -4166,3 +4166,22 @@ a.ybs-icon-btn {
 	margin: 0;
 	color: var( --ybs-ink-soft );
 }
+
+/* Coupons screen: the "limit to yachts" checklist. */
+.ybs-coupon-yachts {
+	display: grid;
+	grid-template-columns: repeat( auto-fill, minmax( 200px, 1fr ) );
+	gap: 8px 16px;
+	margin-top: 6px;
+}
+
+fieldset.ybs-field {
+	margin: 0 0 16px;
+	padding: 0;
+	border: 0;
+}
+
+fieldset.ybs-field legend {
+	padding: 0;
+	font-weight: 600;
+}
