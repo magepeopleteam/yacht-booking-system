@@ -4,7 +4,7 @@ Tags: yacht booking, boat rental, charter booking, booking system, marina
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -299,6 +299,9 @@ This plugin uses the [Appneck](https://appneck.com) SDK to collect some telemetr
 
 
 == Changelog ==
+
+= 1.3.1 =
+* New: added the Appneck SDK for opt-in telemetry and update tracking. It does not collect any data by default; it only starts after you confirm via the admin notice. See External Services in this readme.
 
 = 1.3.0 =
 * New: slide-in booking drawer. "Book Now" opens a drawer instead of a popup,
