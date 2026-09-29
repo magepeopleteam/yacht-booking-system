@@ -1,6 +1,6 @@
-=== MagePeople Yacht Booking System ===
+=== Yacht Booking System – Boat Charter Booking Plugin ===
 Contributors: magepeopleteam, aamahin
-Tags: yacht booking, boat rental, charter booking, booking system, woocommerce
+Tags: yacht booking, boat rental, charter booking, booking system, marina
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 8.0
@@ -8,173 +8,283 @@ Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Yacht and boat charter booking for WordPress. Manage your fleet, take hourly, half-day, daily and multi-day bookings, and get paid — free.
+
+Turn your WordPress site into a yacht and boat charter booking platform. Show your fleet, check availability, take bookings and get paid online.
 
 == Description ==
 
-**MagePeople Yacht Booking System** turns any WordPress site into a yacht charter booking platform. Add your fleet, set your rates, and let visitors check availability and book online — with no third-party booking service in the middle.
+**Yacht Booking System by MagePeople** helps yacht owners, charter companies and marinas sell boat trips directly from their own WordPress website. Add your fleet and your rates, and guests can search, check availability, book and pay – without a middleman and without leaving your site.
 
-Built for yacht charter companies, boat rental businesses, sailing schools, party-boat operators and marina agencies.
+Whether you rent out a single sailboat by the hour or run a fleet of luxury yachts with multi-day charters, the plugin gives you a complete booking engine that is simple to set up and easy for your guests to use.
 
-= Manage your fleet =
+The free plugin includes the **full booking engine** and **four payment methods**. An optional **Pro add-on** adds branded PDF tickets and invoices, quayside check-in, an email template editor and more.
 
-Each yacht is added through a guided four-step editor:
+= Why choose Yacht Booking System? =
 
-* **Basic info** — description, photo gallery, departure point on a map, FAQ
-* **Specs & capacity** — length, cabins, crew size, build year, guest capacity
-* **Pricing & availability** — rates per booking type, operating hours, notice period, buffer between charters, duration limits
-* **Review & publish** — confirmation email and booking call-to-action for that yacht
+* **Built for charters** – six ready-made booking types, from hourly trips to multi-day voyages.
+* **Guests book in seconds** – a clean booking form with live pricing and a slide-in booking drawer.
+* **Get paid your way** – Offline, Stripe, PayPal and WooCommerce, with optional deposits.
+* **Easy to manage** – a friendly admin with a dashboard, calendar, guest list and bookings list.
+* **No lock-in** – your bookings and guest data stay in your own WordPress database.
+* **Developer friendly** – hooks, a REST API and JavaScript extension points for custom work.
 
-= Six booking types =
+= Features =
 
-Hourly, half-day, morning slot, evening/sunset slot, full day and multi-day — each with its own rate and its own operating time window.
+**Fleet management**
 
-= Full charter or shared seats =
+* A searchable fleet listing and a detail page for every yacht.
+* A simple four-step yacht editor: Basic Info, Specs & Capacity, Pricing & Availability, and Review & Publish.
+* Photos and gallery, build year, capacity, cabins, crew size and length.
+* Departure point on a map – search for the marina or drop a pin.
+* Yacht classes and occasion tags to help guests find the right boat.
+* Frequently Asked Questions for each yacht.
+* Related yachts to keep guests browsing.
+* Import six demo yachts with one click so you can try everything out quickly.
 
-Sell the whole yacht as a private charter, or sell it by the seat for shared trips — or allow both on the same yacht. Shared bookings are priced per guest and seat availability is tracked automatically, so a slot can never be oversold.
+**Flexible booking types and modes**
 
-= Availability that actually protects your schedule =
+* Six booking types: hourly, half-day, morning slot, evening/sunset slot, full day and multi-day. Each has its own rate and time window.
+* Leave a rate empty and that booking type is simply not offered.
+* **Full charter** – guests book the whole yacht.
+* **Shared charter** – sell individual seats priced per guest. Seats can't be oversold.
+* **Both** – offer full charter and shared seats on the same yacht.
 
-* Minimum notice period before a charter can start
-* Buffer time between charters for turnaround
-* Minimum and maximum charter duration
-* Off-days and blocked date ranges
-* Race-safe seat claiming, so two people booking the last seat at the same moment can't both succeed
+**Smart availability and pricing rules**
 
-= Optional extras and discounts =
+* Minimum notice (in hours) so you're never booked at the last minute.
+* Buffer time between bookings (in minutes) for cleaning and turnaround.
+* Minimum and maximum duration for hourly charters.
+* Off-days and blocked date ranges.
+* Seasonal price adjustments.
+* Live price updates as the guest changes date, time, guests or extras.
+* The booking form automatically picks the first available slot that meets your rules.
 
-Sell add-ons alongside the charter - catering, a skipper, water toys, whatever
-you offer. Each add-on is priced once in the catalogue and assigned to the
-yachts that offer it, so changing a price is one edit, not one per yacht.
+**Add-ons and extras**
 
-Issue discount codes with a percentage or fixed amount off, an optional
-minimum spend, a usage limit, a validity window, and an optional restriction
-to particular yachts.
+* Sell optional extras such as catering, a skipper or water toys.
+* Offer each add-on only on the yachts you choose.
 
-= Deposits =
+**Deposits**
 
-Take a percentage or a fixed amount up front and settle the balance later.
-The payment method is only asked for the deposit; the booking still records
-the full total, and the guest sees the balance on their confirmation and in
-their emails. Individual yachts can override the fleet-wide setting or opt
-out of deposits entirely.
+* Take a deposit as a percentage or a fixed amount.
+* Set one fleet-wide rule, give a single yacht its own deposit, or switch deposits off for that yacht.
+* Deposits work with Offline, Stripe and PayPal payments.
 
-= Check-in =
+**Coupons**
 
-Every booking gets a check-in code, printed on the guest's confirmation page.
-The Check-in screen takes that code - typed, pasted, or sent by a barcode
-scanner - and shows who is booked, what they paid and what is still owed
-before you stamp them aboard, then ashore again at the end.
+* Create percentage or fixed-amount discount codes.
+* Optional minimum spend, usage limit, start and expiry dates.
+* Limit a code to particular yachts, or switch it off without deleting it.
+* Guests see clear messages if a code isn't valid.
 
-= Take payments your way =
+**A smooth guest experience**
 
-* **Offline / bank transfer** — mark paid manually
-* **PayPal**
-* **Stripe**
-* **WooCommerce** — mirror each booking into a WooCommerce order and use any gateway you already have
+* Booking drawer with a progress bar: Summary, Checkout, Confirmed.
+* Booking summary with a full price breakdown.
+* Confirmation screen with the booking reference and a ticket card.
+* A secure confirmation page that shows the amount paid, any balance due and the check-in code.
+* Confirmation emails sent to the guest, with a template you can customise for each yacht.
+* Responsive layout that works on phones, tablets and desktops.
 
-= Frontend =
+**Admin tools**
 
-* `[mageyabo_yacht_list search="yes"]` — searchable, filterable fleet listing with grid and list views
-* `[mageyabo_booking_form]` — booking form with live price calculation
-* `[mageyabo_yacht_search]` — yacht search with date, guest, class, occasion and price filters
-* `[mageyabo_booking_confirmation]` — the page guests land on after paying, created for you at activation, showing the booking, what was paid, what is still due and the check-in code
-* A full single-yacht details page template, overridable from your theme
-* Gutenberg block for the booking form
+* Dashboard, Yachts, Bookings, Calendar, Guests, Add-ons, Coupons and Settings.
+* Built-in User Guide inside the admin.
+* New-booking alert emails to you and your team.
+* Email tags for personalised messages, such as guest name, yacht name, dates, totals and balance due.
 
-= Emails =
+**Privacy and data control**
 
-Four automatic emails, each with its own editable template and a long list of
-dynamic tags (guest name, yacht, dates, extras, deposit, balance and more):
+* Choose how many months to keep guest data before it is anonymised.
+* Optionally remove all plugin data when the plugin is uninstalled.
 
-* **Booking confirmation** to the guest, overridable per yacht
-* **New booking alert** to you, so a sale never goes unnoticed
-* **Payment received** receipt to the guest
-* **Cancellation notice** to the guest
+= Accept payments online =
 
-Every send is written to a log you can read in the admin, so "did the guest
-ever get their confirmation?" is a question you can actually answer. Send a
-test email to yourself before going live.
+Choose any mix of these payment methods under **Yacht Booking → Settings → Payments**:
 
-= Privacy =
+* **Offline** – guests pay later by bank transfer or at the marina. You mark the booking as paid. Deposits supported.
+* **Stripe** – a secure card form right inside the booking drawer. Payments are confirmed by Stripe webhook, and the confirmation page double-checks so guests never see a false "awaiting payment". Deposits supported.
+* **PayPal** – guests pay on PayPal and return to your confirmation page. Sandbox and live modes. Deposits supported.
+* **WooCommerce** *(optional)* – use WooCommerce checkout inside the drawer with any WooCommerce payment gateway. WooCommerce always charges the full order total, so deposits don't apply.
 
-Optional automatic anonymization of guest records after a configurable retention period, and an opt-in "remove all data on uninstall" setting.
+= Shortcodes =
 
-== External services ==
+Place the plugin anywhere on your site with simple shortcodes:
 
-This plugin does not connect to any external service by default.
+* `[mageyabo_yacht_list]` – the fleet listing with class filters and a card grid.
+* `[mageyabo_yacht_search]` – a search bar (day or hourly charter, location, dates, guests and price) with results below.
+* `[mageyabo_booking_form]` – the booking form and drawer for a chosen yacht.
+* `[mageyabo_booking_confirmation]` – the page guests see after booking or paying.
+* `[mageyabo_newsletter]` – a simple email sign-up box.
 
-If you enable the PayPal or Stripe payment method in the plugin settings, booking payments are sent to that provider so the payment can be processed:
+Three pages – **Search Yacht**, **Yacht List** and **Booking Confirmation** – are created for you when you activate the plugin. You can rename them freely.
 
-* **PayPal** — booking amount, currency and booking reference are sent to PayPal when a customer chooses PayPal at checkout. [Terms of Service](https://www.paypal.com/us/legalhub/useragreement-full) | [Privacy Policy](https://www.paypal.com/us/legalhub/privacy-full)
-* **Stripe** — booking amount, currency and booking reference are sent to Stripe when a customer chooses Stripe at checkout. [Terms of Service](https://stripe.com/legal/ssa) | [Privacy Policy](https://stripe.com/privacy)
+= Yacht Booking System Pro (optional add-on) =
 
-The departure-point map uses OpenStreetMap:
+Want to go further? **Yacht Booking System Pro** is a separate add-on that works alongside the free plugin and adds:
 
-* **OpenStreetMap tiles** — when a yacht has a location set, the visitor's browser requests map tiles from OpenStreetMap's tile servers, which receives the visitor's IP address and the map area being viewed. This happens on the front end only on pages that display a yacht map. [Tile Usage Policy](https://operations.osmfoundation.org/policies/tiles/) | [Privacy Policy](https://wiki.osmfoundation.org/wiki/Privacy_Policy)
-* **OpenStreetMap Nominatim** — in the admin only, when you type an address into the location search while editing a yacht, that search text is sent to Nominatim to look up coordinates. [Usage Policy](https://operations.osmfoundation.org/policies/nominatim/) | [Privacy Policy](https://wiki.osmfoundation.org/wiki/Privacy_Policy)
+* **Documents** – a full-detail branded PDF ticket and invoice for every booking, plus booking exports to CSV or a printable PDF report. Guests can download them from the confirmation screen and page with no login.
+* **Check-in** – board guests at the quayside by scanning or typing their ticket code, see who is aboard now, and keep a filterable boarding history.
+* **Emails** – edit the wording of every email, add new-booking alerts for your team, payment receipts and cancellation notices, and keep a log of every email sent.
+* **Coupons** – Pro's own coupon system, with the same options as the built-in one.
 
-== Credits ==
+= Built for developers =
 
-This plugin bundles [Leaflet](https://leafletjs.com/) (BSD-2-Clause) for its maps, and the [Plus Jakarta Sans](https://github.com/tokotype/PlusJakartaSans) typeface (SIL Open Font License 1.1). Both licenses ship with the plugin.
+Yacht Booking System is designed to be extended:
+
+* Dozens of WordPress actions and filters for pricing, quotes, booking data, payments, emails and admin screens.
+* A REST API under `mageyabo/v1` for yachts, availability, quotes, add-ons and bookings.
+* JavaScript registries to extend the booking form and the admin app.
+* A theme-overridable template: copy `templates/single-yacht.php` to `yourtheme/magepeople-yacht-booking-system/single-yacht.php` and edit your copy.
+
+The Pro add-on uses only these public extension points, so your own add-on can do everything it does.
+
+= Perfect for =
+
+* Yacht charter companies and boat rental businesses
+* Marinas and sailing clubs
+* Boat tour operators and day-trip providers
+* Party boat, sunset cruise and fishing charter businesses
+* Independent yacht owners who want to accept bookings online
 
 == Installation ==
 
-1. Upload the plugin folder to `/wp-content/plugins/`, or install it through **Plugins → Add New**.
-2. Activate the plugin through the **Plugins** menu in WordPress.
-3. Go to **Yacht Booking → Settings** and set your currency, tax rate and payment method.
-4. Go to **Yacht Booking → Yachts → Add New Yacht** and add your first yacht.
-5. Put `[mageyabo_yacht_list search="yes"]` on a page to show your fleet.
+= Requirements =
+
+* WordPress 5.9 or later
+* PHP 8.0 or later
+* WooCommerce is optional
+
+= Install the plugin =
+
+1. Upload the plugin folder to the `/wp-content/plugins/` directory, or install it from **Plugins → Add New**.
+2. Activate **Yacht Booking System** through the **Plugins** menu in WordPress.
+3. Go to **Yacht Booking → Settings** and set your currency, tax rate and payment methods.
+4. Go to **Yacht Booking → Yachts** and add your first yacht, or import the sample fleet to try things out.
+5. Visit the **Yacht List** page on your site to see your fleet live.
+
+= Using Pro features =
+
+Install and activate **Yacht Booking System Pro** as well. It needs the free plugin to stay active.
 
 == Frequently Asked Questions ==
 
-= Does this require WooCommerce? =
+= Do I need WooCommerce to use this plugin? =
 
-No. WooCommerce is optional. The plugin includes its own offline, PayPal and Stripe payment options. If you do have WooCommerce active, you can mirror bookings into WooCommerce orders and use any gateway WooCommerce supports.
+No. WooCommerce is optional. The plugin has its own booking engine and works with Offline, Stripe and PayPal payments on its own. If you prefer, you can turn on WooCommerce checkout and use any WooCommerce payment gateway.
 
 = Can I sell individual seats instead of the whole yacht? =
 
-Yes. Each yacht can be set to full charter, shared (per seat), or both. Shared bookings are priced per guest and remaining seats are shown to the customer.
+Yes. Set the yacht's **Booking Mode** to **Shared** or **Both**. Seats are priced per guest and can't be oversold.
 
-= Can different booking types have different prices? =
+= What booking types are available? =
 
-Yes. Hourly, half-day, morning slot, evening slot, full day and multi-day each have their own rate, and each fixed-schedule type has its own operating time window.
+Hourly, half-day, morning slot, evening/sunset slot, full day and multi-day. Each has its own rate and time window. Leave a rate empty to not offer that type.
 
-= Can I stop bookings on certain dates? =
+= Can I take a deposit? =
 
-Yes. Add off-day rules under **Settings → Pricing Rules** to block dates or date ranges, and set per-yacht notice periods and buffers.
+Yes, with Offline, Stripe and PayPal. Set a fleet-wide deposit under **Settings → Deposits & Extras**, or give each yacht its own deposit or turn deposits off for it. WooCommerce checkout always charges the full order total, so deposits don't apply there.
 
-= Can I take a deposit instead of the full amount? =
+= Can I stop two guests booking the same yacht at the same time? =
 
-Yes. Under **Settings → Deposits & Extras**, choose a percentage or a fixed
-amount. The gateway is only asked for the deposit; the booking records the
-full total and shows the guest their remaining balance. A yacht can override
-this or switch deposits off for itself.
+Yes. The plugin checks for clashes with existing bookings, and you can add a buffer between bookings and a minimum notice period. Off-days and blocked date ranges are respected too.
 
-Deposits apply to the built-in Offline, PayPal and Stripe methods. The
-WooCommerce path always charges the full amount, because WooCommerce collects
-the order total at checkout.
+= Can I offer extras like catering or a skipper? =
 
-= Can I sell extras like catering or a skipper? =
+Yes. Create add-ons under **Yacht Booking → Add-ons** and choose which yachts offer them.
 
-Yes. Create them under **Yacht Booking → Add-ons**, then tick the ones each
-yacht offers in that yacht's Pricing step. Guests pick them on the booking
-form and the price updates live.
+= Can I offer discount codes? =
 
-= Where do guests land after paying? =
+Yes. Create percentage or fixed-amount coupons under **Yacht Booking → Coupons**. When Pro is active, its coupon system takes over so a booking is never discounted twice. With WooCommerce checkout switched on, discounts are handled by WooCommerce coupons.
 
-On the **Booking Confirmation** page, created automatically when you activate
-the plugin. It shows the booking, the amount paid, any balance due and the
-check-in code. The link is keyed to the booking's own token, so it cannot be
-guessed from a booking number.
+= How do guests find their booking after paying? =
 
-= Can I customize the single yacht page? =
+They land on the **Booking Confirmation** page, which shows their booking, amount paid, any balance due and their check-in code. The page link is also included in the confirmation email and carries a secret key, so it can't be guessed.
 
-Yes. Copy `templates/single-yacht.php` from the plugin into `yourtheme/magepeople-yacht-booking-system/single-yacht.php` and edit it there — your copy is used instead of the plugin's.
+= Guests land on my home page after paying. What happened? =
 
-= Is the booking data removed when I uninstall? =
+The Booking Confirmation page was probably deleted. Deactivate and reactivate the plugin to recreate it.
 
-Only if you ask for it. Enable "Remove all plugin data when uninstalled" under **Settings → Data & Privacy** before deleting the plugin. Otherwise your yachts, bookings and settings are left untouched.
+= I see "This booking does not meet the minimum notice period". =
+
+The chosen start time is sooner than the yacht's **Minimum Notice**. Pick a later time, or lower the notice in the yacht's **Pricing & Availability** step.
+
+= I see "This time is too close to another booking for this yacht". =
+
+The slot falls inside the **Buffer Between Bookings** around another charter. Pick another time, or shorten the buffer.
+
+= I see "Please choose an available payment method". =
+
+No payment method is enabled. Turn one on under **Yacht Booking → Settings → Payments**.
+
+= I see "The Composer autoloader is missing". =
+
+The `vendor` folder didn't upload. Re-upload the full plugin, or run `composer install` in the plugin folder.
+
+= Can I customise the confirmation email? =
+
+Yes. Edit the global email under **Settings → Email**, or override it for a single yacht in the last step of the yacht editor using one of the presets (Classic, Celebration, Corporate, Short). Pro adds a full editor for every email.
+
+= Can I change how the yacht page looks? =
+
+Yes. Copy `templates/single-yacht.php` to `yourtheme/magepeople-yacht-booking-system/single-yacht.php` and edit your copy. Your changes stay safe when the plugin updates.
+
+= Is my data removed if I delete the plugin? =
+
+Only if you turn on **Remove all plugin data when uninstalled** under **Settings → Data & Privacy** first. Otherwise your data is kept.
+
+= Can I limit how long guest data is stored? =
+
+Yes. Under **Settings → Data & Privacy** you can choose how many months to keep guest data before it is anonymised.
+
+= Is the plugin available in my language? =
+
+The plugin is translation-ready, so you can translate it with any standard WordPress translation tool.
+
+= Does it work with any theme? =
+
+Yes. The plugin is designed to work with any properly coded WordPress theme.
+
+= Where can I get help? =
+
+Use the support forum on the plugin's WordPress.org page, or check the built-in **User Guide** under **Yacht Booking**.
+
+== Screenshots ==
+
+1. Yacht fleet listing with class filter pills and card grid.
+2. Yacht search bar with Day and Hourly charter toggle.
+3. Single yacht page with the booking form and live pricing.
+4. Booking drawer – summary, details and payment.
+5. Booking confirmation screen with ticket card and check-in code.
+6. Yacht editor – Pricing & Availability step.
+7. Admin dashboard and bookings list.
+8. Booking calendar view.
+9. Payment settings for Offline, Stripe, PayPal and WooCommerce.
+
+== External Services ==
+
+This plugin can connect to third-party services when you turn them on. Nothing is sent to these services unless you enable the related feature.
+
+= Stripe =
+
+Used to take card payments inside the booking drawer when Stripe is enabled under **Settings → Payments**. Payment details are sent directly to Stripe when a guest pays, and Stripe sends payment confirmations back to your site by webhook.
+
+* Service: [Stripe](https://stripe.com)
+* Terms of service: https://stripe.com/legal
+* Privacy policy: https://stripe.com/privacy
+
+= PayPal =
+
+Used to take payments when PayPal is enabled under **Settings → Payments**. The guest is sent to PayPal to complete the payment and then returns to your Booking Confirmation page. Booking and payment details needed to process the payment are shared with PayPal.
+
+* Service: [PayPal](https://www.paypal.com)
+* Terms of service: https://www.paypal.com/legalhub
+* Privacy policy: https://www.paypal.com/privacy
+
+= Map and marina search =
+
+The yacht editor's departure point search and map may load map data from an external mapping provider when you search for a marina or drop a pin. **[Add your map provider name, terms and privacy policy links here.]**
+
 
 == Changelog ==
 
