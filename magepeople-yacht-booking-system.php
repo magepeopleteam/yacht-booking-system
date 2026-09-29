@@ -20,6 +20,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once __DIR__ . '/vendor/appneck/wordpress-sdk/appneck-wordpress-sdk/appneck-sdk.php';
+appneck_sdk_load_latest();
+
+$GLOBALS['my_plugin_sdk'] = \Appneck\Sdk\Sdk::bootstrap(
+	'pk_3KT6QnS4U8OezcTjckrTJPW5kNXPNYgw',  // your API key
+	'sk_2tltM2qiD6kuSsg0bLs9rze0auuv1l8YmLx6kPSyqN6gRpBk', // your product secret
+	'https://appneck.com',                  // the Appneck server URL
+	__FILE__                                // so the SDK can hook activation/deactivation
+);
+
 define( 'MAGEYABO_VERSION', '1.3.0' );
 define( 'MAGEYABO_DB_VERSION', '6' );
 define( 'MAGEYABO_PLUGIN_FILE', __FILE__ );
