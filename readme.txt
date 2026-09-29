@@ -290,6 +290,13 @@ Used to take payments when PayPal is enabled under **Settings → Payments**. Th
 
 The yacht editor's departure point search and map may load map data from an external mapping provider when you search for a marina or drop a pin. **[Add your map provider name, terms and privacy policy links here.]**
 
+= Appneck =
+
+This plugin uses the [Appneck](https://appneck.com) SDK to collect some telemetry data upon your confirmation, to troubleshoot problems faster and make product improvements. Appneck does not gather any data by default; the SDK only starts gathering basic telemetry data when you allow it via the admin notice.
+
+* Service: [Appneck](https://appneck.com)
+* Privacy policy: https://appneck.com/privacy-policy/
+
 
 == Changelog ==
 
