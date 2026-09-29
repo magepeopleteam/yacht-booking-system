@@ -1896,6 +1896,44 @@ function onEmbeddedOrderReceived( event ) {
 	}
 }
 
+/**
+ * A link to a yacht page can carry the charter a guest already picked
+ * somewhere else, such as a homepage booking bar: `ybs_type` (a booking type
+ * this form offers), `ybs_date` (YYYY-MM-DD) and `ybs_guests`. Anything the
+ * form doesn't offer is ignored, and the usual checks still apply.
+ */
+function applyUrlPrefill( form ) {
+	let params;
+
+	try {
+		params = new URLSearchParams( window.location.search );
+	} catch ( e ) {
+		return;
+	}
+
+	const type = params.get( 'ybs_type' );
+	const typeSelect = find( form, '.ybs-bf-type' );
+
+	if ( type && typeSelect && Array.from( typeSelect.options ).some( ( option ) => option.value === type ) ) {
+		typeSelect.value = type;
+	}
+
+	const date = params.get( 'ybs_date' ) || '';
+	const dateInput = find( form, '.ybs-bf-date' );
+
+	if ( dateInput && /^\d{4}-\d{2}-\d{2}$/.test( date ) ) {
+		dateInput.value = date;
+		form.dataset.userPickedTime = '1';
+	}
+
+	const guests = parseInt( params.get( 'ybs_guests' ) || '', 10 );
+	const guestsInput = find( form, '.ybs-bf-guests' );
+
+	if ( guestsInput && guests > 0 ) {
+		guestsInput.value = String( guests );
+	}
+}
+
 export function initBookingForms() {
 	window.addEventListener( 'message', onEmbeddedOrderReceived );
 
@@ -1903,6 +1941,7 @@ export function initBookingForms() {
 		const wcMode = '1' === form.dataset.ybsWc;
 
 		syncBookingTypes( form );
+		applyUrlPrefill( form );
 		toggleFields( form );
 
 		if ( ! wcMode ) {
