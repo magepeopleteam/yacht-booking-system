@@ -41,6 +41,10 @@ The free plugin includes the **full booking engine** and **four payment methods*
 * Related yachts to keep guests browsing.
 * Import six demo yachts with one click so you can try everything out quickly.
 
+###  Explore The Demo:
+🌐 [Live Demo](https://wpyacht.com/)
+
+
 **Flexible booking types and modes**
 
 * Six booking types: hourly, half-day, morning slot, evening/sunset slot, full day and multi-day. Each has its own rate and time window.
