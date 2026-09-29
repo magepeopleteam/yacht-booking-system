@@ -33,7 +33,7 @@ function renderCard( yacht, currency, charterType ) {
 		meta.push( `<span class="ybs-yacht-card__meta-item"><span class="dashicons dashicons-groups"></span>${ yacht.capacity } ${ config.i18n.guestsLabel }</span>` );
 	}
 	if ( yacht.length ) {
-		meta.push( `<span class="ybs-yacht-card__meta-item"><span class="dashicons dashicons-leftright"></span>${ yacht.length } m</span>` );
+		meta.push( `<span class="ybs-yacht-card__meta-item"><span class="dashicons dashicons-leftright"></span>${ yacht.length } ft</span>` );
 	}
 
 	const locationBits = [];

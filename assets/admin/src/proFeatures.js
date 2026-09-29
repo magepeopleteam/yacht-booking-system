@@ -21,12 +21,6 @@ export const PRO_FEATURES = [
 		blurb: __( 'Board guests from a tablet at the quayside by scanning or typing their ticket code, see who is aboard right now, and keep a filterable history of every boarding.', 'magepeople-yacht-booking-system' ),
 	},
 	{
-		id: 'coupons',
-		label: __( 'Coupons', 'magepeople-yacht-booking-system' ),
-		icon: 'dashicons-tag',
-		blurb: __( 'Discount codes with percentage or fixed amounts, minimum spend, usage limits, validity dates and per-yacht restrictions - applied on the booking form and recorded against the booking.', 'magepeople-yacht-booking-system' ),
-	},
-	{
 		id: 'emails',
 		label: __( 'Emails', 'magepeople-yacht-booking-system' ),
 		icon: 'dashicons-email-alt',

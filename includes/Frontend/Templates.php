@@ -56,8 +56,14 @@ class Templates {
 	}
 
 	public static function register_assets() {
-		wp_register_style( 'mageyabo-single', MAGEYABO_PLUGIN_URL . 'assets/frontend/yacht-single.css', array( 'mageyabo-frontend' ), MAGEYABO_VERSION );
-		wp_register_script( 'mageyabo-single', MAGEYABO_PLUGIN_URL . 'assets/frontend/yacht-single.js', array(), MAGEYABO_VERSION, true );
+		// These two are served as-is (not built), so their version is the
+		// file's own modified time: an edit reaches browsers straight away
+		// instead of waiting for the next plugin version bump.
+		$single_css = MAGEYABO_PLUGIN_DIR . 'assets/frontend/yacht-single.css';
+		$single_js  = MAGEYABO_PLUGIN_DIR . 'assets/frontend/yacht-single.js';
+
+		wp_register_style( 'mageyabo-single', MAGEYABO_PLUGIN_URL . 'assets/frontend/yacht-single.css', array( 'mageyabo-frontend' ), file_exists( $single_css ) ? (string) filemtime( $single_css ) : MAGEYABO_VERSION );
+		wp_register_script( 'mageyabo-single', MAGEYABO_PLUGIN_URL . 'assets/frontend/yacht-single.js', array(), file_exists( $single_js ) ? (string) filemtime( $single_js ) : MAGEYABO_VERSION, true );
 
 		// Enqueued here (rather than only inside load_single_yacht_template())
 		// so a block theme - which never takes the custom-template branch

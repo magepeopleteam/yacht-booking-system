@@ -216,6 +216,104 @@
 		sync();
 	}
 
+	function initSimilarCarousel() {
+		var track = document.querySelector( '.ybs-ys [data-ybs-similar-track]' );
+		var prev = document.querySelector( '.ybs-ys [data-ybs-similar-prev]' );
+		var next = document.querySelector( '.ybs-ys [data-ybs-similar-next]' );
+
+		if ( ! track || ! prev || ! next ) {
+			return;
+		}
+
+		function step() {
+			var card = track.querySelector( '.ybs-ys-card' );
+			var gap = parseFloat( window.getComputedStyle( track ).columnGap || '22' ) || 22;
+			return card ? card.getBoundingClientRect().width + gap : track.clientWidth;
+		}
+
+		function sync() {
+			var max = track.scrollWidth - track.clientWidth - 1;
+			prev.disabled = track.scrollLeft <= 0;
+			next.disabled = track.scrollLeft >= max;
+		}
+
+		prev.addEventListener( 'click', function () {
+			track.scrollBy( { left: -step(), behavior: reduceMotion ? 'auto' : 'smooth' } );
+		} );
+
+		next.addEventListener( 'click', function () {
+			track.scrollBy( { left: step(), behavior: reduceMotion ? 'auto' : 'smooth' } );
+		} );
+
+		var ticking = false;
+		track.addEventListener(
+			'scroll',
+			function () {
+				if ( ticking ) {
+					return;
+				}
+				ticking = true;
+				window.requestAnimationFrame( function () {
+					sync();
+					ticking = false;
+				} );
+			},
+			{ passive: true }
+		);
+
+		window.addEventListener( 'resize', sync, { passive: true } );
+		sync();
+	}
+
+	function initSpecsCarousel() {
+		var track = document.querySelector( '.ybs-ys [data-ybs-specs-track]' );
+		var prev = document.querySelector( '.ybs-ys [data-ybs-specs-prev]' );
+		var next = document.querySelector( '.ybs-ys [data-ybs-specs-next]' );
+
+		if ( ! track || ! prev || ! next ) {
+			return;
+		}
+
+		function step() {
+			var card = track.querySelector( '.ybs-ys-spec' );
+			var gap = parseFloat( window.getComputedStyle( track ).columnGap || '12' ) || 12;
+			return card ? card.getBoundingClientRect().width + gap : track.clientWidth;
+		}
+
+		function sync() {
+			var max = track.scrollWidth - track.clientWidth - 1;
+			prev.disabled = track.scrollLeft <= 0;
+			next.disabled = track.scrollLeft >= max;
+		}
+
+		prev.addEventListener( 'click', function () {
+			track.scrollBy( { left: -step(), behavior: reduceMotion ? 'auto' : 'smooth' } );
+		} );
+
+		next.addEventListener( 'click', function () {
+			track.scrollBy( { left: step(), behavior: reduceMotion ? 'auto' : 'smooth' } );
+		} );
+
+		var ticking = false;
+		track.addEventListener(
+			'scroll',
+			function () {
+				if ( ticking ) {
+					return;
+				}
+				ticking = true;
+				window.requestAnimationFrame( function () {
+					sync();
+					ticking = false;
+				} );
+			},
+			{ passive: true }
+		);
+
+		window.addEventListener( 'resize', sync, { passive: true } );
+		sync();
+	}
+
 	function initLightbox() {
 		var lightbox = document.querySelector( '.ybs-ys-lightbox' );
 		var tiles = document.querySelectorAll( '.ybs-ys [data-ybs-lightbox-open]' );
@@ -424,6 +522,8 @@
 		initFaq();
 		initRateTabs();
 		initCarousel();
+		initSimilarCarousel();
+		initSpecsCarousel();
 		initLightbox();
 		initStickyCard();
 		initDock();

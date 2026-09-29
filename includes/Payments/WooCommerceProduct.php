@@ -31,6 +31,7 @@ class WooCommerceProduct {
 		// This plugin loads before WooCommerce, so these are registered
 		// unconditionally and only fire when WooCommerce is active.
 		add_filter( 'woocommerce_is_purchasable', array( __CLASS__, 'force_purchasable' ), 10, 2 );
+		add_filter( 'woocommerce_product_get_image_id', array( __CLASS__, 'fallback_image' ), 10, 2 );
 		add_action( 'pre_get_posts', array( __CLASS__, 'hide_from_search' ) );
 		add_action( 'parse_query', array( __CLASS__, 'hide_from_admin_list' ) );
 		add_action( 'wp', array( __CLASS__, 'block_direct_access' ) );
@@ -151,6 +152,21 @@ class WooCommerceProduct {
 	 * Hidden catalog visibility would normally block add-to-cart; keep the
 	 * linked product purchasable while its yacht is live.
 	 */
+	/**
+	 * The yacht's photo for a linked product that has none of its own -
+	 * products made by the demo import, or before the yacht had a featured
+	 * image - so the cart and checkout never show a grey placeholder.
+	 */
+	public static function fallback_image( $image_id, $product ) {
+		if ( $image_id || ! $product ) {
+			return $image_id;
+		}
+
+		$yacht_id = (int) get_post_meta( $product->get_id(), self::PRODUCT_META_KEY, true );
+
+		return $yacht_id ? (int) get_post_thumbnail_id( $yacht_id ) : $image_id;
+	}
+
 	public static function force_purchasable( $purchasable, $product ) {
 		if ( ! $purchasable && $product instanceof \WC_Product ) {
 			$yacht_id = self::get_yacht_id( $product->get_id() );

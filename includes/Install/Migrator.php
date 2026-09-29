@@ -178,6 +178,7 @@ final class Migrator {
 			payment_method VARCHAR(20) NOT NULL DEFAULT '',
 			payment_status VARCHAR(20) NOT NULL DEFAULT 'unpaid',
 			woo_order_id BIGINT UNSIGNED NULL DEFAULT NULL,
+			coupon_code VARCHAR(64) NOT NULL DEFAULT '',
 			transaction_ref VARCHAR(191) NOT NULL DEFAULT '',
 			qr_token VARCHAR(64) NOT NULL DEFAULT '',
 			notes LONGTEXT NULL,
@@ -241,6 +242,27 @@ final class Migrator {
 
 
 
+
+		// Built-in discount codes (v6). Not `mageyabo_coupons`, which is the
+		// Pro add-on's own table - see CouponRepository.
+		$sql[] = "CREATE TABLE {$prefix}mageyabo_discount_codes (
+			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+			code VARCHAR(64) NOT NULL DEFAULT '',
+			description VARCHAR(191) NOT NULL DEFAULT '',
+			discount_type VARCHAR(10) NOT NULL DEFAULT 'percent',
+			amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+			min_spend DECIMAL(12,2) NOT NULL DEFAULT 0,
+			usage_limit INT UNSIGNED NOT NULL DEFAULT 0,
+			used_count INT UNSIGNED NOT NULL DEFAULT 0,
+			starts_on DATE NULL DEFAULT NULL,
+			expires_on DATE NULL DEFAULT NULL,
+			yacht_ids VARCHAR(255) NOT NULL DEFAULT '',
+			active TINYINT(1) NOT NULL DEFAULT 1,
+			created_at DATETIME NOT NULL,
+			updated_at DATETIME NOT NULL,
+			PRIMARY KEY  (id),
+			UNIQUE KEY code (code)
+		) {$charset_collate};";
 
 		$sql[] = "CREATE TABLE {$prefix}mageyabo_newsletter_subscribers (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,

@@ -83,6 +83,7 @@ $mageyabo_tables = array(
 	'mageyabo_addons',
 	'mageyabo_yacht_addons',
 	'mageyabo_booking_addons',
+	'mageyabo_discount_codes',
 	'mageyabo_newsletter_subscribers',
 );
 

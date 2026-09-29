@@ -257,6 +257,13 @@ class BookingsController extends Controller {
 					return $pricing;
 				}
 
+				// A code that was fine when quoted can have expired or run out
+				// by the time the guest confirms. Charging the full price
+				// without the discount they were shown is worse than stopping.
+				if ( ! empty( $pricing['coupon_error'] ) ) {
+					return new WP_Error( 'mageyabo_coupon_rejected', $pricing['coupon_error'], array( 'status' => 400 ) );
+				}
+
 				/**
 				 * Last chance to adjust the final total before it is persisted.
 				 *
@@ -325,6 +332,7 @@ class BookingsController extends Controller {
 				'pricing'          => $result['pricing'],
 				'payment'          => $payment_start,
 				'confirmation_url' => mageyabo_confirmation_url( $result['booking_id'], $created['qr_token'] ?? '' ),
+				'documents'        => $created ? mageyabo_booking_guest_documents( $created ) : array(),
 			)
 		);
 	}

@@ -142,7 +142,12 @@ if ( $mageyabo_classes ) {
 		</header>
 
 		<?php if ( $mageyabo_capacity || $mageyabo_length || $mageyabo_cabins || $mageyabo_crew || $mageyabo_build_year || $mageyabo_location_name ) : ?>
-			<section class="ybs-ys-specs" data-ybs-reveal aria-label="<?php esc_attr_e( 'Specifications', 'magepeople-yacht-booking-system' ); ?>">
+			<div class="ybs-ys-specs-wrap" data-ybs-reveal>
+				<div class="ybs-ys-carousel-nav ybs-ys-carousel-nav--specs">
+					<button type="button" class="ybs-ys-carousel-arrow" data-ybs-specs-prev aria-label="<?php esc_attr_e( 'Previous specs', 'magepeople-yacht-booking-system' ); ?>">&#8249;</button>
+					<button type="button" class="ybs-ys-carousel-arrow" data-ybs-specs-next aria-label="<?php esc_attr_e( 'Next specs', 'magepeople-yacht-booking-system' ); ?>">&#8250;</button>
+				</div>
+				<section class="ybs-ys-specs" data-ybs-specs-track aria-label="<?php esc_attr_e( 'Specifications', 'magepeople-yacht-booking-system' ); ?>">
 				<?php if ( $mageyabo_capacity ) : ?>
 					<div class="ybs-ys-spec">
 						<span class="ybs-ys-spec__icon dashicons dashicons-groups"></span>
@@ -154,7 +159,7 @@ if ( $mageyabo_classes ) {
 					<div class="ybs-ys-spec">
 						<span class="ybs-ys-spec__icon dashicons dashicons-leftright"></span>
 						<span class="ybs-ys-spec__label"><?php esc_html_e( 'Length', 'magepeople-yacht-booking-system' ); ?></span>
-						<span class="ybs-ys-spec__value"><?php echo esc_html( /* translators: %s: yacht length in metres. */ sprintf( __( '%s m', 'magepeople-yacht-booking-system' ), $mageyabo_length ) ); ?></span>
+						<span class="ybs-ys-spec__value"><?php echo esc_html( /* translators: %s: yacht length in feet. */ sprintf( __( '%s ft', 'magepeople-yacht-booking-system' ), $mageyabo_length ) ); ?></span>
 					</div>
 				<?php endif; ?>
 				<?php if ( $mageyabo_cabins ) : ?>
@@ -185,7 +190,8 @@ if ( $mageyabo_classes ) {
 						<span class="ybs-ys-spec__value"><?php echo esc_html( $mageyabo_location_name ); ?></span>
 					</div>
 				<?php endif; ?>
-			</section>
+				</section>
+			</div>
 		<?php endif; ?>
 
 		<div class="ybs-ys-layout">
@@ -323,16 +329,24 @@ if ( $mageyabo_classes ) {
 
 				<?php if ( $mageyabo_similar ) : ?>
 					<section class="ybs-ys-section" data-ybs-reveal>
-						<span class="ybs-ys-eyebrow"><?php esc_html_e( 'Similar yachts', 'magepeople-yacht-booking-system' ); ?></span>
-						<h2 class="ybs-ys-h2"><?php esc_html_e( 'You might also like', 'magepeople-yacht-booking-system' ); ?></h2>
-						<div class="ybs-ys-similar">
+						<div class="ybs-ys-section__head">
+							<div class="ybs-ys-section__heading">
+								<span class="ybs-ys-eyebrow"><?php esc_html_e( 'Similar yachts', 'magepeople-yacht-booking-system' ); ?></span>
+								<h2 class="ybs-ys-h2"><?php esc_html_e( 'You might also like', 'magepeople-yacht-booking-system' ); ?></h2>
+							</div>
+							<div class="ybs-ys-carousel-nav">
+								<button type="button" class="ybs-ys-carousel-arrow" data-ybs-similar-prev aria-label="<?php esc_attr_e( 'Previous yachts', 'magepeople-yacht-booking-system' ); ?>">&#8249;</button>
+								<button type="button" class="ybs-ys-carousel-arrow" data-ybs-similar-next aria-label="<?php esc_attr_e( 'Next yachts', 'magepeople-yacht-booking-system' ); ?>">&#8250;</button>
+							</div>
+						</div>
+						<div class="ybs-ys-similar" data-ybs-similar-track>
 							<?php foreach ( $mageyabo_similar as $mageyabo_other ) : ?>
 								<?php
 									$mageyabo_other_rates   = Shortcode::yacht_rates_public( $mageyabo_other->ID );
 									$mageyabo_other_min     = $mageyabo_other_rates ? min( wp_list_pluck( $mageyabo_other_rates, 'amount' ) ) : 0;
 									$mageyabo_other_meta    = array_filter(
 										array(
-											get_post_meta( $mageyabo_other->ID, 'mageyabo_length', true ) ? get_post_meta( $mageyabo_other->ID, 'mageyabo_length', true ) . ' m' : '',
+											get_post_meta( $mageyabo_other->ID, 'mageyabo_length', true ) ? get_post_meta( $mageyabo_other->ID, 'mageyabo_length', true ) . ' ft' : '',
 											get_post_meta( $mageyabo_other->ID, 'mageyabo_capacity', true ) ? get_post_meta( $mageyabo_other->ID, 'mageyabo_capacity', true ) . __( ' guests', 'magepeople-yacht-booking-system' ) : '',
 										)
 									);
