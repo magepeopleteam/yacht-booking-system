@@ -4,7 +4,7 @@ Tags: yacht booking, boat rental, charter booking, booking system, woocommerce
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,9 +75,9 @@ before you stamp them aboard, then ashore again at the end.
 
 = Frontend =
 
-* `[mageyabo_yacht_list search="yes"]` — searchable, filterable fleet listing with grid and list views
+* `[mageyabo_yacht_list search="yes"]` — searchable, filterable fleet listing with grid and list views; add `class="sailing-yacht"` to start on a class tab and `occasion="sunset"` to show only that occasion
 * `[mageyabo_booking_form]` — booking form with live price calculation
-* `[mageyabo_yacht_search]` — yacht search with date, guest, class, occasion and price filters
+* `[mageyabo_yacht_search]` — yacht search with date, guest, class, occasion and price filters. The date field filters by real availability, dropping yachts with no bookable slot that day; pre-fill it with `date="today"` (or `date="2026-07-04"`) and use `autoload="no"` to wait for the guest to search before showing results
 * `[mageyabo_booking_confirmation]` — the page guests land on after paying, created for you at activation, showing the booking, what was paid, what is still due and the check-in code
 * A full single-yacht details page template, overridable from your theme
 * Gutenberg block for the booking form
@@ -177,6 +177,26 @@ Yes. Copy `templates/single-yacht.php` from the plugin into `yourtheme/magepeopl
 Only if you ask for it. Enable "Remove all plugin data when uninstalled" under **Settings → Data & Privacy** before deleting the plugin. Otherwise your yachts, bookings and settings are left untouched.
 
 == Changelog ==
+
+= 1.3.0 =
+* New: the Dates field on `[mageyabo_yacht_search]` now filters by real
+  availability. Yachts with no bookable slot that day - off-days, a clashing
+  booking, an unmet notice period, a mode with no price - are dropped from the
+  results, and a malformed or past date is rejected instead of quietly
+  ignored. Pre-fill the field with `date="today"` (or `date="YYYY-MM-DD"`),
+  and use `autoload="no"` to show results only after the guest searches.
+* New: `[mageyabo_yacht_list]` accepts `class=""` to start on a class tab and
+  `occasion=""` to scope the listing to one occasion.
+* Tweak: the admin sidebar no longer lists a locked row per Pro screen
+  (Check-in, Coupons, Emails, Documents). There is now a single "Pro Features"
+  item opening one page that describes everything the Pro add-on unlocks, and
+  it disappears once the add-on claims those screens.
+* Tweak: the admin app is centered at 80% of the window, the yacht wizard's
+  step header has a modern card treatment, and the Featured Image picker sits
+  directly under the Publish box instead of at the bottom of the sidebar.
+* Tweak: the six sample yachts from the demo importer each import with their
+  own five-photo gallery. Photos are sideloaded once and reused on a retry,
+  and a failed import rolls back rather than leaving a partial fleet.
 
 = 1.2.0 =
 * Coupons, guest check-in and the email template editor have moved into the
