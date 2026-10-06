@@ -4,7 +4,7 @@ Tags: yacht booking, boat rental, charter booking, booking system, marina
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -298,6 +298,9 @@ Learn more about how [Appneck collects and uses this data](https://appneck.com/p
 
 
 == Changelog ==
+
+= 1.3.4 =
+* Fix: Updated the bundled Appneck SDK to the latest version. The SDK could previously contact Appneck's server before a site owner answered the telemetry consent prompt; it now only registers or sends any data after consent is explicitly accepted.
 
 = 1.3.3 =
 * New: Updated the bundled Appneck SDK to the latest version.
