@@ -1,5 +1,5 @@
 === Yacht Booking System – Boat Charter Booking Plugin ===
-Contributors: magepeopleteam, aamahin
+Contributors: magepeopleteam, aamahin, raselsha
 Tags: yacht booking, boat rental, charter booking, booking system, marina
 Requires at least: 5.9
 Tested up to: 7.1
