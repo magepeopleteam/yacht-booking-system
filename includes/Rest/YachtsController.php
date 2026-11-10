@@ -4,6 +4,7 @@ namespace MageYaBo\Rest;
 use MageYaBo\Booking\AvailabilityService;
 use MageYaBo\Booking\PricingEngine;
 use MageYaBo\PostTypes\Yacht;
+use MageYaBo\Install\DemoAssets;
 use WP_REST_Server;
 use WP_REST_Request;
 use WP_Error;
@@ -750,7 +751,7 @@ class YachtsController extends Controller {
 			$gallery_ids = self::import_dummy_gallery( $post_id, $sample['gallery'], $sample['title'] );
 			if ( count( $gallery_ids ) < 5 ) {
 				self::rollback_dummy_yachts( $created_ids );
-				return new WP_Error( 'mageyabo_dummy_media_failed', __( 'The sample yacht photos could not be imported. Check that WordPress can write to the uploads directory, then try again.', 'magepeople-yacht-booking-system' ), array( 'status' => 500 ) );
+				return new WP_Error( 'mageyabo_dummy_media_failed', __( 'The sample yacht photos could not be imported. Check the internet connection and upload-directory permissions, then try again.', 'magepeople-yacht-booking-system' ), array( 'status' => 500 ) );
 			}
 
 			$class_id = self::dummy_term_id( $sample['class'], 'mageyabo_yacht_class' );
@@ -1344,21 +1345,12 @@ class YachtsController extends Controller {
 			}
 		}
 
-		$source = MAGEYABO_PLUGIN_DIR . 'assets/demo/' . basename( $filename );
-		if ( ! is_readable( $source ) ) {
-			return 0;
-		}
-
 		require_once ABSPATH . 'wp-admin/includes/media.php';
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-		$tmp_file = wp_tempnam( $filename );
-		if ( ! $tmp_file ) {
-			return 0;
-		}
-		if ( ! copy( $source, $tmp_file ) ) {
-			wp_delete_file( $tmp_file );
+		$tmp_file = DemoAssets::temporary_photo( $filename );
+		if ( is_wp_error( $tmp_file ) ) {
 			return 0;
 		}
 

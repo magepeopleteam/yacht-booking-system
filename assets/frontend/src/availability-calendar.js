@@ -1,3 +1,5 @@
+import { restUrl } from './rest-url';
+
 function pad( n ) {
 	return String( n ).padStart( 2, '0' );
 }
@@ -13,7 +15,7 @@ async function renderMonth( root, year, month ) {
 	grid.innerHTML = `<div class="ybs-loading">${ config.i18n.loading }</div>`;
 
 	try {
-		const response = await fetch( `${ config.restRoot }yachts/${ yachtId }/calendar?month=${ monthStr }` );
+		const response = await fetch( restUrl( `yachts/${ yachtId }/calendar`, { month: monthStr } ) );
 		const data = await response.json();
 
 		const first = new Date( year, month, 1 );

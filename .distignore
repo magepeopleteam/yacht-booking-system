@@ -24,3 +24,8 @@ node_modules
 AGENTS.md
 CLAUDE.md
 docs
+
+# Originals are hosted in magepeopleteam/dummy-images and downloaded unchanged.
+assets/demo/*.jpg
+assets/admin/images/guide
+assets/admin/images/yachtiva-demo.png

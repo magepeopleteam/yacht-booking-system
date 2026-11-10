@@ -1,3 +1,5 @@
+import { restUrl } from './rest-url';
+
 const SLOT_WINDOWS = {
 	half_day: [ '08:00', '12:00' ],
 	morning_slot: [ '08:00', '13:00' ],
@@ -140,7 +142,7 @@ async function selectNextAvailable( form ) {
 	form.dataset.autoSlotKey = key;
 
 	try {
-		const response = await fetch( `${ config.restRoot }yachts/${ yachtId }/next-available?${ params }` );
+		const response = await fetch( restUrl( `yachts/${ yachtId }/next-available`, params ) );
 
 		if ( ! response.ok ) {
 			return false;
@@ -1537,7 +1539,7 @@ async function refreshQuote( form ) {
 			}
 		} );
 
-		const response = await fetch( `${ config.restRoot }yachts/${ yachtId }/quote?${ params }` );
+		const response = await fetch( restUrl( `yachts/${ yachtId }/quote`, params ) );
 		const data = await response.json();
 
 		// A slower response for a previous selection must never validate or

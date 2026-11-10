@@ -363,6 +363,52 @@ body.ybs-shell #wpbody-content > .wrap {
 
 /* ---------------------------------------------------------------- Cards */
 
+.ybs-theme-showcase {
+	display: grid;
+	grid-template-columns: minmax( 0, 1.15fr ) minmax( 0, 1fr );
+	gap: 32px;
+}
+
+.ybs-theme-preview {
+	display: block;
+	align-self: start;
+	overflow: hidden;
+	border: 1px solid var( --ybs-border );
+	border-radius: 8px;
+	text-align: center;
+	text-decoration: none;
+}
+
+.ybs-theme-preview img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.ybs-theme-preview span {
+	display: block;
+	padding: 12px;
+}
+
+.ybs-theme-details { min-width: 0; }
+.ybs-theme-details h3 { margin: 16px 0 0; font-size: 32px; line-height: 1.2; }
+.ybs-theme-details p { line-height: 1.7; }
+.ybs-theme-status { display: inline-block; padding: 6px 12px; background: var( --ybs-bg ); border-radius: 20px; font-weight: 600; }
+.ybs-theme-specs { display: grid; grid-template-columns: auto minmax( 0, 1fr ); gap: 12px 20px; margin: 24px 0; }
+.ybs-theme-specs dt { font-weight: 600; }
+.ybs-theme-specs dd { margin: 0; overflow-wrap: anywhere; }
+.ybs-theme-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.ybs-theme-actions .ybs-btn { white-space: normal; }
+
+@media ( max-width: 1100px ) {
+	.ybs-theme-showcase { grid-template-columns: minmax( 0, 1fr ); gap: 24px; }
+}
+
+@media ( max-width: 480px ) {
+	.ybs-theme-specs { grid-template-columns: minmax( 0, 1fr ); gap: 6px; }
+	.ybs-theme-specs dd { margin-bottom: 10px; }
+}
+
 .ybs-card {
 	background: var( --ybs-surface );
 	border: 1px solid var( --ybs-border );

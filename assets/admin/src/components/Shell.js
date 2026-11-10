@@ -51,7 +51,13 @@ function navItems() {
 	// place, rather than the rail showing two.
 	const builtin = BUILTIN_NAV.filter((item) => !claimed.has(item.id));
 
-	return [...builtin, ...extra, ...proFeaturesEntry, ...TRAILING_NAV];
+	const themes = window.mageyaboAdminConfig?.theme ? [{
+		id: 'themes',
+		label: __('Themes', 'magepeople-yacht-booking-system'),
+		icon: 'dashicons-admin-appearance',
+	}] : [];
+
+	return [...builtin, ...extra, ...proFeaturesEntry, ...themes, ...TRAILING_NAV];
 }
 
 export default function Shell({ active, children }) {

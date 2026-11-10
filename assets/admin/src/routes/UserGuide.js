@@ -18,7 +18,7 @@ function Code({ children }) {
 function Figure({ src, alt, caption }) {
 	const [ isOpen, setIsOpen ] = useState( false );
 	const base = ( typeof window !== 'undefined' && window.mageyaboAdminConfig && window.mageyaboAdminConfig.pluginUrl ) || '';
-	const url = base + 'assets/admin/images/guide/' + src;
+	const url = window.mageyaboAdminConfig?.guideImages?.[src] || base + 'assets/admin/images/guide/' + src;
 
 	return (
 		<figure className="ybs-guide-figure">
@@ -27,7 +27,7 @@ function Figure({ src, alt, caption }) {
 				className="ybs-guide-figure__frame"
 				onClick={() => setIsOpen( true )}
 			>
-				<img src={url} alt={alt} loading="lazy" />
+				<img src={url} alt={alt} loading="lazy" referrerPolicy="no-referrer" />
 				<span className="ybs-guide-figure__zoom" aria-hidden="true">
 					<span className="dashicons dashicons-visibility"></span>
 					{__( 'View full size', 'magepeople-yacht-booking-system' )}
@@ -50,7 +50,7 @@ function Figure({ src, alt, caption }) {
 					>
 						<span className="dashicons dashicons-no-alt"></span>
 					</button>
-					<img src={url} alt={alt} onClick={( event ) => event.stopPropagation()} />
+					<img src={url} alt={alt} onClick={( event ) => event.stopPropagation()} referrerPolicy="no-referrer" />
 				</div>
 			) : null }
 		</figure>

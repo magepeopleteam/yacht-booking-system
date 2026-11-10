@@ -19,6 +19,8 @@ Whether you rent out a single sailboat by the hour or run a fleet of luxury yach
 
 The free plugin includes the **full booking engine** and **four payment methods**. An optional **Pro add-on** adds branded PDF tickets and invoices, quayside check-in, an email template editor and more.
 
+**Yachtiva theme** – open Yacht Booking → Themes for a homepage preview, features, requirements and demo link. Yacht Booking System Pro includes the theme installer. Install Yachtiva there, then activate and manage it through WordPress Appearance → Themes. Elementor is required for editing its homepages.
+
 = Why choose Yacht Booking System? =
 
 * **Built for charters** – six ready-made booking types, from hourly trips to multi-day voyages.
@@ -269,6 +271,14 @@ Use the support forum on the plugin's WordPress.org page, or check the built-in 
 == External Services ==
 
 This plugin can connect to third-party services when you turn them on. Nothing is sent to these services unless you enable the related feature.
+
+= Demo and help images =
+
+To keep the installer small, demo import downloads the original full-quality yacht photos from the MagePeople dummy-images repository on GitHub. Photos are verified against bundled SHA-256 checksums and saved in your WordPress Media Library. An internet connection is needed for the initial import. Theme previews and help screenshots load from the same repository when those admin screens are opened, unless a local copy is available. Image dimensions, quality and layout are unchanged; no booking or payment details are sent.
+
+* Images: https://github.com/magepeopleteam/dummy-images/tree/main/yacht-booking-system
+* Terms: https://docs.github.com/en/site-policy/github-terms/github-terms-of-service
+* Privacy: https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement
 
 = Stripe =
 

@@ -2,6 +2,7 @@
 namespace MageYaBo\Admin;
 
 use MageYaBo\Capabilities;
+use MageYaBo\Install\DemoAssets;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -31,6 +32,16 @@ class Menu {
 
 		add_action( 'load-' . $hook, array( __CLASS__, 'on_load' ) );
 
+		$themes_hook = add_submenu_page(
+			self::PAGE_SLUG,
+			__( 'Themes', 'magepeople-yacht-booking-system' ),
+			__( 'Themes', 'magepeople-yacht-booking-system' ),
+			Capabilities::CAP_SETTINGS,
+			self::PAGE_SLUG . '-themes',
+			array( __CLASS__, 'render' )
+		);
+		add_action( 'load-' . $themes_hook, array( __CLASS__, 'open_themes' ) );
+
 		/**
 		 * Fires once the top-level page is registered, so add-ons can hook
 		 * their own `admin_menu` registration after this one.
@@ -41,6 +52,12 @@ class Menu {
 	public static function on_load() {
 		add_filter( 'admin_body_class', array( __CLASS__, 'body_class' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue' ) );
+	}
+
+	/** Open the theme catalog inside the existing booking workspace. */
+	public static function open_themes() {
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::PAGE_SLUG . '#/themes' ) );
+		exit;
 	}
 
 	public static function body_class( $classes ) {
@@ -113,6 +130,8 @@ class Menu {
 				'extraRoutes' => array_values( $extra_routes ),
 				'currency'    => \MageYaBo\Settings::get( 'currency_symbol', '$' ),
 				'adminEmail'  => get_option( 'admin_email' ),
+				'theme'       => Capabilities::can( 'settings' ) ? Themes::config() : null,
+				'guideImages' => DemoAssets::guide_urls(),
 				// When WooCommerce checkout is live it handles the whole
 				// payment step, discounts included, so this plugin's own
 				// coupon codes never come into play. The Coupons screen says

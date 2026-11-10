@@ -15,6 +15,7 @@ import SettingsScreen from './routes/Settings';
 import ProFeature from './routes/ProFeature';
 import ProFeatures from './routes/ProFeatures';
 import UserGuide from './routes/UserGuide';
+import Themes from './routes/Themes';
 
 export default function App() {
 	const segments = useHashRoute();
@@ -60,6 +61,9 @@ export default function App() {
 		}
 		case 'settings':
 			screen = <SettingsScreen />;
+			break;
+		case 'themes':
+			screen = <Themes />;
 			break;
 		case 'user-guide':
 			screen = <UserGuide />;

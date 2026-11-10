@@ -1,0 +1,335 @@
+{
+  "schema": 1,
+  "assets": {
+    "demo/aegean-muse-02.jpg": {
+      "sha256": "c9a9cde09a8de988f01c20ec6f0c400af73ac152fc38674f4cb6398cbb36e6cf",
+      "bytes": 376352,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/aegean-muse-03.jpg": {
+      "sha256": "2ed141e582f3cab080d5c784c33e9670b3be7696e4dbf1e663c98ff789e1d410",
+      "bytes": 395966,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/aegean-muse-04.jpg": {
+      "sha256": "306b7cea7e4181e7fd7c7bdc39b8b449263b6e5c0c5d0fa061c7069cfe0d3370",
+      "bytes": 342094,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/aegean-muse-05.jpg": {
+      "sha256": "c10d1b72b695e1a270dda8640060fd7dd39dff83e47583f10f961e8b183d07df",
+      "bytes": 279531,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/aegean-muse.jpg": {
+      "sha256": "6c09843127815d8fd025e6681da04ebc89e369641f3fea45e095db68a1790379",
+      "bytes": 325926,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/golden-mirage-02.jpg": {
+      "sha256": "c9413614f187d7a0a3fd1e455364c775407a6f054122c2030770f245f2ff8d92",
+      "bytes": 374552,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/golden-mirage-03.jpg": {
+      "sha256": "bb0c0037979d4d85d47982d7876aa120a2af24ddda87df3d39363adfcc7799f4",
+      "bytes": 367408,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/golden-mirage-04.jpg": {
+      "sha256": "0278a05d2f4d09ec34fe7c1018459e8530446ec42745d333e6311e74c88f9a82",
+      "bytes": 390203,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/golden-mirage-05.jpg": {
+      "sha256": "f6cf3e5f340cdf41767931229c6ed7a7a0971daba4442500f62e493e4d3c7bf4",
+      "bytes": 332444,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/golden-mirage.jpg": {
+      "sha256": "3c6e0e18d33cc3508794506c39d6a741ee2defd835c592e2da898f4fdbf7f349",
+      "bytes": 337182,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/island-serenade-02.jpg": {
+      "sha256": "ebef054bc3795c6932f4ee44c0e551c1c89899e85d92982b135da3429235a840",
+      "bytes": 405010,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/island-serenade-03.jpg": {
+      "sha256": "e35273364320451667043d3919c051fdc6ddffeefb9d3a4b4e6f27fc43316e95",
+      "bytes": 466865,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/island-serenade-04.jpg": {
+      "sha256": "900014b57d854d2780c5fade360b518ad74e50a954cc4f93e61ca1efa5fd79b1",
+      "bytes": 342115,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/island-serenade-05.jpg": {
+      "sha256": "37eaab54d85c65da693f20f0fb3554375a009bddf573cd53956d3eb71f03178c",
+      "bytes": 402290,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/island-serenade.jpg": {
+      "sha256": "79970241976b62fdf36ce62ea0ccd85a00fc7a15ab9863f0dda80b2e6c844a96",
+      "bytes": 367528,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/ocean-breeze-02.jpg": {
+      "sha256": "016f1ede1b9e710a905dbc4d100b219cf003f87838379871afd8f57de4ae102c",
+      "bytes": 313137,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/ocean-breeze-03.jpg": {
+      "sha256": "5eb947cf6b7b77046da89a83a61f615b2041fe129dbd014647f4b3675ae9ad58",
+      "bytes": 383732,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/ocean-breeze-04.jpg": {
+      "sha256": "6477635da2314734179942f5060d62599196212e6e8ed9599f1f6092b5cb6027",
+      "bytes": 333182,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/ocean-breeze-05.jpg": {
+      "sha256": "224be900583e7a8da27e17084da310f78df5020099ceff50f97c82ba21f0b9ea",
+      "bytes": 276967,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/ocean-breeze.jpg": {
+      "sha256": "4181244bf1520b349df123e9d15226b86f9f439346e9bf4e3c88eb107cbe2cf9",
+      "bytes": 303002,
+      "width": 1672,
+      "height": 941,
+      "mime": "image/jpeg"
+    },
+    "demo/sapphire-horizon-02.jpg": {
+      "sha256": "78b15d78b084b5ce4b420bca248f328f9dad5d35d5769b6b891c150451c2ea41",
+      "bytes": 400673,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/sapphire-horizon-03.jpg": {
+      "sha256": "aaa6208af198f1f39edc446c7e5cae467b87c43fc972680cc64b49484774865e",
+      "bytes": 462105,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/sapphire-horizon-04.jpg": {
+      "sha256": "e46ff4bc5cfa95a4c98f450fc56efb5fa5c10a25d02bedc27942c964a53c0b08",
+      "bytes": 414127,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/sapphire-horizon-05.jpg": {
+      "sha256": "af8a4bbc3764460193a9f059844630c78df4a52be62e1a9b4f14da9f0653002d",
+      "bytes": 339170,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/sapphire-horizon.jpg": {
+      "sha256": "1cc3bfe50d759fd5295ac2be52a25b83c52726a7b18aef6c6033c88fb65ea350",
+      "bytes": 384194,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/southern-star-02.jpg": {
+      "sha256": "e147b8cb1558efb724daa327b647c0f4412dbaa29387a982d61e74c2532781d9",
+      "bytes": 351330,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/southern-star-03.jpg": {
+      "sha256": "acc9c7df01ece0052efdc331f61607878cdcf772410a894259d5452de914723e",
+      "bytes": 393440,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/southern-star-04.jpg": {
+      "sha256": "bbee7cd11b820741295c374a34b810cb0cdb1801b5ca11049ed796c3ea4acee8",
+      "bytes": 330510,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/southern-star-05.jpg": {
+      "sha256": "f1f46540ec777bfc95f106f9aaab9b9f63eb57b60750aec6d997a699fbc71f83",
+      "bytes": 268297,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "demo/southern-star.jpg": {
+      "sha256": "e0068bd1ee8829c32df23a1e93ffae788f8bf74db442a761f012025d4edfc390",
+      "bytes": 300379,
+      "width": 1536,
+      "height": 1024,
+      "mime": "image/jpeg"
+    },
+    "admin/guide/bookings-list.png": {
+      "sha256": "4eb71cc4daf0803c6a8bed22ac79ccd4872f3a2163a9a446a9c5a4d20b055915",
+      "bytes": 56999,
+      "width": 1440,
+      "height": 900,
+      "mime": "image/png"
+    },
+    "admin/guide/search-page.png": {
+      "sha256": "8cd3440dbb778c30e92a640cc714e8ac4899a3ae671d951e3fcfef6c937185a1",
+      "bytes": 566308,
+      "width": 1440,
+      "height": 1566,
+      "mime": "image/png"
+    },
+    "admin/guide/settings-email.png": {
+      "sha256": "014bd1e082b736de9981cd85c3c71c3e3186a518c0e99e0f25b81c8d7e4f0d66",
+      "bytes": 113529,
+      "width": 1440,
+      "height": 1084,
+      "mime": "image/png"
+    },
+    "admin/guide/settings-general.png": {
+      "sha256": "79f1f9ad52564219167f24653f3f8e79aedd2e6d46d15de54a1d90e22a40a363",
+      "bytes": 72661,
+      "width": 1440,
+      "height": 916,
+      "mime": "image/png"
+    },
+    "admin/guide/settings-payments.png": {
+      "sha256": "fa898df006393e7c01158fe1d4607acb81a415764864de582a1053dab6b07772",
+      "bytes": 114600,
+      "width": 1440,
+      "height": 1147,
+      "mime": "image/png"
+    },
+    "admin/guide/settings-pricing.png": {
+      "sha256": "b37c3476433fc75e2b2177e1509a812cf4b385b9da9a6b98575c98ecc6ee93a1",
+      "bytes": 55080,
+      "width": 1440,
+      "height": 900,
+      "mime": "image/png"
+    },
+    "admin/guide/settings-privacy.png": {
+      "sha256": "6fd9c6e864b5fb481ce37fa4f2ecf0d3ff918eb30d789bb8105e0c1a6ed3cf04",
+      "bytes": 52168,
+      "width": 1440,
+      "height": 900,
+      "mime": "image/png"
+    },
+    "admin/guide/yacht-details-page.png": {
+      "sha256": "258246ac1d248b0b1b961fc3358715ef3eea9c690077feb2608c185ebd8741b1",
+      "bytes": 654334,
+      "width": 1440,
+      "height": 900,
+      "mime": "image/png"
+    },
+    "admin/guide/yacht-list-page.png": {
+      "sha256": "68319841f8a5860462ff049375e9d3340766d12b40758f4a042b918916703712",
+      "bytes": 556430,
+      "width": 1440,
+      "height": 1694,
+      "mime": "image/png"
+    },
+    "admin/guide/yacht-wizard.png": {
+      "sha256": "6285437ab4c08a1631c71ea4e69d5da959ee3058b2fb6fd896a972880a246d7c",
+      "bytes": 257939,
+      "width": 1440,
+      "height": 2062,
+      "mime": "image/png"
+    },
+    "admin/yachtiva-demo.png": {
+      "sha256": "beee15000554527e40aa8047d956df75b22132a57547b29aa6a8d919ce08a5e5",
+      "bytes": 2092319,
+      "width": 1440,
+      "height": 1320,
+      "mime": "image/png"
+    },
+    "theme/screenshot.png": {
+      "sha256": "cbdd4df117848ecdad59de3556407c0d8049918b28b661a8d2584b254ce89499",
+      "bytes": 549754,
+      "width": 1200,
+      "height": 900,
+      "mime": "image/png"
+    },
+    "map/leaflet/layers-2x.png": {
+      "sha256": "066daca850d8ffbef007af00b06eac0015728dee279c51f3cb6c716df7c42edf",
+      "bytes": 1259,
+      "width": 52,
+      "height": 52,
+      "mime": "image/png"
+    },
+    "map/leaflet/layers.png": {
+      "sha256": "1dbbe9d028e292f36fcba8f8b3a28d5e8932754fc2215b9ac69e4cdecf5107c6",
+      "bytes": 696,
+      "width": 26,
+      "height": 26,
+      "mime": "image/png"
+    },
+    "map/leaflet/marker-icon-2x.png": {
+      "sha256": "00179c4c1ee830d3a108412ae0d294f55776cfeb085c60129a39aa6fc4ae2528",
+      "bytes": 2464,
+      "width": 50,
+      "height": 82,
+      "mime": "image/png"
+    },
+    "map/leaflet/marker-icon.png": {
+      "sha256": "574c3a5cca85f4114085b6841596d62f00d7c892c7b03f28cbfa301deb1dc437",
+      "bytes": 1466,
+      "width": 25,
+      "height": 41,
+      "mime": "image/png"
+    },
+    "map/leaflet/marker-shadow.png": {
+      "sha256": "264f5c640339f042dd729062cfc04c17f8ea0f29882b538e3848ed8f10edb4da",
+      "bytes": 618,
+      "width": 41,
+      "height": 41,
+      "mime": "image/png"
+    }
+  },
+  "base_url": "https://raw.githubusercontent.com/magepeopleteam/dummy-images/2707eb1ecea16be43e9c5338a35a299265865432/yacht-booking-system"
+}

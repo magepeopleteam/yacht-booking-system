@@ -1,3 +1,5 @@
+import { restUrl } from './rest-url';
+
 function escapeHtml( str ) {
 	return ( str || '' ).replace( /[&<>"']/g, ( c ) => ( {
 		'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
@@ -97,7 +99,7 @@ async function runList( root, append ) {
 	}
 
 	try {
-		const response = await fetch( `${ config.restRoot }yachts?${ params }` );
+		const response = await fetch( restUrl( 'yachts', params ) );
 		const data = await response.json();
 		const cards = data.items.map( ( yacht ) => renderCard( yacht, config.currency ) ).join( '' );
 
