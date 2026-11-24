@@ -39,6 +39,8 @@ const DEFAULT_FORM = {
 	location_lat: '',
 	location_lng: '',
 	build_year: '',
+	mageyabo_yacht_class: [],
+	mageyabo_yacht_occasion: [],
 	yacht_class: [],
 	yacht_occasion: [],
 	faq: [],
@@ -128,7 +130,13 @@ export default function YachtWizard({ yachtId }) {
 	const [loading, setLoading] = useState(!!yachtId);
 	const [saving, setSaving] = useState(false);
 
-	const set = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
+	const set = (key, value) => {
+		if ('object' === typeof key && null !== key) {
+			setForm((prev) => ({ ...prev, ...key }));
+		} else {
+			setForm((prev) => ({ ...prev, [key]: value }));
+		}
+	};
 
 	useEffect(() => {
 		Promise.all([
@@ -393,10 +401,10 @@ function Step1Sidebar({ form, set, taxonomies, setTaxonomies, yachtId }) {
 			<Card title={__('Yacht Class', 'magepeople-yacht-booking-system')}>
 				<TagSelect
 					label={__('Class', 'magepeople-yacht-booking-system')}
-					taxonomy="yacht_class"
+					taxonomy="mageyabo_yacht_class"
 					terms={taxonomies.classes}
-					selected={form.yacht_class}
-					onChange={(ids) => set('mageyabo_yacht_class', ids)}
+					selected={form.mageyabo_yacht_class ?? form.yacht_class ?? []}
+					onChange={(ids) => set({ mageyabo_yacht_class: ids, yacht_class: ids })}
 					onTermsChange={(classes) => setTaxonomies((prev) => ({ ...prev, classes }))}
 				/>
 			</Card>
@@ -404,10 +412,10 @@ function Step1Sidebar({ form, set, taxonomies, setTaxonomies, yachtId }) {
 			<Card title={__('Occasion Tags', 'magepeople-yacht-booking-system')}>
 				<TagSelect
 					label={__('Occasion', 'magepeople-yacht-booking-system')}
-					taxonomy="yacht_occasion"
+					taxonomy="mageyabo_yacht_occasion"
 					terms={taxonomies.occasions}
-					selected={form.yacht_occasion}
-					onChange={(ids) => set('mageyabo_yacht_occasion', ids)}
+					selected={form.mageyabo_yacht_occasion ?? form.yacht_occasion ?? []}
+					onChange={(ids) => set({ mageyabo_yacht_occasion: ids, yacht_occasion: ids })}
 					onTermsChange={(occasions) => setTaxonomies((prev) => ({ ...prev, occasions }))}
 				/>
 			</Card>

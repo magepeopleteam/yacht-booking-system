@@ -1531,10 +1531,14 @@ class YachtsController extends Controller {
 	private static function save_taxonomies( $post_id, array $data ) {
 		if ( isset( $data['mageyabo_yacht_class'] ) ) {
 			wp_set_object_terms( $post_id, array_map( 'intval', (array) $data['mageyabo_yacht_class'] ), 'mageyabo_yacht_class' );
+		} elseif ( isset( $data['yacht_class'] ) ) {
+			wp_set_object_terms( $post_id, array_map( 'intval', (array) $data['yacht_class'] ), 'mageyabo_yacht_class' );
 		}
 
 		if ( isset( $data['mageyabo_yacht_occasion'] ) ) {
 			wp_set_object_terms( $post_id, array_map( 'intval', (array) $data['mageyabo_yacht_occasion'] ), 'mageyabo_yacht_occasion' );
+		} elseif ( isset( $data['yacht_occasion'] ) ) {
+			wp_set_object_terms( $post_id, array_map( 'intval', (array) $data['yacht_occasion'] ), 'mageyabo_yacht_occasion' );
 		}
 	}
 
@@ -1614,8 +1618,13 @@ class YachtsController extends Controller {
 		// Cast explicitly: wp_get_post_terms() can hand back numeric strings,
 		// which would silently fail to match the JS side's real numbers
 		// (e.g. `["3"].includes(3)` is false) and make selections look empty.
-		$data['mageyabo_yacht_class']    = array_map( 'intval', wp_get_post_terms( $post->ID, 'mageyabo_yacht_class', array( 'fields' => 'ids' ) ) );
-		$data['mageyabo_yacht_occasion'] = array_map( 'intval', wp_get_post_terms( $post->ID, 'mageyabo_yacht_occasion', array( 'fields' => 'ids' ) ) );
+		$class_ids    = array_map( 'intval', wp_get_post_terms( $post->ID, 'mageyabo_yacht_class', array( 'fields' => 'ids' ) ) );
+		$occasion_ids = array_map( 'intval', wp_get_post_terms( $post->ID, 'mageyabo_yacht_occasion', array( 'fields' => 'ids' ) ) );
+
+		$data['mageyabo_yacht_class']    = $class_ids;
+		$data['mageyabo_yacht_occasion'] = $occasion_ids;
+		$data['yacht_class']             = $class_ids;
+		$data['yacht_occasion']          = $occasion_ids;
 
 		$thumbnail_id           = get_post_thumbnail_id( $post->ID );
 		$data['featured_media'] = $thumbnail_id ? (int) $thumbnail_id : 0;
