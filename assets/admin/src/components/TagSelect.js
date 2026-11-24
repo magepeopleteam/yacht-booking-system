@@ -20,14 +20,19 @@ export default function TagSelect({ label, taxonomy, terms, selected, onChange, 
 	// strings depending on where it was last serialized, and a strict
 	// `["3"].includes(3)` mismatch would otherwise make a real selection
 	// silently fail to render as a pill.
-	const selectedIds = selected.map(Number);
+	const selectedIds = (selected || []).map(Number);
 	const selectedTerms = terms.filter((term) => selectedIds.includes(Number(term.id)));
 	const suggestions = terms.filter(
 		(term) => !selectedIds.includes(Number(term.id)) && term.name.toLowerCase().includes(query.toLowerCase())
 	);
 
 	const add = (id) => {
-		onChange([...selectedIds, Number(id)]);
+		const numId = Number(id);
+		if (selectedIds.includes(numId)) {
+			setQuery('');
+			return;
+		}
+		onChange([...selectedIds, numId]);
 		setQuery('');
 	};
 
@@ -81,7 +86,15 @@ export default function TagSelect({ label, taxonomy, terms, selected, onChange, 
 					{focused && (suggestions.length > 0 || query) && (
 						<div className="ybs-tagselect__suggestions">
 							{suggestions.map((term) => (
-								<button type="button" key={term.id} onClick={() => add(term.id)}>
+								<button
+									type="button"
+									key={term.id}
+									onMouseDown={(e) => {
+										e.preventDefault();
+										add(term.id);
+									}}
+									onClick={() => add(term.id)}
+								>
 									{term.name}
 								</button>
 							))}
