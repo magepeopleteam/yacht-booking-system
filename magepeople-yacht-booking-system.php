@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once __DIR__ . '/vendor/appneck/wordpress-sdk/appneck-wordpress-sdk/appneck-sdk.php';
 appneck_sdk_load_latest();
 
-$GLOBALS['my_plugin_sdk'] = \Appneck\Sdk\Sdk::bootstrap(
+$GLOBALS['magepeople_yacht_booking_system_appneck_sdk'] = \Appneck\Sdk\Sdk::bootstrap(
 	'pk_3KT6QnS4U8OezcTjckrTJPW5kNXPNYgw',  // your API key
 	'sk_2tltM2qiD6kuSsg0bLs9rze0auuv1l8YmLx6kPSyqN6gRpBk', // your product secret
 	'https://appneck.com',                  // the Appneck server URL
