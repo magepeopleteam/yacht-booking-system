@@ -4,7 +4,7 @@ Tags: yacht booking, boat rental, charter booking, booking system, marina
 Requires at least: 5.9
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.3.5
+Stable tag: 1.3.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -308,6 +308,11 @@ Learn more about how [Appneck collects and uses this data](https://appneck.com/p
 
 
 == Changelog ==
+
+= 1.3.6 =
+* New: Add Yachtiva catalog and compact demo imports.
+* Fix: Give the AppNeck SDK instance its own variable name.
+* Fix: Occasion creation REST endpoint and multi-selection assignment in yacht editor.
 
 = 1.3.4 =
 * Fix: Updated the bundled Appneck SDK to the latest version.
