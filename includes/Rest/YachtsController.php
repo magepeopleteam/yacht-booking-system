@@ -648,6 +648,7 @@ class YachtsController extends Controller {
 				'post_type'    => Yacht::POST_TYPE,
 				'post_title'   => sanitize_text_field( $data['title'] ?? __( 'Untitled Yacht', 'magepeople-yacht-booking-system' ) ),
 				'post_content' => wp_kses_post( $data['description'] ?? '' ),
+				'post_excerpt' => sanitize_textarea_field( $data['excerpt'] ?? '' ),
 				'post_status'  => sanitize_key( $data['status'] ?? 'draft' ),
 				'post_name'    => ! empty( $data['slug'] ) ? sanitize_title( $data['slug'] ) : '',
 			),
@@ -681,6 +682,10 @@ class YachtsController extends Controller {
 
 		if ( isset( $data['description'] ) ) {
 			$update['post_content'] = wp_kses_post( $data['description'] );
+		}
+
+		if ( isset( $data['excerpt'] ) ) {
+			$update['post_excerpt'] = sanitize_textarea_field( $data['excerpt'] );
 		}
 
 		if ( isset( $data['status'] ) ) {
@@ -1603,6 +1608,7 @@ class YachtsController extends Controller {
 	private static function fields( $post, array $withheld ) {
 		$data = self::summarize( $post );
 		$data['description'] = $post->post_content;
+		$data['excerpt']     = $post->post_excerpt;
 
 		foreach ( \MageYaBo\PostTypes\Yacht::META_KEYS as $key ) {
 			if ( in_array( $key, $withheld, true ) ) {

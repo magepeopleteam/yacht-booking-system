@@ -323,15 +323,31 @@
 		}
 
 		var images = [];
+		var galleryWrap = document.querySelector( '.ybs-ys [data-ybs-lightbox-photos]' );
+
+		if ( galleryWrap ) {
+			try {
+				var parsed = JSON.parse( galleryWrap.getAttribute( 'data-ybs-lightbox-photos' ) || '[]' );
+				if ( Array.isArray( parsed ) ) {
+					images = parsed.filter( function ( item ) {
+						return item && item.src;
+					} );
+				}
+			} catch ( err ) {
+				images = [];
+			}
+		}
 
 		tiles.forEach( function ( tile ) {
-			var img = tile.querySelector( 'img' );
-			if ( img ) {
-				var fullSrc = tile.hasAttribute( 'data-full-src' )
-					? tile.getAttribute( 'data-full-src' )
-					: img.currentSrc || img.src;
+			if ( ! galleryWrap ) {
+				var img = tile.querySelector( 'img' );
+				if ( img ) {
+					var fullSrc = tile.hasAttribute( 'data-full-src' )
+						? tile.getAttribute( 'data-full-src' )
+						: img.currentSrc || img.src;
 
-				images.push( { src: fullSrc, alt: img.alt } );
+					images.push( { src: fullSrc, alt: img.alt } );
+				}
 			}
 
 			tile.addEventListener( 'click', function () {

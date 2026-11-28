@@ -89,7 +89,18 @@ if ( $mageyabo_classes ) {
 		</nav>
 
 		<?php if ( $mageyabo_gallery ) : ?>
-			<section class="ybs-ys-gallery" data-ybs-reveal aria-label="<?php esc_attr_e( 'Photo gallery', 'magepeople-yacht-booking-system' ); ?>">
+			<?php
+			$mageyabo_lightbox_photos = array_map(
+				static function ( $mageyabo_img ) use ( $mageyabo_yacht_id ) {
+					return array(
+						'src' => $mageyabo_img['full'],
+						'alt' => $mageyabo_img['alt'] ? $mageyabo_img['alt'] : get_the_title( $mageyabo_yacht_id ),
+					);
+				},
+				$mageyabo_gallery
+			);
+			?>
+			<section class="ybs-ys-gallery" data-ybs-reveal data-ybs-lightbox-photos="<?php echo esc_attr( wp_json_encode( $mageyabo_lightbox_photos ) ); ?>" aria-label="<?php esc_attr_e( 'Photo gallery', 'magepeople-yacht-booking-system' ); ?>">
 				<div class="ybs-ys-gallery__grid" data-ybs-carousel>
 					<?php foreach ( array_slice( $mageyabo_gallery, 0, 5 ) as $mageyabo_i => $mageyabo_img ) : ?>
 						<button

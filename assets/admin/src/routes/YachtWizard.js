@@ -29,6 +29,7 @@ const STEPS = [
 
 const DEFAULT_FORM = {
 	title: '',
+	excerpt: '',
 	description: '',
 	status: 'draft',
 	featured_media: 0,
@@ -331,6 +332,13 @@ function StepBasicInfo({ form, set, errors }) {
 			>
 				<Field label={__('Yacht Name', 'magepeople-yacht-booking-system')} error={errors.title}>
 					<input type="text" value={form.title} onChange={(e) => set('title', e.target.value)} />
+				</Field>
+
+				<Field
+					label={__('Short Description (Excerpt)', 'magepeople-yacht-booking-system')}
+					hint={__('Optional one-line summary shown beneath the yacht title. Leave blank to hide.', 'magepeople-yacht-booking-system')}
+				>
+					<textarea rows={2} value={form.excerpt} onChange={(e) => set('excerpt', e.target.value)} />
 				</Field>
 
 				<Field label={__('Description', 'magepeople-yacht-booking-system')}>
